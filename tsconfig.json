@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
