@@ -10,7 +10,7 @@ export const AehterOnBoardLayout = ({ children }: { children: ReactNode }) => {
                 </div>
             </div>
             <div className="flex items-center justify-center bg-white p-6">
-                <div className="w-full max-w-md bg-white border rounded-2xl py-10 px-5 h-[50vh]">
+                <div className="w-full max-w-md bg-white border rounded-2xl py-10 px-5">
                     {children}
                 </div>
             </div>

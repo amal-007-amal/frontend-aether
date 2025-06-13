@@ -1,10 +1,13 @@
-import './App.css'
-import AetherAppRouter from './routes'
+import './App.css';
+import AetherAppRouter from './routes';
+import { Toaster } from 'sonner';
 
 function App() {
 
   return (
-    <AetherAppRouter/>
+    <>
+      <Toaster richColors position="top-center" />
+      <AetherAppRouter /></>
   )
 }
 
