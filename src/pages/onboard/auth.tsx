@@ -1,6 +1,6 @@
 import { AudioLines, CheckCircle, ChevronRight, Eye, EyeClosed, Loader, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getServerUrl, postLogin, postSetPasswordLogin } from "../../api/login";
 
@@ -23,7 +23,6 @@ declare global {
 
 export default function OTPComponent() {
     const aetherNaviagte = useNavigate()
-    const location = useLocation()
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [isvisible, setIsVisible] = useState(false)
