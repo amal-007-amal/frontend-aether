@@ -37,19 +37,9 @@ export default function OTPComponent() {
     const [showPopup, setShowPopup] = useState(false);
     const [isPass, setIsPass] = useState(false);
 
-    useEffect(()=>{
-        setVerified(false)
-    },[phone])
-
     useEffect(() => {
-        console.log(location)
-        const searchParams = new URLSearchParams(location.search);
-        const url = searchParams.get("server_url");
-
-        if (url && url !== "null") {
-            setSurl(url);
-        }
-    }, [location.search]);
+        setVerified(false)
+    }, [phone])
 
     useEffect(() => {
         const existingScript = document.getElementById("otp-provider-script");
@@ -166,27 +156,48 @@ export default function OTPComponent() {
         }
     }
 
+    useEffect(() => {
+        const savedUrl = localStorage.getItem("aether_server_url");
+        if (savedUrl) {
+            setSurl(savedUrl); // ✅ safe and correct
+        }
+    }, []);
+
     const handleServerUrl = async () => {
-        setIsPass(true)
+        setIsPass(true);
+
         try {
-            console.log(isPass);
-            localStorage.setItem("aether_server_url", surl)
-            const serverUrlResponse = await getServerUrl()
+            const trimmedUrl = surl.trim();
+
+            if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://")) {
+                toast.error("Please enter a valid URL");
+                setIsPass(false);
+                return;
+            }
+            const tempUrl = new URL(trimmedUrl).origin;
+            localStorage.setItem("aether_temp_url", tempUrl);
+            const serverUrlResponse = await getServerUrl(tempUrl); 
+
             if (serverUrlResponse) {
-                setStep(prev => prev + 1)
+                localStorage.setItem("aether_server_url", tempUrl);
+                localStorage.removeItem("aether_temp_url");
+                      setIsPass(false);
+                setStep((prev) => prev + 1);
             } else {
                 toast.error("Invalid server url!", {
-                    icon: <X className="w-4 h-4 text-red-400"></X>
-                })
+                    icon: <X className="w-4 h-4 text-red-400" />,
+                });
             }
-            setIsPass(false)
+
+            setIsPass(false);
         } catch (error) {
             toast.error("Invalid server url!", {
-                icon: <X className="w-4 h-4 text-red-400"></X>
-            })
-            setIsPass(false)
+                icon: <X className="w-4 h-4 text-red-400" />,
+            });
+            setIsPass(false);
         }
-    }
+    };
+
 
     const handleLogin = async () => {
         setIsPass(true);

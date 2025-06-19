@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const baseUrlFromStorage = localStorage.getItem("aether_server_url");
+const baseUrlFromStorage = localStorage.getItem("aether_server_url")?.trim();
 console.log(baseUrlFromStorage)
 
 export const apiClient = axios.create({
