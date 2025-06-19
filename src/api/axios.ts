@@ -1,9 +1,10 @@
 import axios from "axios"
 
-const baseUrlFromStorage = localStorage.getItem("aether_server_url") || "/api";
+const baseUrlFromStorage = localStorage.getItem("aether_server_url");
+console.log(baseUrlFromStorage)
 
 export const apiClient = axios.create({
-  baseURL: baseUrlFromStorage,
+  baseURL: String(baseUrlFromStorage),
   headers: {
     "Content-Type": "application/json",
   },
