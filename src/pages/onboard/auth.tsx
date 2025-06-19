@@ -1,7 +1,8 @@
-import { AudioLines, ChevronRight, Eye, EyeClosed, Loader, ShieldEllipsis } from "lucide-react";
+import { AudioLines, CheckCircle, ChevronRight, Eye, EyeClosed, Loader, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { toast } from "sonner"
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { getServerUrl, postLogin, postSetPasswordLogin } from "../../api/login";
 
 declare global {
     interface Window {
@@ -21,6 +22,7 @@ declare global {
 }
 
 export default function OTPComponent() {
+    const aetherNaviagte = useNavigate()
     const location = useLocation()
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
@@ -30,9 +32,14 @@ export default function OTPComponent() {
     const [verified, setVerified] = useState(false)
     const [refId, setRefId] = useState("");
     const [surl, setSurl] = useState("")
+    const [otpjwt, setOtpjwt] = useState("")
     const [step, setStep] = useState(0)
     const [showPopup, setShowPopup] = useState(false);
-    const [isPass, setIsPass] = useState(false)
+    const [isPass, setIsPass] = useState(false);
+
+    useEffect(()=>{
+        setVerified(false)
+    },[phone])
 
     useEffect(() => {
         console.log(location)
@@ -73,7 +80,7 @@ export default function OTPComponent() {
 
     const handleSendOtp = () => {
         if (!/^\d{10}$/.test(phone)) {
-            toast("Enter a valid 10-digit number");
+            toast.warning("Enter a valid 10-digit number");
             return;
         }
         setisLoad(true)
@@ -83,7 +90,9 @@ export default function OTPComponent() {
             mobile,
             (data) => {
                 console.log("OTP Sent Successfully", data);
-                toast("✅ OTP Sent successfully!");
+                toast.success("OTP Sent successfully!", {
+                    icon: <CheckCircle className="text-green-500 h-4 w-4 "></CheckCircle>
+                });
                 setisLoad(false)
                 setVerified(false)
                 setShowPopup(true)
@@ -92,7 +101,9 @@ export default function OTPComponent() {
             },
             (error) => {
                 console.error("Send OTP Error:", error);
-                toast("❌ Failed to send OTP.");
+                toast("Failed to send OTP.", {
+                    icon: <X className="text-green-500"></X>
+                });
                 setisLoad(false)
             }
         );
@@ -109,6 +120,7 @@ export default function OTPComponent() {
             (data) => {
                 console.log("OTP verified:", data);
                 toast("✅ OTP verified successfully!");
+                setOtpjwt(data.message)
                 setShowPopup(false)
                 setVerified(true)
             },
@@ -120,15 +132,91 @@ export default function OTPComponent() {
         );
     };
 
-    const handleSetNewPassword = () => {
-        setIsPass(true)
-        setTimeout(() => {
-            setIsPass(false)
-            setStep(prev => prev - 1)
-            setPassword("")
-            setPhone("")
-        }, 2000);
+    const handleSetNewPassword = async () => {
+        try {
+            if (verified) {
+                const payload = new URLSearchParams({
+                    client_type: 'console',
+                    client_key: 'your_console_key_here',
+                    device_id: '1234',
+                    otp_jwt: otpjwt,
+                    phone_number: phone,
+                    password: password,
+                });
+
+                const setPasswordResponse = await postSetPasswordLogin(payload)
+                if (setPasswordResponse) {
+                    setIsPass(true)
+                    setTimeout(() => {
+                        setIsPass(false)
+                        setStep(prev => prev - 1)
+                        setPassword("")
+                        setPhone("")
+                    }, 2000);
+                }
+            } else {
+                toast("OTP verification failed. Please check the code and try again.", {
+                    icon: <X className="w-4 h-4 text-red-400"></X>
+                });
+            }
+        } catch (error) {
+            toast.error("Invalid Credentails.Please Contact administrator.", {
+                icon: <X className="w-4 h-4 text-red-400"></X>
+            });
+        }
     }
+
+    const handleServerUrl = async () => {
+        setIsPass(true)
+        try {
+            console.log(isPass);
+            localStorage.setItem("aether_server_url", surl)
+            const serverUrlResponse = await getServerUrl()
+            if (serverUrlResponse) {
+                setStep(prev => prev + 1)
+            } else {
+                toast.error("Invalid server url!", {
+                    icon: <X className="w-4 h-4 text-red-400"></X>
+                })
+            }
+            setIsPass(false)
+        } catch (error) {
+            toast.error("Invalid server url!", {
+                icon: <X className="w-4 h-4 text-red-400"></X>
+            })
+            setIsPass(false)
+        }
+    }
+
+    const handleLogin = async () => {
+        setIsPass(true);
+        try {
+            const payload = new URLSearchParams({
+                client_type: 'console',
+                client_key: 'your_console_key_here',
+                device_id: '1234',
+                otp_jwt: "",
+                phone_number: phone,
+                password: password,
+            });
+
+            const loginResponse = await postLogin(payload);
+
+            if (loginResponse) {
+                sessionStorage.setItem('aether_accesstoken', loginResponse.access_token);
+                sessionStorage.setItem('aether_refreshtoken', loginResponse.refresh_token);
+                setTimeout(() => {
+                    setIsPass(false);
+                    aetherNaviagte("/dashboard");
+                }, 500);
+            }
+        } catch (error: any) {
+            console.error("Login error:", error);
+            toast.error("Login failed. Please try again later.");
+            setIsPass(false);
+        }
+    };
+
 
     return (
         <div className="p-4 max-w-md mx-auto">
@@ -144,8 +232,12 @@ export default function OTPComponent() {
                             className="border rounded-full p-2 w-full mb-2 placeholder:text-sm"
                         />
                         <button
-                            onClick={() => setStep((prev) => prev + 1)}
-                            className="bg-purple-500 text-white flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all">Submit <ChevronRight /> </button>
+                            onClick={() => {
+                                if (surl !== "") {
+                                    handleServerUrl()
+                                }
+                            }}
+                            className={`${surl === "" ? 'cursor-not-allowed opacity-50' : ''} bg-gradient-to-r from-purple-600 to-gray-300 text-white flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}>Submit <ChevronRight /> </button>
                     </div>
                 ) : step === 1 ? (
                     <>
@@ -154,7 +246,7 @@ export default function OTPComponent() {
                             placeholder="Enter phone number"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="border rounded p-2 w-full mb-4 placeholder:text-sm"
+                            className="border rounded-full p-2 w-full mb-4 placeholder:text-sm"
                         />
                         <div className="relative">
                             <input
@@ -167,15 +259,23 @@ export default function OTPComponent() {
                             <button className="absolute right-4 top-2" onClick={() => setIsVisible(prev => !prev)}>{isvisible ? <Eye /> : <EyeClosed />}</button>
                         </div>
                         <button
-                            onClick={handleSendOtp}
-                            className="bg-purple-500 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all"
+                            onClick={() => {
+                                if (phone !== "" && password !== "") {
+                                    handleLogin()
+                                }
+                            }}
+                            className={`${password === "" || phone === "" ? "cursor-not-allowed opacity-50" : ""
+                                } bg-gradient-to-r from-purple-600 to-gray-300 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}
                         >
                             Login
                         </button>
 
                         <div className="text-center flex item-center justify-center text-xs gap-2">
                             <button
-                                onClick={() => setStep(prev => prev + 1)}
+                                onClick={() => {
+                                    setPassword("")
+                                    setStep(prev => prev + 1)
+                                }}
                                 className="text-black rounded-full hover:from-blue-600 hover:to-teal-500 underline"
                             >
                                 Set a new password
@@ -190,11 +290,11 @@ export default function OTPComponent() {
                                 placeholder="Enter phone number"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="border rounded p-2 w-full mb-4 placeholder:text-sm"
+                                className="border rounded-full p-2 w-full mb-4 placeholder:text-sm"
                             />
                             <button
                                 onClick={handleSendOtp}
-                                className="absolute bg-green-500 text-xs text-white hover:shadow-md right-2 top-2 p-1 rounded-full flex gap-2 items-center">
+                                className="absolute bg-purple-500 text-xs text-white hover:shadow-md right-2 top-2 p-1 rounded-full flex gap-2 items-center">
                                 {verified ? ('verified') : (<>{isLoad ? (<Loader className="animate-spin w-4 h-4" />) : 'Verify'}</>)}
                             </button>
                         </div>
@@ -204,47 +304,58 @@ export default function OTPComponent() {
                                 placeholder="Enter New Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="border rounded p-2 w-full mb-4 placeholder:text-sm"
+                                className="border rounded-full p-2 w-full mb-4 placeholder:text-sm"
                             />
                             <button className="absolute right-4 top-2" onClick={() => setIsVisible(prev => !prev)}>{isvisible ? <Eye /> : <EyeClosed />}</button>
                         </div>
                         <button
-                            onClick={handleSetNewPassword}
-                            className="bg-purple-500 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all"
+                            onClick={() => {
+                                if (password !== "") {
+                                    handleSetNewPassword();
+                                }
+                            }}
+                            className={`${password === "" ? "cursor-not-allowed opacity-50" : ""
+                                } bg-gradient-to-r from-purple-500 to-gray-300 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}
                         >
                             Set Password
                         </button>
                         {showPopup && (
                             <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center">
-                                    <h2 className="text-xl font-semibold mb-4">Enter OTP</h2>
                                     <input
                                         type="text"
-                                        maxLength={6}
+                                        maxLength={4}
                                         value={otp}
                                         onChange={(e) => setOtp(e.target.value)}
-                                        className="border p-2 rounded w-full mb-4 text-center"
-                                        placeholder="6-digit OTP"
+                                        className="border p-2 rounded-full w-full mb-4 text-center"
+                                        placeholder="4-digit OTP"
                                     />
-                                    <div className="flex justify-center">
+                                    <div className="flex justify-center gap-10">
                                         <button
                                             onClick={handleVerifyOtp}
-                                            className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600 w-full rounded-full"
+                                            className="bg-gradient-to-r from-purple-500 to-gray-300 text-white px-4 py-1 hover:bg-purple-600 w-full rounded-full"
                                         >
                                             Verify
                                         </button>
+                                        <button
+                                            onClick={() => { setShowPopup(prev => !prev) }}
+                                            className="bg-gray-400 text-white px-4 py-1 hover:bg-gray-600 w-full rounded-full"
+                                        >
+                                            close
+                                        </button>
                                     </div>
+                                    <p className="text-xs font-normal my-3">Please enter the OTP sent to your registered mobile number</p>
                                 </div>
-                            </div>
-                        )}
-                        {isPass && (
-                            <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
-                                <Loader className="animate-spin w-8 h-8" />
                             </div>
                         )}
                     </>
                 )
             }
+            {isPass && (
+                <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
+                    <Loader className="animate-spin w-6 h-6 text-purple-500" />
+                </div>
+            )}
         </div>
     );
 }

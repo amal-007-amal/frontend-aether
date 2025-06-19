@@ -1,11 +1,20 @@
-import type { ReactNode } from "react"
+import Header from "../shared/Header";
+import SideBar from "../shared/Sidebar";
+import { Outlet } from "react-router-dom";
 
-export const AetherDashboardLayout = ({ children }: { children: ReactNode }) => {
+export const AetherDashboardLayout = () => {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
-            <div className="p-8 bg-white rounded-xl shadow-lg max-w-xl w-full">
-                {children}
+        <div className="min-h-screen flex flex-col">
+            <Header></Header>
+            <div className="flex flex-1">
+                <SideBar></SideBar>
+                <main className="flex-1 p-2">
+                    <div className="rounded-xl w-full p-2">
+                        <Outlet/>
+                    </div>
+                </main>
             </div>
         </div>
+
     )
 }

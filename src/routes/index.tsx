@@ -1,26 +1,47 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import { AehterOnBoardLayout } from "../layouts/OnboardLayout"
-import { AetherLoginLayout } from "../layouts/LoginLayout"
-import { AetherLogin } from "../pages/login/login"
-import { AetherDashboardLayout } from "../layouts/DashboardLayout"
-import { AetherDashboard } from "../pages/dashboard/dashboard"
-import Auth from "../pages/onboard/auth"
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { AehterOnBoardLayout } from "../layouts/OnboardLayout";
+import { AetherLoginLayout } from "../layouts/LoginLayout";
+import { AetherLogin } from "../pages/login/login";
+import { AetherDashboardLayout } from "../layouts/DashboardLayout";
+import { AetherDashboard } from "../pages/dashboard/dashboard";
+import Auth from "../pages/onboard/auth";
+import SettingPage from "../pages/settings/settings";
+import UserManagmentPage from "../pages/usermanagement/usermanagment";
+import CallDetailPage from "../pages/calldetail/calldetail";
 
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <AehterOnBoardLayout><Auth /></AehterOnBoardLayout>,
-    },
-    {
-        path: "/login",
-        element: <AetherLoginLayout><AetherLogin /></AetherLoginLayout>,
-    },
-    {
+  {
+    path: "/",
+    element: <AehterOnBoardLayout><Auth /></AehterOnBoardLayout>,
+  },
+  {
+    path: "/login",
+    element: <AetherLoginLayout><AetherLogin /></AetherLoginLayout>,
+  },
+  {
+    // Wrap all internal routes in the dashboard layout
+    element: <AetherDashboardLayout />,
+    children: [
+      {
         path: "/dashboard",
-        element: <AetherDashboardLayout><AetherDashboard /></AetherDashboardLayout>,
-    },
-])
+        element: <AetherDashboard />,
+      },
+      {
+        path: "/settings",
+        element: <SettingPage />,
+      },
+      {
+        path: "/usermanagment",
+        element: <UserManagmentPage />,
+      },
+      {
+        path: "/calldetails",
+        element: <CallDetailPage />,
+      },
+    ],
+  },
+]);
 
 export default function AetherAppRouter() {
-    return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 }
