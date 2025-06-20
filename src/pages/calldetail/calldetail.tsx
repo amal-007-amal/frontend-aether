@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { Pencil, Loader } from "lucide-react";
-import { Button } from "../../components/ui/button";
+import { Loader } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
 
