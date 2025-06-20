@@ -10,7 +10,7 @@ export default function Header() {
         aetherNaviagte('/')
     }
     return (
-        <header className="bg-white text-white p-4 border-b border-b-gray-300 flex justify-between items-center">
+        <header className="bg-purple-100 text-white p-4 border-b border-b-gray-300 flex justify-between items-center">
             <h2 className="font-light flex text-black text-xl items-center">
                 A<span className="text-purple-500">ether</span>&nbsp;Hub&nbsp;
                 <AudioLines className="h-5 w-5" />

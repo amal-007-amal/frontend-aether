@@ -33,13 +33,13 @@ export default function AnalyticsStatus() {
       {statusCards.map((card, index) => (
         <div
           key={index}
-          className={`p-5 rounded shadow text-white bg-white  flex flex-col justify-between gap-4`}
+          className={`p-5 rounded shadow text-white flex flex-col justify-between gap-4`}
         >
           <div className="flex items-center justify-between">
             <div className={`p-3 bg-white bg-opacity-50 rounded-full border shadow`}>
               {card.icon}
             </div>
-            <div className={`text-sm font-noraml text-black`}>{card.label}</div>
+            <div className={`text-sm font-medium text-black`}>{card.label}</div>
           </div>
           <div>
             <div className="text-xs opacity-80 text-gray-500 text-right">Status info here</div>
