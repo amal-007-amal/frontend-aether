@@ -38,8 +38,16 @@ export default function UserManagmentPage() {
         fetchUsers()
     }, [])
 
-    const handleEdit = (user: any) => {
-        toast.success(`Edit user: ${user.name}`);
+    const handleEdit = (user: User) => {
+        setOpen(true)
+        setUserData(prev => (
+            {
+                ...prev,
+                name:user.name,
+                phone_number:user.phone_number,
+                is_superuser:user.is_superuser
+            }
+        ))
     };
 
     const handleChange = (field: keyof CreateUser, value: any) => {
@@ -51,13 +59,13 @@ export default function UserManagmentPage() {
         try {
             console.log("Submitting:", userData)
             const createUserResponse = await createUser(userData)
-            if(createUserResponse){
-            toast.success("User created")
+            if (createUserResponse) {
+                toast.success("User created")
             }
             setOpen(false)
         } catch (err) {
             toast.error("Failed to create user")
-        }finally{
+        } finally {
             setIsPass(false)
         }
     }
@@ -67,7 +75,7 @@ export default function UserManagmentPage() {
         <div className="p-2">
             <div className="flex justify-between mb-4 shadow p-2 items-center border-l-2 border-l-black">
                 <h2 className="text-sm font-normal">User List</h2>
-                <Button variant={'outline'} onClick={()=>setOpen(prev=>!prev)}>Add User <Plus /></Button>
+                <Button variant={'outline'} onClick={() => setOpen(prev => !prev)}>Add User <Plus /></Button>
             </div>
             <div className="shadow-md p-2">
                 <Table >

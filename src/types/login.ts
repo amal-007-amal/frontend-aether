@@ -27,7 +27,7 @@ export interface CreateUser {
   phone_number: string,
   name: string,
   latest_mobile_device_id: string,
-  has_console_access: false,
-  has_agent_access: false,
-  is_superuser: false
+  has_console_access: boolean,
+  has_agent_access: boolean,
+  is_superuser: boolean
 }
