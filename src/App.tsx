@@ -7,7 +7,8 @@ function App() {
   return (
     <>
       <Toaster richColors position="top-center" />
-      <AetherAppRouter /></>
+      <AetherAppRouter />
+    </>
   )
 }
 

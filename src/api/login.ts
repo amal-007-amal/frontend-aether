@@ -39,7 +39,7 @@ export const postSetPasswordLogin = async (payload: any): Promise<UserLoginRespo
 
 
 export const getUsers = async (): Promise<User[]> => {
-    const token = sessionStorage.getItem('aether_accesstoken')
+    const token = localStorage.getItem('aether_access_token')
     const { data } = await apiClient.get('/api/v1/users', {
         headers: {
             "Authorization": `Bearer ${token}`
@@ -50,7 +50,7 @@ export const getUsers = async (): Promise<User[]> => {
 }
 
 export const createUser = async (payload: CreateUser): Promise<CreateUser> => {
-    const token = sessionStorage.getItem('aether_accesstoken')
+    const token = localStorage.getItem('aether_access_token')
     const { data } = await apiClient.post('/api/v1/users', payload, {
         headers: {
             "Authorization": `Bearer ${token}`
@@ -59,3 +59,15 @@ export const createUser = async (payload: CreateUser): Promise<CreateUser> => {
     )
     return data
 }
+
+export const updateUser = async (payload:any): Promise<any> => {
+    const token = localStorage.getItem('aether_access_token')
+    const { data } = await apiClient.put('/api/v1/users', payload, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    }
+    )
+    return data
+}
+

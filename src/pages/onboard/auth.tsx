@@ -37,6 +37,19 @@ export default function OTPComponent() {
     const [isPass, setIsPass] = useState(false);
 
     useEffect(() => {
+        const serverUrl = localStorage.getItem("aether_server_url");
+        const accessToken = localStorage.getItem("aether_access_token");
+
+        console.log("server_url:", serverUrl);
+        console.log("access_token:", accessToken);
+
+        if (serverUrl && accessToken) {
+            console.log("Redirecting to /dashboard...");
+            aetherNaviagte("/dashboard");
+        }
+    }, []);
+
+    useEffect(() => {
         setVerified(false)
     }, [phone])
 
@@ -135,7 +148,7 @@ export default function OTPComponent() {
                 });
 
                 const setPasswordResponse = await postSetPasswordLogin(payload)
-                if (setPasswordResponse===null) {
+                if (setPasswordResponse === null) {
                     setStep(prev => prev - 1)
                     setPassword("")
                     setPhone("")
@@ -211,8 +224,8 @@ export default function OTPComponent() {
             const loginResponse = await postLogin(payload);
 
             if (loginResponse) {
-                sessionStorage.setItem('aether_accesstoken', loginResponse.access_token);
-                sessionStorage.setItem('aether_refreshtoken', loginResponse.refresh_token);
+                localStorage.setItem('aether_access_token', loginResponse.access_token);
+                localStorage.setItem('aether_refresh_token', loginResponse.refresh_token);
                 setTimeout(() => {
                     setIsPass(false);
                     aetherNaviagte("/dashboard");

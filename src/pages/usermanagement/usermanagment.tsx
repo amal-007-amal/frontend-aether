@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { Button } from "../../components/ui/button";
 import { Loader, Pencil, Plus } from "lucide-react";
-import { createUser, getUsers } from "../../api/login";
+import { createUser, getUsers, updateUser } from "../../api/login";
 import type { CreateUser, User } from "../../types/login";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
@@ -14,40 +14,54 @@ export default function UserManagmentPage() {
 
     const [users, setUsers] = useState<User[]>([]);
     const [open, setOpen] = useState(false)
+    const [isEditMode, setIsEditMode] = useState(false)
     const [userData, setUserData] = useState<CreateUser>({
+        id: '',
         phone_number: "",
         name: "",
-        latest_mobile_device_id: "",
         has_console_access: false,
         has_agent_access: false,
         is_superuser: false,
     })
     const [isPass, setIsPass] = useState(false)
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await getUsers()
-                setUsers(response)
-            } catch (error) {
-                toast.error("Failed to fetch users")
-            } finally {
-                setIsPass(false)
-            }
-        }
 
-        fetchUsers()
-    }, [])
+    const fetchUsers = useCallback(async () => {
+        setIsPass(true);
+        try {
+            const data = await getUsers();
+            setUsers([...data]);
+        } catch (err) {
+            toast.error("Failed to fetch users");
+        } finally {
+            setIsPass(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
 
     const handleEdit = (user: User) => {
-        setOpen(true)
-        setUserData(prev => (
-            {
-                ...prev,
-                name:user.name,
-                phone_number:user.phone_number,
-                is_superuser:user.is_superuser
-            }
-        ))
+        setIsEditMode(prev => !prev)
+        setIsPass(true)
+        try {
+            setOpen(true)
+            setUserData(prev => (
+                {
+                    ...prev,
+                    id: user.id,
+                    name: user.name,
+                    phone_number: user.phone_number,
+                    has_agent_access: user.has_agent_access,
+                    has_console_access: user.has_console_access,
+                    is_superuser: user.is_superuser
+                }
+            ))
+        } catch (error) {
+
+        } finally {
+            setIsPass(false)
+        }
     };
 
     const handleChange = (field: keyof CreateUser, value: any) => {
@@ -57,11 +71,18 @@ export default function UserManagmentPage() {
     const handleCreateUserSubmit = async () => {
         setIsPass(true)
         try {
-            console.log("Submitting:", userData)
-            const createUserResponse = await createUser(userData)
-            if (createUserResponse) {
+            if (isEditMode) {
+                const updateUserResponse = await updateUser(userData)
+                console.log(updateUserResponse)
+                await fetchUsers()
+                toast.success("User updated")
+            } else {
+                const createUserResponse = await createUser(userData)
+                 console.log(createUserResponse)
                 toast.success("User created")
+                await fetchUsers()
             }
+
             setOpen(false)
         } catch (err) {
             toast.error("Failed to create user")
@@ -69,6 +90,7 @@ export default function UserManagmentPage() {
             setIsPass(false)
         }
     }
+
 
 
     return (
@@ -85,7 +107,6 @@ export default function UserManagmentPage() {
                             <TableHead className="text-xs font-semibold">Name</TableHead>
                             <TableHead className="text-xs font-semibold">Phone Number</TableHead>
                             <TableHead className="text-xs font-semibold">Agent Device id</TableHead>
-                            <TableHead className="text-xs font-semibold">Console Device id</TableHead>
                             <TableHead className="text-xs font-semibold">Console Access</TableHead>
                             <TableHead className="text-xs font-semibold">Agent Access</TableHead>
                             <TableHead className="text-xs font-semibold">Actions</TableHead>
@@ -98,7 +119,6 @@ export default function UserManagmentPage() {
                                 <TableCell className="text-left">{user.name}</TableCell>
                                 <TableCell className="text-left">{user.phone_number}</TableCell>
                                 <TableCell className="text-left">{user.latest_agent_device_id}</TableCell>
-                                <TableCell className="text-left">{user.latest_console_device_id}</TableCell>
                                 <TableCell className="text-left">{user.has_console_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left">{user.has_agent_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left">
@@ -139,15 +159,6 @@ export default function UserManagmentPage() {
                                 onChange={(e) => handleChange("phone_number", e.target.value)}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="device">Latest Mobile Device ID</Label>
-                            <Input
-                                id="device"
-                                value={userData.latest_mobile_device_id}
-                                onChange={(e) => handleChange("latest_mobile_device_id", e.target.value)}
-                            />
-                        </div>
-
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 checked={userData.has_console_access}
