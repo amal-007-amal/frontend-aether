@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { BookCopy, ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FunnelPlus, Loader } from "lucide-react";
+import { BookCopy, ChevronsLeft, ChevronsRight, FunnelPlus, Loader } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -13,7 +13,6 @@ import { AccordionContent, AccordionItem, AccordionTrigger } from "../../compone
 const PAGE_SIZE = 10;
 
 export default function CallDetailPage() {
-    const [open, setOpen] = useState(true);
     const [isPass, setIsPass] = useState(false)
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
 
