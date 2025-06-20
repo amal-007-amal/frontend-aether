@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { Button } from "../../components/ui/button";
-import { Loader, Pencil, Plus, Trash } from "lucide-react";
+import { Loader, Pencil, Plus, Trash, Users } from "lucide-react";
 import { createUser, deleteUser, getUsers, updateUser } from "../../api/login";
 import type { CreateUser, User } from "../../types/login";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
@@ -109,8 +109,8 @@ export default function UserManagmentPage() {
 
     return (
         <div className="p-2">
-            <div className="flex justify-between mb-4 shadow p-2 items-center border-l-2 border-l-black">
-                <h2 className="text-sm font-normal">User List</h2>
+            <div className="flex justify-between mb-4 shadow p-2 items-center border-l-2 border-l-purple-500 ">
+                <h2 className="text-sm font-normal flex items-center"><Users className="h-4"/>User List</h2>
                 <Button variant={'outline'} onClick={() => {
                     setUserData({
                         name: "",

@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { Loader } from "lucide-react";
+import { BookCopy, Loader } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+
+const PAGE_SIZE = 10;
 
 export default function CallDetailPage() {
     const [isPass, setIsPass] = useState(false)
@@ -25,12 +29,27 @@ export default function CallDetailPage() {
         fetchCallLogs();
     }, [fetchCallLogs]);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [inputPage, setInputPage] = useState("1");
+
+    const totalPages = Math.max(1, Math.ceil(calllogs.length / PAGE_SIZE));
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const currentData = calllogs.slice(startIndex, startIndex + PAGE_SIZE);
+
+    const handlePageChange = () => {
+        const page = parseInt(inputPage);
+        if (!isNaN(page) && page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
 
     return (
         <div className="p-2">
-            <div className="flex justify-between mb-4 shadow p-2 items-center border-l-2 border-l-black">
-                <h2 className="text-sm font-normal">Call Logs</h2>
+            <div className="flex justify-between mb-4 shadow p-2 items-center border-l-2 border-l-purple-500">
+                <h2 className="text-sm font-normal flex items-center"><BookCopy className="h-4"/>Call Logs</h2>
             </div>
+            <div className=""></div>
             <div className="shadow-md p-2">
                 <Table >
                     <TableHeader>
@@ -47,8 +66,8 @@ export default function CallDetailPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {calllogs.length !== 0 && (
-                            calllogs.map((call, index) => (
+                        {currentData.length !== 0 && (
+                            currentData.map((call, index) => (
                                 <TableRow key={call.id} className="text-xs">
                                     <TableCell className="text-left">{index + 1}</TableCell>
                                     <TableCell className="text-left">{call.user_id}</TableCell>
@@ -64,6 +83,51 @@ export default function CallDetailPage() {
                         )}
                     </TableBody>
                 </Table>
+
+                <div className="flex items-center justify-between mt-4 gap-4 text-sm">
+                    <Button
+                    className="bg-white text-black hover:bg-gray-200"
+                        onClick={() => {
+                            const newPage = Math.max(currentPage - 1, 1);
+                            setCurrentPage(newPage);
+                            setInputPage(newPage.toString());
+                        }}
+                        disabled={currentPage === 1}
+                    >
+                        Prev
+                    </Button>
+
+                    <div className="flex items-center gap-2">
+                        <Input
+                            type="number"
+                            className="w-16 text-center"
+                            min={1}
+                            max={totalPages}
+                            value={inputPage}
+                            onChange={(e) => setInputPage(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handlePageChange();
+                                }
+                            }}
+                        />
+                        <span>of {totalPages}</span>
+                        <Button className="bg-white text-black hover:bg-gray-200" onClick={handlePageChange}>Go</Button>
+                    </div>
+
+                    <Button
+                        className="bg-white text-black hover:bg-gray-200"
+                        onClick={() => {
+                            const newPage = Math.min(currentPage + 1, totalPages);
+                            setCurrentPage(newPage);
+                            setInputPage(newPage.toString());
+                        }}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next
+                    </Button>
+                </div>
+
             </div>
             {isPass && (
                 <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">

@@ -121,14 +121,14 @@ export default function OTPComponent() {
             otp,
             (data) => {
                 console.log("OTP verified:", data);
-                toast("✅ OTP verified successfully!");
+                toast.success("OTP verified successfully!");
                 setOtpjwt(data.message)
                 setShowPopup(false)
                 setVerified(true)
             },
             (error) => {
                 console.error("OTP verification failed:", error);
-                toast("❌ Invalid OTP or reference ID.");
+                toast.error("Invalid OTP or reference ID.");
             },
             refId
         );
@@ -146,13 +146,11 @@ export default function OTPComponent() {
                     phone_number: phone,
                     password: password,
                 });
-
                 const setPasswordResponse = await postSetPasswordLogin(payload)
-                if (setPasswordResponse === null) {
-                    setStep(prev => prev - 1)
-                    setPassword("")
-                    setPhone("")
-                }
+                console.log("setPasswordResponse", setPasswordResponse)
+                setStep(prev => prev - 1)
+                setPassword("")
+                setPhone("")
                 setIsPass(false)
             } else {
                 toast("Kindly verify your phonenumber.", {
