@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { BookCopy, Loader } from "lucide-react";
+import { BookCopy, ChevronsLeft, ChevronsRight, Loader } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -46,10 +46,54 @@ export default function CallDetailPage() {
 
     return (
         <div className="p-2">
-            <div className="flex justify-between mb-4 shadow p-2 items-center border-l-2 border-l-purple-500">
+            <div className="flex justify-between mb-2 shadow p-2 items-center border-l-2 border-l-purple-500">
                 <h2 className="text-sm font-normal flex items-center"><BookCopy className="h-4"/>Call Logs</h2>
             </div>
-            <div className=""></div>
+            <div className="shadow">
+                <div className="flex items-center justify-between p-2">
+                    <div className="grid grid-cols-3 gap-4">
+                        <Input
+                            type="number"
+                            className="w-16 text-center"
+                            min={1}
+                            max={totalPages}
+                            value={inputPage}
+                            onChange={(e) => setInputPage(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handlePageChange();
+                                }
+                            }}
+                        />
+                                                <Input
+                            type="number"
+                            className="w-16 text-center"
+                            min={1}
+                            max={totalPages}
+                            value={inputPage}
+                            onChange={(e) => setInputPage(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handlePageChange();
+                                }
+                            }}
+                        />
+                                                <Input
+                            type="number"
+                            className="w-16 text-center"
+                            min={1}
+                            max={totalPages}
+                            value={inputPage}
+                            onChange={(e) => setInputPage(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handlePageChange();
+                                }
+                            }}
+                        />
+                    </div>
+                </div>
+            </div>
             <div className="shadow-md p-2">
                 <Table >
                     <TableHeader>
@@ -84,9 +128,9 @@ export default function CallDetailPage() {
                     </TableBody>
                 </Table>
 
-                <div className="flex items-center justify-between mt-4 gap-4 text-sm">
+                <div className="flex items-center justify-end mt-4 gap-4 text-sm">
                     <Button
-                    className="bg-white text-black hover:bg-gray-200"
+                    className="bg-white shadow-none text-xs text-black hover:bg-white"
                         onClick={() => {
                             const newPage = Math.max(currentPage - 1, 1);
                             setCurrentPage(newPage);
@@ -94,7 +138,7 @@ export default function CallDetailPage() {
                         }}
                         disabled={currentPage === 1}
                     >
-                        Prev
+                        <ChevronsLeft className="h-4 w-4" />Prev
                     </Button>
 
                     <div className="flex items-center gap-2">
@@ -112,11 +156,11 @@ export default function CallDetailPage() {
                             }}
                         />
                         <span>of {totalPages}</span>
-                        <Button className="bg-white text-black hover:bg-gray-200" onClick={handlePageChange}>Go</Button>
+                        <Button className="bg-white text-xs text-black hover:bg-white" onClick={handlePageChange}>Go</Button>
                     </div>
 
                     <Button
-                        className="bg-white text-black hover:bg-gray-200"
+                        className="bg-white shadow-none text-black hover:bg-white text-xs"
                         onClick={() => {
                             const newPage = Math.min(currentPage + 1, totalPages);
                             setCurrentPage(newPage);
@@ -124,7 +168,7 @@ export default function CallDetailPage() {
                         }}
                         disabled={currentPage === totalPages}
                     >
-                        Next
+                        Next <ChevronsRight className="h-4 w-4" />
                     </Button>
                 </div>
 

@@ -121,7 +121,8 @@ export default function UserManagmentPage() {
                     })
                     setOpen(prev => !prev);
                     setIsEditMode(false);
-                }}>Add User <Plus /></Button>
+                }}>Add User <Plus />
+               </Button>
             </div>
             <div className="shadow-md p-2">
                 <Table >
