@@ -1,4 +1,4 @@
-import type { UserLoginResponse } from "../types/login"
+import type { CreateUser, User, UserLoginResponse } from "../types/login"
 import { apiClient } from "./axios"
 import axios from "axios";
 
@@ -31,6 +31,29 @@ export const postSetPasswordLogin = async (payload: any): Promise<UserLoginRespo
     const { data } = await apiClient.post('/api/v1/auth/password', payload, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
+        }
+    }
+    )
+    return data
+}
+
+
+export const getUsers = async (): Promise<User[]> => {
+    const token = sessionStorage.getItem('aether_accesstoken')
+    const { data } = await apiClient.get('/api/v1/users', {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    })
+    console.log("users data", data)
+    return data.users
+}
+
+export const createUser = async (payload: CreateUser): Promise<CreateUser> => {
+    const token = sessionStorage.getItem('aether_accesstoken')
+    const { data } = await apiClient.post('/api/v1/users', payload, {
+        headers: {
+            "Authorization": `Bearer ${token}`
         }
     }
     )

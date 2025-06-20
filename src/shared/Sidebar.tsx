@@ -33,7 +33,7 @@ export default function SideBar() {
                     className={`${baseClasses} ${isActive("/usermanagment") ? "bg-purple-200" : ""}`}
                 >
                     <UserCog className="w-4 h-4" />
-                    User Management
+                    User
                 </Link>
 
                 <Link

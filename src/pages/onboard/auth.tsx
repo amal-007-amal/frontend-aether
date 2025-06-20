@@ -122,6 +122,7 @@ export default function OTPComponent() {
     };
 
     const handleSetNewPassword = async () => {
+        setIsPass(true)
         try {
             if (verified) {
                 const payload = new URLSearchParams({
@@ -134,17 +135,14 @@ export default function OTPComponent() {
                 });
 
                 const setPasswordResponse = await postSetPasswordLogin(payload)
-                if (setPasswordResponse) {
-                    setIsPass(true)
-                    setTimeout(() => {
-                        setIsPass(false)
-                        setStep(prev => prev - 1)
-                        setPassword("")
-                        setPhone("")
-                    }, 2000);
+                if (setPasswordResponse===null) {
+                    setStep(prev => prev - 1)
+                    setPassword("")
+                    setPhone("")
                 }
+                setIsPass(false)
             } else {
-                toast("OTP verification failed. Please check the code and try again.", {
+                toast("Kindly verify your phonenumber.", {
                     icon: <X className="w-4 h-4 text-red-400"></X>
                 });
             }
@@ -158,7 +156,7 @@ export default function OTPComponent() {
     useEffect(() => {
         const savedUrl = localStorage.getItem("aether_server_url");
         if (savedUrl) {
-            setSurl(savedUrl); // ✅ safe and correct
+            setSurl(savedUrl);
         }
     }, []);
 
@@ -175,12 +173,12 @@ export default function OTPComponent() {
             }
             const tempUrl = new URL(trimmedUrl).origin;
             localStorage.setItem("aether_temp_url", tempUrl);
-            const serverUrlResponse = await getServerUrl(tempUrl); 
+            const serverUrlResponse = await getServerUrl(tempUrl);
 
             if (serverUrlResponse) {
                 localStorage.setItem("aether_server_url", tempUrl);
                 localStorage.removeItem("aether_temp_url");
-                      setIsPass(false);
+                setIsPass(false);
                 setStep((prev) => prev + 1);
             } else {
                 toast.error("Invalid server url!", {
@@ -261,7 +259,7 @@ export default function OTPComponent() {
                         <div className="relative">
                             <input
                                 type={`${isvisible ? 'text' : 'password'}`}
-                                placeholder="Enter New Password"
+                                placeholder="Enter Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="border rounded-full p-2 w-full mb-2 placeholder:text-sm"
