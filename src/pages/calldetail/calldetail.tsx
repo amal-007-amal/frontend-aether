@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { BookCopy, ChevronsLeft, ChevronsRight, Loader } from "lucide-react";
+import { BookCopy, ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FunnelPlus, Loader } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Accordion } from "@radix-ui/react-accordion";
+import { AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 
 const PAGE_SIZE = 10;
 
 export default function CallDetailPage() {
+    const [open, setOpen] = useState(true);
     const [isPass, setIsPass] = useState(false)
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
 
@@ -47,53 +51,56 @@ export default function CallDetailPage() {
     return (
         <div className="p-2">
             <div className="flex justify-between mb-2 shadow p-2 items-center border-l-2 border-l-purple-500">
-                <h2 className="text-sm font-normal flex items-center"><BookCopy className="h-4"/>Call Logs</h2>
+                <h2 className="text-sm font-normal flex items-center"><BookCopy className="h-4" />Call Logs</h2>
             </div>
-            <div className="shadow">
-                <div className="flex items-center justify-between p-2">
-                    <div className="grid grid-cols-3 gap-4">
-                        <Input
-                            type="number"
-                            className="w-16 text-center"
-                            min={1}
-                            max={totalPages}
-                            value={inputPage}
-                            onChange={(e) => setInputPage(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    handlePageChange();
-                                }
-                            }}
-                        />
-                                                <Input
-                            type="number"
-                            className="w-16 text-center"
-                            min={1}
-                            max={totalPages}
-                            value={inputPage}
-                            onChange={(e) => setInputPage(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    handlePageChange();
-                                }
-                            }}
-                        />
-                                                <Input
-                            type="number"
-                            className="w-16 text-center"
-                            min={1}
-                            max={totalPages}
-                            value={inputPage}
-                            onChange={(e) => setInputPage(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    handlePageChange();
-                                }
-                            }}
-                        />
-                    </div>
-                </div>
-            </div>
+            <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-2">
+                    <AccordionTrigger className="text-xs"><div className="flex"><FunnelPlus className="h-4 w-4"/>Add Filter</div></AccordionTrigger>
+                    <AccordionContent>
+                        <div
+                            className={`grid grid-cols-6 gap-4 transition-all duration-300 ease-in-out overflow-hidden`}
+                        >
+                            <div className="relative w-full">
+                                <Input
+                                    id="skip"
+                                    type="number"
+                                    placeholder=" "
+                                    className="peer w-full rounded-sm placeholder:text-xs outline-none border border-gray-300 bg-transparent text-sm text-black placeholder:text-transparent focus:ring-0 focus:border-0"
+                                />
+                                <Label
+                                    htmlFor="skip"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs transition-all
+                            peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-xs
+                            peer-placeholder-shown:text-muted-foreground
+                            peer-focus:top-1 peer-focus:text-xs peer-focus:text-primary"
+                                >
+                                    Skip
+                                </Label>
+                            </div>
+                            <div className="relative w-full">
+                                <Input
+                                    id="limit"
+                                    type="number"
+                                    placeholder=" "
+                                    className="peer w-full rounded-sm placeholder:text-xs outline-none border border-gray-300 bg-transparent text-sm text-black placeholder:text-transparent focus:ring-0 focus:border-0"
+                                />
+                                <Label
+                                    htmlFor="limit"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs transition-all
+                            peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-xs
+                            peer-placeholder-shown:text-muted-foreground
+                            peer-focus:top-1 peer-focus:text-xs peer-focus:text-primary"
+                                >
+                                    Limit
+                                </Label>
+                            </div>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+
+
+
             <div className="shadow-md p-2">
                 <Table >
                     <TableHeader>
@@ -130,7 +137,7 @@ export default function CallDetailPage() {
 
                 <div className="flex items-center justify-end mt-4 gap-4 text-sm">
                     <Button
-                    className="bg-white shadow-none text-xs text-black hover:bg-white"
+                        className="bg-white shadow-none text-xs text-black hover:bg-white"
                         onClick={() => {
                             const newPage = Math.max(currentPage - 1, 1);
                             setCurrentPage(newPage);
