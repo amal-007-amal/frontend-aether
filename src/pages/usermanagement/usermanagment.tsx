@@ -78,7 +78,7 @@ export default function UserManagmentPage() {
                 toast.success("User updated")
             } else {
                 const createUserResponse = await createUser(userData)
-                 console.log(createUserResponse)
+                console.log(createUserResponse)
                 toast.success("User created")
                 await fetchUsers()
             }
@@ -97,7 +97,17 @@ export default function UserManagmentPage() {
         <div className="p-2">
             <div className="flex justify-between mb-4 shadow p-2 items-center border-l-2 border-l-black">
                 <h2 className="text-sm font-normal">User List</h2>
-                <Button variant={'outline'} onClick={() => setOpen(prev => !prev)}>Add User <Plus /></Button>
+                <Button variant={'outline'} onClick={() => {
+                    setUserData({
+                        name: "",
+                        phone_number: "",
+                        has_console_access: false,
+                        has_agent_access: false,
+                        is_superuser: false
+                    })
+                    setOpen(prev => !prev);
+                    setIsEditMode(false);
+                }}>Add User <Plus /></Button>
             </div>
             <div className="shadow-md p-2">
                 <Table >
@@ -154,7 +164,9 @@ export default function UserManagmentPage() {
                         <div className="space-y-2">
                             <Label htmlFor="phone">Phone Number</Label>
                             <Input
+                                disabled={isEditMode}
                                 id="phone"
+                                className={`${isEditMode ? 'opactiy-50' : ''}`}
                                 value={userData.phone_number}
                                 onChange={(e) => handleChange("phone_number", e.target.value)}
                             />
