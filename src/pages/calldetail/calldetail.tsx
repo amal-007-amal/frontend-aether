@@ -54,10 +54,10 @@ export default function CallDetailPage() {
             </div>
             <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-2">
-                    <AccordionTrigger className="text-xs"><div className="flex"><FunnelPlus className="h-4 w-4"/>Add Filter</div></AccordionTrigger>
+                    <AccordionTrigger className="text-xs"><div className="flex"><FunnelPlus className="h-4 w-4" />Add Filter</div></AccordionTrigger>
                     <AccordionContent>
                         <div
-                            className={`grid grid-cols-6 gap-4 transition-all duration-300 ease-in-out overflow-hidden`}
+                            className={`grid grid-cols-6 gap-4 transition-all duration-300 ease-in-out overflow-hidden py-3 px-2`}
                         >
                             <div className="relative w-full">
                                 <Input
@@ -113,6 +113,65 @@ export default function CallDetailPage() {
                             <TableHead className="text-xs font-semibold">Other Number</TableHead>
                             <TableHead className="text-xs font-semibold">Other Name</TableHead>
                             <TableHead className="text-xs font-semibold">Agent Number</TableHead>
+                        </TableRow>
+                        <TableRow>
+                            <TableHead />
+                            <TableHead>
+                                <Input
+                                    type="text"
+                                    placeholder="Search name"
+                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                />
+                            </TableHead>
+                            <TableHead>
+                                <Input
+                                    type="text"
+                                    placeholder="Search device"
+                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                />
+                            </TableHead>
+                            <TableHead>
+                                <Input
+                                    type="text"
+                                    placeholder="Search type"
+                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                />
+                            </TableHead>
+                            <TableHead>
+                                <Input
+                                    type="text"
+                                    placeholder="Search duration"
+                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                />
+                            </TableHead>
+                            <TableHead>
+                                <Input
+                                    type="text"
+                                    placeholder="Search time"
+                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                />
+                            </TableHead>
+                            <TableHead>
+                                <Input
+                                    type="text"
+                                    placeholder="Search number"
+                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                />
+                            </TableHead>
+                            <TableHead>
+                                <Input
+                                    type="text"
+                                    placeholder="Search name"
+                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                />
+                            </TableHead>
+                            <TableHead>
+                                <Input
+                                    type="text"
+                                    placeholder="Search agent"
+                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                />
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
