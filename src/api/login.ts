@@ -60,7 +60,7 @@ export const createUser = async (payload: CreateUser): Promise<CreateUser> => {
     return data
 }
 
-export const updateUser = async (payload:any): Promise<any> => {
+export const updateUser = async (payload: any): Promise<any> => {
     const token = localStorage.getItem('aether_access_token')
     const { data } = await apiClient.put('/api/v1/users', payload, {
         headers: {
@@ -70,4 +70,17 @@ export const updateUser = async (payload:any): Promise<any> => {
     )
     return data
 }
+
+
+export const deleteUser = async (userid: any): Promise<any> => {
+    const token = localStorage.getItem('aether_access_token')
+    const { data } = await apiClient.delete(`/api/v1/users?user_id=${userid}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    }
+    )
+    return data
+}
+
 

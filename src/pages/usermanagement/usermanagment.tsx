@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { Button } from "../../components/ui/button";
-import { Loader, Pencil, Plus } from "lucide-react";
-import { createUser, getUsers, updateUser } from "../../api/login";
+import { Loader, Pencil, Plus, Trash } from "lucide-react";
+import { createUser, deleteUser, getUsers, updateUser } from "../../api/login";
 import type { CreateUser, User } from "../../types/login";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
@@ -63,6 +63,20 @@ export default function UserManagmentPage() {
             setIsPass(false)
         }
     };
+
+    const handleRemoveUser = async (userId:any) => {
+        setIsPass(true)
+        try {
+           const deleteUserReponse =  await deleteUser(userId);
+            console.log(deleteUserReponse)
+            toast.success("User deleted successfully");
+            await fetchUsers();
+        } catch (err) {
+            toast.error("Failed to delete user");
+        } finally {
+            setIsPass(false)
+        }
+    }   
 
     const handleChange = (field: keyof CreateUser, value: any) => {
         setUserData((prev) => ({ ...prev, [field]: value }))
@@ -131,9 +145,12 @@ export default function UserManagmentPage() {
                                 <TableCell className="text-left">{user.latest_agent_device_id}</TableCell>
                                 <TableCell className="text-left">{user.has_console_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left">{user.has_agent_access ? 'Granted' : ''}</TableCell>
-                                <TableCell className="text-left">
+                                <TableCell className="text-left flex items-center gap-2">
                                     <Button className="rounded-full h-8 w-8 bg-gray-400" onClick={() => handleEdit(user)} variant="outline" size="sm">
                                         <Pencil className="w-4 h-4 text-white" />
+                                    </Button>
+                                    <Button className="rounded-full h-8 w-8 bg-red-400" onClick={() => handleRemoveUser(user.id)} variant="outline" size="sm">
+                                        <Trash className="w-4 h-4 text-white" />
                                     </Button>
                                 </TableCell>
                             </TableRow>
