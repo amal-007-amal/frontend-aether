@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { Button } from "../../components/ui/button";
-import { Loader, Pencil, Plus, Trash, Users } from "lucide-react";
+import { Pencil, Plus, Trash, Users } from "lucide-react";
 import { createUser, deleteUser, getUsers, updateUser } from "../../api/login";
 import type { CreateUser, User } from "../../types/login";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Checkbox } from "../../components/ui/checkbox";
+import AetherLoader from "../../shared/AetherLoader";
 
 export default function UserManagmentPage() {
 
@@ -160,9 +161,7 @@ export default function UserManagmentPage() {
                 </Table>
             </div>
             {isPass && (
-                <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
-                    <Loader className="animate-spin w-6 h-6 text-purple-500" />
-                </div>
+                <AetherLoader/>
             )}
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>

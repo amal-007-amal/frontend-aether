@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { BookCopy, ChevronsLeft, ChevronsRight, FunnelPlus, Loader } from "lucide-react";
+import { BookCopy, ChevronsLeft, ChevronsRight, FunnelPlus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -9,6 +9,7 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Accordion } from "@radix-ui/react-accordion";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
+import AetherLoader from "../../shared/AetherLoader";
 
 const PAGE_SIZE = 10;
 
@@ -239,9 +240,7 @@ export default function CallDetailPage() {
 
             </div>
             {isPass && (
-                <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
-                    <Loader className="animate-spin w-6 h-6 text-purple-500" />
-                </div>
+              <AetherLoader/>
             )}
         </div>
     )

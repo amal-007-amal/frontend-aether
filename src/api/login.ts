@@ -2,6 +2,22 @@ import type { CreateUser, User, UserLoginResponse } from "../types/login"
 import { apiClient } from "./axios"
 import axios from "axios";
 
+
+export const getAccessToken = async (): Promise<string | null> => {
+    try {  
+        const client = axios.create({
+            baseURL: String(localStorage.getItem("aether_server_url")),
+            headers: { "Content-Type": "application/json" },
+        });
+
+        const res = await client.get("/api/v1/auth/refresh-tokens");
+        return res?.data?.access_token || null;
+     }catch (error) {
+        console.error("Error fetching access token:", error);
+        return null;
+    }
+}
+
 export const getServerUrl = async (customBaseUrl?: string) => {
     try {
         const client = axios.create({

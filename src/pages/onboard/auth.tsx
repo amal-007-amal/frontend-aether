@@ -1,8 +1,9 @@
-import { AudioLines, CheckCircle, ChevronRight, Eye, EyeClosed, Loader, X } from "lucide-react";
+import { AudioLines, CheckCircle, ChevronRight, Eye, EyeClosed, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getServerUrl, postLogin, postSetPasswordLogin } from "../../api/login";
+import AetherLoader from "../../shared/AetherLoader";
 
 declare global {
     interface Window {
@@ -314,7 +315,7 @@ export default function OTPComponent() {
                             <button
                                 onClick={handleSendOtp}
                                 className="absolute bg-purple-500 text-xs text-white hover:shadow-md right-2 top-2 p-1 rounded-full flex gap-2 items-center">
-                                {verified ? ('verified') : (<>{isLoad ? (<Loader className="animate-spin w-4 h-4" />) : 'Verify'}</>)}
+                                {verified ? ('verified') : (<>{isLoad ? (<AetherLoader />) : 'Verify'}</>)}
                             </button>
                         </div>
                         <div className="relative">
@@ -371,9 +372,7 @@ export default function OTPComponent() {
                 )
             }
             {isPass && (
-                <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
-                    <Loader className="animate-spin w-6 h-6 text-purple-500" />
-                </div>
+                <AetherLoader/>
             )}
         </div>
     );
