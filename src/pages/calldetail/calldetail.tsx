@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { getUsers } from "../../api/login";
 import type { User } from "../../types/login";
 import { aetherFormatDate } from "../../hooks/useFormattedDate";
+import { AetherAutoComplete } from "../../components/aethercomplete";
 
 const PAGE_SIZE = 10;
 
@@ -21,6 +22,7 @@ export default function CallDetailPage() {
     const [isPass, setIsPass] = useState(false)
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
     const [users, setUsers] = useState<User[]>([]);
+    const [selectedUserID, setSelectedUserID] = useState<string>("");
     const [filters, setFilters] = useState({
         user_id: "",
         device_id: "",
@@ -64,7 +66,6 @@ export default function CallDetailPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [inputPage, setInputPage] = useState("1");
 
-    // Step 1: Filter before paginating
     const filteredData = useMemo(() => {
         return calllogs.filter(call => {
             return Object.entries(filters).every(([key, value]) => {
@@ -104,7 +105,7 @@ export default function CallDetailPage() {
                     <AccordionTrigger className="text-xs"><div className="flex"><FunnelPlus className="h-4 w-4" />Add Filter</div></AccordionTrigger>
                     <AccordionContent>
                         <div
-                            className={`grid grid-cols-6 gap-4 transition-all duration-300 ease-in-out overflow-hidden py-3 px-2`}
+                            className={`grid grid-cols-6 gap-4 transition-all duration-300 ease-in-out overflow-visible py-3 px-2`}
                         >
                             <div className="relative w-full">
                                 <Input
@@ -140,7 +141,7 @@ export default function CallDetailPage() {
                                     Limit
                                 </Label>
                             </div>
-                            <div>
+                            <div className="relative w-full">
                                 <Select>
                                     <SelectTrigger className="w-[200px]">
                                         <SelectValue placeholder="Select a filter" />
@@ -150,6 +151,12 @@ export default function CallDetailPage() {
                                         <SelectItem value="banana">This Week</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="relative w-full ms-2 z-20">
+                                <AetherAutoComplete
+                                    data={users}
+                                    placeholder="Type to search..."
+                                    onSelect={(item) => setSelectedUserID(item.id)} displayKey={"name"}                                />
                             </div>
                             <div>
                                 <Button className="bg-white text-purple-500 hover:bg-purple-100">Submit</Button>
