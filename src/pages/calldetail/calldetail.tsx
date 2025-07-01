@@ -66,6 +66,8 @@ export default function CallDetailPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [inputPage, setInputPage] = useState("1");
 
+    console.log("Call logs:", selectedUserID);
+
     const filteredData = useMemo(() => {
         return calllogs.filter(call => {
             return Object.entries(filters).every(([key, value]) => {
