@@ -110,40 +110,6 @@ export default function CallDetailPage() {
                             className={`grid grid-cols-6 gap-4 transition-all duration-300 ease-in-out overflow-visible py-3 px-2`}
                         >
                             <div className="relative w-full">
-                                <Input
-                                    id="skip"
-                                    type="number"
-                                    placeholder=" "
-                                    className="peer w-full rounded-sm placeholder:text-xs outline-none border border-gray-300 bg-transparent text-sm text-black placeholder:text-transparent focus:ring-0 focus:border-0"
-                                />
-                                <Label
-                                    htmlFor="skip"
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs transition-all
-                            peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-xs
-                            peer-placeholder-shown:text-muted-foreground
-                            peer-focus:top-1 peer-focus:text-xs peer-focus:text-primary"
-                                >
-                                    Skip
-                                </Label>
-                            </div>
-                            <div className="relative w-full">
-                                <Input
-                                    id="limit"
-                                    type="number"
-                                    placeholder=" "
-                                    className="peer w-full rounded-sm placeholder:text-xs outline-none border border-gray-300 bg-transparent text-sm text-black placeholder:text-transparent focus:ring-0 focus:border-0"
-                                />
-                                <Label
-                                    htmlFor="limit"
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs transition-all
-                            peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-xs
-                            peer-placeholder-shown:text-muted-foreground
-                            peer-focus:top-1 peer-focus:text-xs peer-focus:text-primary"
-                                >
-                                    Limit
-                                </Label>
-                            </div>
-                            <div className="relative w-full">
                                 <Select>
                                     <SelectTrigger className="w-[200px]">
                                         <SelectValue placeholder="Select a filter" />
