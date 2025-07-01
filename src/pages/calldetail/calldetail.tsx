@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
 import { BookCopy, ChevronsLeft, ChevronsRight, FunnelPlus } from "lucide-react";
@@ -10,12 +10,27 @@ import { Label } from "../../components/ui/label";
 import { Accordion } from "@radix-ui/react-accordion";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 import AetherLoader from "../../shared/AetherLoader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { getUsers } from "../../api/login";
+import type { User } from "../../types/login";
+import { aetherFormatDate } from "../../hooks/useFormattedDate";
 
 const PAGE_SIZE = 10;
 
 export default function CallDetailPage() {
     const [isPass, setIsPass] = useState(false)
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
+    const [users, setUsers] = useState<User[]>([]);
+    const [filters, setFilters] = useState({
+        user_id: "",
+        device_id: "",
+        type: "",
+        duration: "",
+        start_time: "",
+        other_number: "",
+        other_name: "",
+        agent_number: ""
+    });
 
     const fetchCallLogs = useCallback(async () => {
         setIsPass(true);
@@ -29,23 +44,54 @@ export default function CallDetailPage() {
         }
     }, []);
 
+    const fetchUsers = useCallback(async () => {
+        setIsPass(true);
+        try {
+            const data = await getUsers();
+            setUsers([...data]);
+        } catch (err) {
+            toast.error("Failed to fetch users");
+        } finally {
+            setIsPass(false);
+        }
+    }, []);
+
     useEffect(() => {
         fetchCallLogs();
-    }, [fetchCallLogs]);
+        fetchUsers();
+    }, [fetchCallLogs, fetchUsers]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [inputPage, setInputPage] = useState("1");
 
-    const totalPages = Math.max(1, Math.ceil(calllogs.length / PAGE_SIZE));
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
-    const currentData = calllogs.slice(startIndex, startIndex + PAGE_SIZE);
+    // Step 1: Filter before paginating
+    const filteredData = useMemo(() => {
+        return calllogs.filter(call => {
+            return Object.entries(filters).every(([key, value]) => {
+                if (!value) return true;
+                const field = String((call as any)[key] ?? "").toLowerCase();
+                return field.includes(value.toLowerCase());
+            });
+        });
+    }, [filters, calllogs]);
 
+    // Step 2: Pagination
+    const totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const currentPageData = filteredData.slice(startIndex, startIndex + PAGE_SIZE);
+
+    // Step 3: Handlers
     const handlePageChange = () => {
         const page = parseInt(inputPage);
         if (!isNaN(page) && page >= 1 && page <= totalPages) {
             setCurrentPage(page);
         }
     };
+
+    const handleFilterChange = (field: string, value: string) => {
+        setFilters(prev => ({ ...prev, [field]: value }));
+    };
+
 
 
     return (
@@ -94,6 +140,20 @@ export default function CallDetailPage() {
                                     Limit
                                 </Label>
                             </div>
+                            <div>
+                                <Select>
+                                    <SelectTrigger className="w-[200px]">
+                                        <SelectValue placeholder="Select a filter" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="apple">Today</SelectItem>
+                                        <SelectItem value="banana">This Week</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Button className="bg-white text-purple-500 hover:bg-purple-100">Submit</Button>
+                            </div>
                         </div>
                     </AccordionContent>
                 </AccordionItem>
@@ -118,73 +178,66 @@ export default function CallDetailPage() {
                         <TableRow>
                             <TableHead />
                             <TableHead>
-                                <Input
-                                    type="text"
-                                    placeholder="Search name"
-                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                <Input placeholder="Search name" className="placeholder:text-xs h-6"
+                                    value={filters.user_id}
+                                    onChange={e => handleFilterChange("user_id", e.target.value)}
                                 />
                             </TableHead>
                             <TableHead>
-                                <Input
-                                    type="text"
-                                    placeholder="Search device"
-                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                <Input placeholder="Search device" className="placeholder:text-xs h-6"
+                                    value={filters.device_id}
+                                    onChange={e => handleFilterChange("device_id", e.target.value)}
                                 />
                             </TableHead>
                             <TableHead>
-                                <Input
-                                    type="text"
-                                    placeholder="Search type"
-                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                <Input placeholder="Search type" className="placeholder:text-xs h-6"
+                                    value={filters.type}
+                                    onChange={e => handleFilterChange("type", e.target.value)}
                                 />
                             </TableHead>
                             <TableHead>
-                                <Input
-                                    type="text"
-                                    placeholder="Search duration"
-                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                <Input placeholder="Search duration" className="placeholder:text-xs h-6"
+                                    value={filters.duration}
+                                    onChange={e => handleFilterChange("duration", e.target.value)}
                                 />
                             </TableHead>
                             <TableHead>
-                                <Input
-                                    type="text"
-                                    placeholder="Search time"
-                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                <Input placeholder="Search time" className="placeholder:text-xs h-6"
+                                    value={filters.start_time}
+                                    onChange={e => handleFilterChange("start_time", e.target.value)}
                                 />
                             </TableHead>
                             <TableHead>
-                                <Input
-                                    type="text"
-                                    placeholder="Search number"
-                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                <Input placeholder="Search number" className="placeholder:text-xs h-6"
+                                    value={filters.other_number}
+                                    onChange={e => handleFilterChange("other_number", e.target.value)}
                                 />
                             </TableHead>
                             <TableHead>
-                                <Input
-                                    type="text"
-                                    placeholder="Search name"
-                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                <Input placeholder="Search name" className="placeholder:text-xs h-6"
+                                    value={filters.other_name}
+                                    onChange={e => handleFilterChange("other_name", e.target.value)}
                                 />
                             </TableHead>
                             <TableHead>
-                                <Input
-                                    type="text"
-                                    placeholder="Search agent"
-                                    className="h-6 rounded-none text-xs placeholder:text-xs"
+                                <Input placeholder="Search agent" className="placeholder:text-xs h-6"
+                                    value={filters.agent_number}
+                                    onChange={e => handleFilterChange("agent_number", e.target.value)}
                                 />
                             </TableHead>
                         </TableRow>
+
                     </TableHeader>
                     <TableBody>
-                        {currentData.length !== 0 && (
-                            currentData.map((call, index) => (
+                        {currentPageData.length !== 0 && (
+                            currentPageData.map((call, index) => (
                                 <TableRow key={call.id} className="text-xs">
                                     <TableCell className="text-left">{index + 1}</TableCell>
                                     <TableCell className="text-left">{call.user_id}</TableCell>
                                     <TableCell className="text-left">{call.device_id}</TableCell>
                                     <TableCell className="text-left">{call.type}</TableCell>
                                     <TableCell className="text-left">{call.duration}</TableCell>
-                                    <TableCell className="text-left">{call.start_time}</TableCell>
+                                    <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
                                     <TableCell className="text-left">{call.other_number}</TableCell>
                                     <TableCell className="text-left">{call.other_name}</TableCell>
                                     <TableCell className="text-left">{call.agent_number}</TableCell>
@@ -240,7 +293,7 @@ export default function CallDetailPage() {
 
             </div>
             {isPass && (
-              <AetherLoader/>
+                <AetherLoader />
             )}
         </div>
     )
