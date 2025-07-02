@@ -6,14 +6,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import type { CallLogDetails } from "../../types/call";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { Accordion } from "@radix-ui/react-accordion";
-import { AccordionContent, AccordionItem, AccordionTrigger } from "../../components/ui/accordion";
 import AetherLoader from "../../shared/AetherLoader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { getUsers } from "../../api/login";
 import type { User } from "../../types/login";
 import { aetherFormatDate } from "../../hooks/useFormattedDate";
 import { AetherMultiSelect } from "../../components/aethermultiselect";
+import { DropdownMenu, DropdownMenuContent,DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 
 const PAGE_SIZE = 10;
 
@@ -100,8 +99,36 @@ export default function CallDetailPage() {
         <div className="p-2">
             <div className="flex justify-between mb-2 shadow p-2 items-center border-l-2 border-l-purple-500">
                 <h2 className="text-sm font-normal flex items-center"><BookCopy className="h-4" />Call Logs</h2>
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <FunnelPlus className="h-4 w-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="space-y-2 p-2 me-10">
+                        {/* Use regular <div> instead of DropdownMenuItem */}
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <Select>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select a filter" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="today">Today</SelectItem>
+                                    <SelectItem value="week">This Week</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <AetherMultiSelect
+                                data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                selected={selectedUserIDs}
+                                onChange={setSelectedUserIDs}
+                            />
+                        </div>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
             </div>
-            <Accordion type="single" collapsible className="w-full">
+            {/* <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-2">
                     <AccordionTrigger className="text-xs"><div className="flex"><FunnelPlus className="h-4 w-4" />Add Filter</div></AccordionTrigger>
                     <AccordionContent>
@@ -129,23 +156,20 @@ export default function CallDetailPage() {
                         </div>
                     </AccordionContent>
                 </AccordionItem>
-            </Accordion>
-
-
-
+            </Accordion> */}
             <div className="shadow-md p-2">
                 <Table >
                     <TableHeader>
                         <TableRow className="text-sm font-light">
                             <TableHead className="text-xs font-semibold">Sl No.</TableHead>
-                            <TableHead className="text-xs font-semibold">User Nmae</TableHead>
-                            <TableHead className="text-xs font-semibold">Device id</TableHead>
-                            <TableHead className="text-xs font-semibold">Type</TableHead>
-                            <TableHead className="text-xs font-semibold">Duration</TableHead>
-                            <TableHead className="text-xs font-semibold">Start Time</TableHead>
-                            <TableHead className="text-xs font-semibold">Other Number</TableHead>
-                            <TableHead className="text-xs font-semibold">Other Name</TableHead>
-                            <TableHead className="text-xs font-semibold">Agent Number</TableHead>
+                            <TableHead className="text-xs font-semibold">USERNAME</TableHead>
+                            <TableHead className="text-xs font-semibold">DEVICE ID</TableHead>
+                            <TableHead className="text-xs font-semibold">TYPE</TableHead>
+                            <TableHead className="text-xs font-semibold">DURATION</TableHead>
+                            <TableHead className="text-xs font-semibold">START TIME</TableHead>
+                            <TableHead className="text-xs font-semibold">OTHER NUMBER</TableHead>
+                            <TableHead className="text-xs font-semibold">OTHER NAME</TableHead>
+                            <TableHead className="text-xs font-semibold">AGENT NUMBER</TableHead>
                         </TableRow>
                         <TableRow>
                             <TableHead />
