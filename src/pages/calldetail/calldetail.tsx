@@ -12,7 +12,9 @@ import { getUsers } from "../../api/login";
 import type { User } from "../../types/login";
 import { aetherFormatDate } from "../../hooks/useFormattedDate";
 import { AetherMultiSelect } from "../../components/aethermultiselect";
-import { DropdownMenu, DropdownMenuContent,DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
+import type { DateRange } from "react-day-picker";
+import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
 
 const PAGE_SIZE = 10;
 
@@ -21,6 +23,8 @@ export default function CallDetailPage() {
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
+    const [selfilter, setSelFilter] = useState<string>("");
+    const [range, setRange] = useState<DateRange | undefined>();
     const [filters, setFilters] = useState({
         user_id: "",
         device_id: "",
@@ -103,18 +107,22 @@ export default function CallDetailPage() {
                     <DropdownMenuTrigger>
                         <FunnelPlus className="h-4 w-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="space-y-2 p-2 me-10">
+                    <DropdownMenuContent className="space-y-2 p-3 me-10">
                         {/* Use regular <div> instead of DropdownMenuItem */}
                         <div onClick={(e) => e.stopPropagation()}>
-                            <Select>
+                            <Select onValueChange={(value) => setSelFilter(value)}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select a filter" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="today">Today</SelectItem>
                                     <SelectItem value="week">This Week</SelectItem>
+                                    <SelectItem value="custom">Custom</SelectItem>
                                 </SelectContent>
                             </Select>
+                            {selfilter === "custom" && (
+                                <div className="w-full mt-2"><AetherDateRangePicker date={range} onChange={setRange} /></div>
+                            )}
                         </div>
 
                         <div onClick={(e) => e.stopPropagation()}>
