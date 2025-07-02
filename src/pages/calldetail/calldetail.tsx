@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { getUsers } from "../../api/login";
 import type { User } from "../../types/login";
 import { aetherFormatDate } from "../../hooks/useFormattedDate";
-import { AetherAutoComplete } from "../../components/aethercomplete";
+import { AetherMultiSelect } from "../../components/aethermultiselect";
 
 const PAGE_SIZE = 10;
 
@@ -21,7 +21,7 @@ export default function CallDetailPage() {
     const [isPass, setIsPass] = useState(false)
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
     const [users, setUsers] = useState<User[]>([]);
-    const [selectedUserID, setSelectedUserID] = useState<string>("");
+    const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [filters, setFilters] = useState({
         user_id: "",
         device_id: "",
@@ -65,7 +65,7 @@ export default function CallDetailPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [inputPage, setInputPage] = useState("1");
 
-    console.log("Call logs:", selectedUserID);
+    console.log("Call logs:", selectedUserIDs.length);
 
     const filteredData = useMemo(() => {
         return calllogs.filter(call => {
@@ -119,14 +119,12 @@ export default function CallDetailPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="relative w-full ms-2 z-20">
-                                <AetherAutoComplete
-                                    data={users}
-                                    placeholder="Type to search..."
-                                    onSelect={(item) => setSelectedUserID(item.id)} displayKey={"name"}                                />
-                            </div>
-                            <div>
-                                <Button className="bg-white text-purple-500 hover:bg-purple-100">Submit</Button>
+                            <div className="relative w-full">
+                                <AetherMultiSelect
+                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                    selected={selectedUserIDs}
+                                    onChange={setSelectedUserIDs}
+                                />
                             </div>
                         </div>
                     </AccordionContent>

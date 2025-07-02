@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 type AutoCompleteProps<T> = {
     data: T[];
     displayKey: keyof T;
-    onSelect: (item: T) => void;
+    onSelect: (items: T[]) => void;
     placeholder?: string;
     value?: string;
 };
@@ -20,26 +20,46 @@ export function AetherAutoComplete<T extends Record<string, any>>({
 }: AutoCompleteProps<T>) {
     const [inputValue, setInputValue] = useState(value);
     const [open, setOpen] = useState(false);
+    const [selectedItems, setSelectedItems] = useState<T[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyles, setDropdownStyles] = useState({ top: 0, left: 0, width: 0 });
 
     const filteredData = useMemo(() => {
-        if (!inputValue) return [];
+        if (!inputValue) return data;
         return data.filter((item) =>
             String(item[displayKey]).toLowerCase().includes(inputValue.toLowerCase())
         );
     }, [data, inputValue, displayKey]);
 
     const handleSelect = (item: T) => {
-        setInputValue(String(item[displayKey]));
-        onSelect(item);
-        setOpen(false);
+        const alreadySelected = selectedItems.some((selected) => selected.id === item.id);
+        const updatedItems = alreadySelected
+            ? selectedItems.filter((selected) => selected.id !== item.id)
+            : [...selectedItems, item];
+
+        setSelectedItems(updatedItems);
+        setInputValue(updatedItems.map((i) => String(i[displayKey])).join(", ")); // ← update here
+        onSelect(updatedItems);
     };
 
     const handleClear = () => {
         setInputValue("");
         setOpen(false);
+        setSelectedItems([]);
+        onSelect([]);
     };
+
+    const handleSelectAll = () => {
+        setSelectedItems(filteredData);
+        onSelect(filteredData);
+    };
+
+    const handleDeselectAll = () => {
+        setSelectedItems([]);
+        onSelect([]);
+    };
+
+    const isSelected = (item: T) => selectedItems.some((selected) => selected.id === item.id);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -55,7 +75,6 @@ export function AetherAutoComplete<T extends Record<string, any>>({
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
-
 
     useEffect(() => {
         if (open && containerRef.current) {
@@ -78,11 +97,16 @@ export function AetherAutoComplete<T extends Record<string, any>>({
                 width: dropdownStyles.width,
             }}
         >
+            <div className="flex justify-between px-3 py-2 border-b text-xs text-gray-600">
+                <button onClick={handleSelectAll} className="hover:underline">Select All</button>
+                <button onClick={handleDeselectAll} className="hover:underline">Deselect All</button>
+            </div>
             {filteredData.map((item) => (
                 <div
                     key={item.id}
                     onClick={() => handleSelect(item)}
-                    className="cursor-pointer px-3 py-2 hover:bg-muted"
+                    className={`cursor-pointer px-3 py-2 hover:bg-muted ${isSelected(item) ? "bg-muted font-medium" : ""
+                        }`}
                 >
                     {String(item[displayKey])}
                 </div>
