@@ -1,4 +1,4 @@
-import { AudioLines, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, Eye, EyeClosed, X } from "lucide-react";
+import { AudioLines, CheckCircle, ChevronLeft, ChevronRight, Eye, EyeClosed, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";

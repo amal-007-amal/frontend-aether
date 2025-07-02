@@ -108,7 +108,6 @@ export default function CallDetailPage() {
                         <FunnelPlus className="h-4 w-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="space-y-2 p-3 me-10">
-                        {/* Use regular <div> instead of DropdownMenuItem */}
                         <div onClick={(e) => e.stopPropagation()}>
                             <Select onValueChange={(value) => setSelFilter(value)}>
                                 <SelectTrigger className="w-full">
@@ -134,37 +133,7 @@ export default function CallDetailPage() {
                         </div>
                     </DropdownMenuContent>
                 </DropdownMenu>
-
             </div>
-            {/* <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-2">
-                    <AccordionTrigger className="text-xs"><div className="flex"><FunnelPlus className="h-4 w-4" />Add Filter</div></AccordionTrigger>
-                    <AccordionContent>
-                        <div
-                            className={`grid grid-cols-6 gap-4 transition-all duration-300 ease-in-out overflow-visible py-3 px-2`}
-                        >
-                            <div className="relative w-full">
-                                <Select>
-                                    <SelectTrigger className="w-[200px]">
-                                        <SelectValue placeholder="Select a filter" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="apple">Today</SelectItem>
-                                        <SelectItem value="banana">This Week</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="relative w-full">
-                                <AetherMultiSelect
-                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                    selected={selectedUserIDs}
-                                    onChange={setSelectedUserIDs}
-                                />
-                            </div>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion> */}
             <div className="shadow-md p-2">
                 <Table >
                     <TableHeader>
