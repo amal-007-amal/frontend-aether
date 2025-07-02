@@ -1,4 +1,4 @@
-import { AudioLines, CheckCircle, ChevronRight, Eye, EyeClosed, X } from "lucide-react";
+import { AudioLines, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, Eye, EyeClosed, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -266,7 +266,7 @@ export default function OTPComponent() {
                             placeholder="Enter phone number"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="border rounded-full p-2 w-full mb-4 placeholder:text-sm"
+                            className={`border rounded-full p-2 w-full mb-4 placeholder:text-sm ${phone}`}
                         />
                         <div className="relative">
                             <input
@@ -298,8 +298,15 @@ export default function OTPComponent() {
                                 }}
                                 className="text-black rounded-full hover:from-blue-600 hover:to-teal-500 underline"
                             >
-                                Set a new password
+                                Set a new password ?
                             </button>
+                        </div>
+                        <div className="flex justify-between">
+                            <button className="flex items-center bg-purple-100 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
+                                <ChevronLeft className="text-purple-800" />
+                            </button>
+                            <button className="flex items-center bg-purple-100 shadow-sm rounded-full p-2"
+                                onClick={() => setStep(prev => prev + 1)}><ChevronRight className="text-purple-800" /></button>
                         </div>
                     </>
                 ) : (
@@ -330,15 +337,23 @@ export default function OTPComponent() {
                         </div>
                         <button
                             onClick={() => {
-                                if (password !== "") {
+                                if (password !== "" && verified) {
                                     handleSetNewPassword();
+                                } else {
+                                    toast.warning('Kindly Verify your phonnumber')
                                 }
                             }}
-                            className={`${password === "" ? "cursor-not-allowed opacity-50" : ""
+                            className={`${password === "" || !verified
+                                ? "cursor-not-allowed opacity-50"
+                                : ""
                                 } bg-gradient-to-r from-purple-500 to-gray-300 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}
                         >
                             Set Password
                         </button>
+                        <div className="flex justify-between">
+                            <button className="flex items-center bg-purple-100 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
+                                <ChevronLeft className="text-purple-800" /></button>
+                        </div>
                         {showPopup && (
                             <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
                                 <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center">
@@ -372,7 +387,7 @@ export default function OTPComponent() {
                 )
             }
             {isPass && (
-                <AetherLoader/>
+                <AetherLoader />
             )}
         </div>
     );
