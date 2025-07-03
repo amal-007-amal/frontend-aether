@@ -28,7 +28,7 @@ export default function CallDetailPage() {
     const [range, setRange] = useState<DateRange | undefined>();
     const [pageSize, setPageSize] = useState(10);
     const [sortKey, setSortKey] = useState<string>('start_time');
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [filters, setFilters] = useState({
         user_id: "",
         device_id: "",
