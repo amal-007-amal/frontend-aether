@@ -1,97 +1,120 @@
-import { useState } from "react";
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
+    Popover,
+    PopoverContent,
 } from "../components/ui/popover";
 import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandItem,
-  CommandEmpty,
+    Command,
+    CommandInput,
+    CommandList,
 } from "../components/ui/command";
-import { Button } from "../components/ui/button";
 import { Checkbox } from "../components/ui/checkbox";
-import { ChevronsUpDown } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type MultiSelectOption = {
-  label: string;
-  value: string;
+    label: string;
+    value: string;
 };
 
 type DynamicMultiSelectProps = {
-  data: MultiSelectOption[];
-  selected: string[];
-  onChange: (selected: string[]) => void;
-  placeholder?: string;
+    data: MultiSelectOption[];         // label = name, value = id (unused)
+    selected: string[];                // selected names (label)
+    onChange: (selected: string[]) => void;
+    open: boolean;
+    setOpen: (value: boolean) => void;
 };
 
 export function AetherNameMultiSelect({
-  data,
-  selected,
-  onChange,
-  placeholder = "Select...",
+    data,
+    selected,
+    onChange,
+    open,
+    setOpen,
 }: DynamicMultiSelectProps) {
-  const [open, setOpen] = useState(false);
+    const [tempSelected, setTempSelected] = useState<string[]>(selected);
 
-  const toggle = (value: string) => {
-    if (selected.includes(value)) {
-      onChange(selected.filter((v) => v !== value));
-    } else {
-      onChange([...selected, value]);
-    }
-  };
+    useEffect(() => {
+        if (open) {
+            setTempSelected(selected); // sync when dropdown opens
+        }
+    }, [open, selected]);
 
-  const handleSelectAll = () => {
-    const allValues = data.map((item) => item.label);
-    onChange(allValues);
-  };
+    const toggle = (value: string) => {
+        setTempSelected((prev) =>
+            prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value]
+        );
+    };
 
-  const handleDeselectAll = () => {
-    onChange([]);
-  };
+    const handleSelectAll = () => {
+        const allLabels = data.map((item) => item.label);
+        setTempSelected(allLabels);
+    };
 
-  const selectedLabels = data
-    .filter((item) => selected.includes(item.label))
-    .map((item) => item.label)
-    .join(", ");
+    const handleDeselectAll = () => {
+        setTempSelected([]);
+    };
 
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="w-[300px] justify-between text-gray-400">
-          {selectedLabels || placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0">
-        <Command>
-          <CommandInput placeholder="Search..." />
-          <CommandEmpty>No results found.</CommandEmpty>
-          <div className="flex justify-between items-center px-3 py-2 text-xs border-b">
-            <button onClick={handleSelectAll} className="text-black hover:underline">
-              Select All
-            </button>
-            <button onClick={handleDeselectAll} className="text-red-600 hover:underline">
-              Clear All
-            </button>
-          </div>
-          <CommandList>
-            {data.map((item) => (
-              <CommandItem key={item.value} onSelect={() => toggle(item.label)}>
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    checked={selected.includes(item.label)}
-                    onCheckedChange={() => toggle(item.label)}
-                  />
-                  <span>{item.label}</span>
-                </div>
-              </CommandItem>
-            ))}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
+    const handleApply = () => {
+        onChange(tempSelected); // update parent only on apply
+        setOpen(false);
+    };
+
+    const selectedLabels = tempSelected.join(", ");
+    const selectedCount = tempSelected.length;
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverContent className="w-[300px] p-0 absolute top-44 left-24">
+                <Command>
+                    <CommandInput
+                        placeholder={
+                            selectedCount > 2
+                                ? `${selectedCount} people`
+                                : selectedLabels || "Search..."
+                        }
+                    />
+                    <div className="flex justify-between items-center px-3 py-2 text-xs border-b">
+                        <div className="gap-4 flex">
+                            <button
+                                onClick={handleSelectAll}
+                                className="text-black hover:underline"
+                            >
+                                Select All
+                            </button>
+                            <button
+                                onClick={handleDeselectAll}
+                                className="text-red-600 hover:underline"
+                            >
+                                Clear All
+                            </button>
+                        </div>
+                        <button
+                            onClick={handleApply}
+                            className="text-blue-600 hover:underline"
+                        >
+                            Apply
+                        </button>
+                    </div>
+
+                    <CommandList>
+                        {data.map((item) => (
+                            <div
+                                key={item.value}
+                                className="px-2 py-1.5 cursor-pointer hover:bg-gray-100 flex items-center gap-2 text-sm"
+                                onClick={() => toggle(item.label)}
+                            >
+                                <Checkbox
+                                    checked={tempSelected.includes(item.label)}
+                                    onCheckedChange={() => toggle(item.label)}
+                                    onClick={(e) => e.stopPropagation()} // prevent double toggle
+                                />
+                                <span className="text-xs">{item.label}</span>
+                            </div>
+                        ))}
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    );
 }

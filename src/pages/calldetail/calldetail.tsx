@@ -23,6 +23,7 @@ import { AetherNameMultiSelect } from "../../components/aethernamesselector";
 export default function CallDetailPage() {
     const [isPass, setIsPass] = useState(false)
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
+    const [openFilter, setOpenFilter] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTempUserIDs, setSelectedTempUserIDs] = useState<string[]>([]);
@@ -96,19 +97,21 @@ export default function CallDetailPage() {
     console.log("Call logs:", selectedUserIDs.length);
 
     const filteredData = useMemo(() => {
-        console.log(selectedTempUserIDs.length)
+        console.log("added items", JSON.stringify(selectedTempUserIDs))
         return calllogs.filter(call => {
             const userFilterPass =
-                selectedTempUserIDs.length === 0 || selectedTempUserIDs.includes(String(call.user_id));
+                selectedTempUserIDs.length === 0 ||
+                selectedTempUserIDs.includes(String(call.user_id));
+
             const otherFiltersPass = Object.entries(filters).every(([key, value]) => {
                 if (!value) return true;
                 const field = String((call as any)[key] ?? "").toLowerCase();
                 return field.includes(value.toLowerCase());
             });
-
             return userFilterPass && otherFiltersPass;
         });
     }, [calllogs, filters, selectedTempUserIDs]);
+
 
     const sortedData = useMemo(() => {
         if (!sortKey) return filteredData;
@@ -211,55 +214,30 @@ export default function CallDetailPage() {
                                                 )}
                                             </span>
                                         </span>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <button className="p-1 rounded hover:bg-gray-100">
-                                                    <Funnel className="h-3 w-4 text-gray-400" />
-                                                </button>
-                                            </DropdownMenuTrigger>
-
-                                            <DropdownMenuContent align="end" className="w-full">
-
-                                                <AetherNameMultiSelect
-                                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                                    selected={selectedTempUserIDs}
-                                                    onChange={setSelectedTempUserIDs}
-                                                />
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        <Funnel
+                                            onClick={() => setOpenFilter(true)}
+                                            className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
+                                        />
+                                        <AetherNameMultiSelect
+                                            data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                            selected={selectedTempUserIDs}
+                                            onChange={setSelectedTempUserIDs}
+                                            open={openFilter}
+                                            setOpen={setOpenFilter}
+                                        />
                                     </div>
                                 </TableHead>
                             )}
                             {visibleColumns.includes("device_id") && (
                                 <TableHead
-                                    onClick={() => handleSort("device_id")}
                                     className="text-xs font-semibold cursor-pointer"
-                                >
-                                    <span className="flex items-center justify-between gap-1">
-                                        <span className="flex items-center gap-1">
-                                            Device ID
-                                            {sortKey === "device_id" && (
-                                                sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                            )}
-                                        </span>
-                                        <Funnel className="h-3 w-4 text-gray-400" />
-                                    </span>
+                                > Device ID
                                 </TableHead>
                             )}
                             {visibleColumns.includes("type") && (
                                 <TableHead
-                                    onClick={() => handleSort("type")}
                                     className="text-xs font-semibold cursor-pointer"
-                                >
-                                    <span className="flex items-center justify-between gap-1">
-                                        <span className="flex items-center gap-1">
-                                            Type
-                                            {sortKey === "type" && (
-                                                sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                            )}
-                                        </span>
-                                        <Funnel className="h-3 w-4 text-gray-400" />
-                                    </span>
+                                >Type
                                 </TableHead>
                             )}
                             {visibleColumns.includes("duration") && (
