@@ -1,6 +1,7 @@
-import { AudioLines, LogOut } from "lucide-react";
+import { AudioLines, Ellipsis, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../components/ui/dropdown-menu";
 
 export default function Header() {
     const aetherNaviagte = useNavigate()
@@ -16,13 +17,20 @@ export default function Header() {
                 <AudioLines className="h-5 w-5" />
             </h2>
 
-            <Button
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-xs bg-white text-black px-4 py-2 shadow-none hover:bg-gray-100 transition-all"
-            >
-                <LogOut className="w-4 h-4" />
-                Logout
-            </Button>
+            <DropdownMenu>
+                <DropdownMenuTrigger>
+                    <Ellipsis className="h-4 w-4 text-black" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="space-y-2 p-3 me-10">
+                    <Button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 text-xs bg-white text-black px-4 py-2 shadow-none hover:bg-gray-100 transition-all"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                    </Button>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </header>
     )
 }

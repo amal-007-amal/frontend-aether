@@ -33,7 +33,7 @@ export default function OTPComponent() {
     const [refId, setRefId] = useState("");
     const [surl, setSurl] = useState("")
     const [otpjwt, setOtpjwt] = useState("")
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(0)
     const [showPopup, setShowPopup] = useState(false);
     const [isPass, setIsPass] = useState(false);
 

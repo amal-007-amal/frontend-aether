@@ -1,31 +1,64 @@
 import { AlignLeft, Cog, Home, UserCog } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../components/ui/tooltip";
+
 
 export default function SideBar() {
   const location = useLocation();
-
+  const navMenuItem = [
+    {
+      path: "/dashboard",
+      label: "Analysis",
+      icon: Home,
+      tooltip: true,
+    },
+    {
+      path: "/calldetails",
+      label: "Call Details",
+      icon: AlignLeft,
+      tooltip: false,
+    },
+    {
+      path: "/usermanagment",
+      label: "User Management",
+      icon: UserCog,
+      tooltip: false,
+    },
+    {
+      path: "/settings",
+      label: "Settings",
+      icon: Cog,
+      tooltip: false,
+    },
+  ]
   const isActive = (path: string) => location.pathname === path;
 
   const baseClasses = "text-fuchsia-500 flex items-center gap-3 text-xs p-2 rounded-xl";
 
   return (
-    <aside className={`transition-all duration-300 w-18 py-4 px-3 bg-gray-100/60 rounded-xl p-2`}>
+    <aside className={`transition-all duration-300 w-18 py-4 px-3 bg-gray-100/60 rounded-xl p-2 shadow`}>
       <nav className="space-y-3 flex flex-col">
-        <Link to="/dashboard" className={`${baseClasses} ${isActive("/dashboard") ? "bg-fuchsia-500 shadow" : ""}`}>
-          <Home className={`w-5 h-5 hover:rotate-[360deg] transition-transform duration-1000 ease-in-out ${isActive("/dashboard") ? 'text-white' : 'text-gray-400'}`} />
-        </Link>
+        {navMenuItem.map(({ path, label, icon: Icon, tooltip }) => {
+          const active = isActive(path);
+          const iconClasses = `w-5 h-5 hover:rotate-[360deg] transition-transform duration-1000 ease-in-out ${active ? 'text-white' : 'text-gray-400'}`;
+          const linkClasses = `${baseClasses} ${active ? "bg-fuchsia-500 shadow" : ""}`;
 
-        <Link to="/calldetails" className={`${baseClasses} ${isActive("/calldetails") ? "bg-fuchsia-500 shadow" : ""}`}>
-          <AlignLeft className={`w-5 h-5 hover:rotate-[360deg] transition-transform duration-1000 ease-in-out ${isActive("/calldetails") ? 'text-white' : 'text-gray-400'}`} />
-        </Link>
+          const link = (
+            <Link key={path} to={path} className={linkClasses}>
+              <Icon className={iconClasses} />
+            </Link>
+          );
 
-        <Link to="/usermanagment" className={`${baseClasses} ${isActive("/usermanagment") ? "bg-fuchsia-500 shadow" : ""}`}>
-          <UserCog className={`w-5 h-5 hover:rotate-[360deg] transition-transform duration-1000 ease-in-out ${isActive("/usermanagment") ? 'text-white' : 'text-gray-400'}`} />
-        </Link>
+          return tooltip ? (
+            <Tooltip key={path}>
+              <TooltipTrigger asChild>{link}</TooltipTrigger>
+              <TooltipContent side="right">{label}</TooltipContent>
+            </Tooltip>
+          ) : (
+            link
+          );
+        })}
 
-        <Link to="/settings" className={`${baseClasses} ${isActive("/settings") ? "bg-fuchsia-500 shadow" : ""}`}>
-          <Cog className={`w-5 h-5 hover:rotate-[360deg] transition-transform duration-1000 ease-in-out ${isActive("/settings") ? 'text-white' : 'text-gray-400'}`} />
-        </Link>
       </nav>
     </aside>
   );

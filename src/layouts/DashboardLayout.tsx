@@ -15,6 +15,5 @@ export const AetherDashboardLayout = () => {
                 </main>
             </div>
         </div>
-
     )
 }
