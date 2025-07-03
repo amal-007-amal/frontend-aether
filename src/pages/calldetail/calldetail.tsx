@@ -17,6 +17,7 @@ import type { DateRange } from "react-day-picker";
 import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
 import { Checkbox } from "../../components/ui/checkbox";
+import { AetherNameMultiSelect } from "../../components/aethernamesselector";
 
 
 export default function CallDetailPage() {
@@ -24,6 +25,7 @@ export default function CallDetailPage() {
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
+    const [selectedTempUserIDs, setSelectedTempUserIDs] = useState<string[]>([]);
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
     const [pageSize, setPageSize] = useState(10);
@@ -94,14 +96,19 @@ export default function CallDetailPage() {
     console.log("Call logs:", selectedUserIDs.length);
 
     const filteredData = useMemo(() => {
+        console.log(selectedTempUserIDs.length)
         return calllogs.filter(call => {
-            return Object.entries(filters).every(([key, value]) => {
+            const userFilterPass =
+                selectedTempUserIDs.length === 0 || selectedTempUserIDs.includes(String(call.user_id));
+            const otherFiltersPass = Object.entries(filters).every(([key, value]) => {
                 if (!value) return true;
                 const field = String((call as any)[key] ?? "").toLowerCase();
                 return field.includes(value.toLowerCase());
             });
+
+            return userFilterPass && otherFiltersPass;
         });
-    }, [filters, calllogs]);
+    }, [calllogs, filters, selectedTempUserIDs]);
 
     const sortedData = useMemo(() => {
         if (!sortKey) return filteredData;
@@ -212,13 +219,12 @@ export default function CallDetailPage() {
                                             </DropdownMenuTrigger>
 
                                             <DropdownMenuContent align="end" className="w-full">
-                                                <div onClick={(e) => e.stopPropagation()}>
-                                                    <AetherMultiSelect
-                                                        data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                                        selected={selectedUserIDs}
-                                                        onChange={setSelectedUserIDs}
-                                                    />
-                                                </div>
+
+                                                <AetherNameMultiSelect
+                                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                                    selected={selectedTempUserIDs}
+                                                    onChange={setSelectedTempUserIDs}
+                                                />
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
@@ -339,7 +345,7 @@ export default function CallDetailPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody className="text-xs">
-                        {currentPageData.length !== 0 &&
+                        {currentPageData.length !== 0 ? (
                             currentPageData.map((call, index) => (
                                 <TableRow key={call.id}>
                                     <TableCell className="text-left">{index + 1}</TableCell>
@@ -368,7 +374,13 @@ export default function CallDetailPage() {
                                         <TableCell className="text-left">{call.agent_number}</TableCell>
                                     )}
                                 </TableRow>
-                            ))}
+                            ))
+                        ) : (
+                            <div className="flex items-center justify-center py-4">
+                                <p className="text-center"></p>
+                            </div>
+                        )
+                        }
                     </TableBody>
                 </Table>
 
