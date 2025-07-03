@@ -23,7 +23,7 @@ const statusCards = [
     label: "Call Error",
     icon: <XCircle className="w-6 h-6 text-red-400" />,
     lablelColor: "text-red-400",
-    cardCount:3
+    cardCount: 3
   },
 ];
 
