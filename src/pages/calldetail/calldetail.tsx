@@ -274,7 +274,7 @@ export default function CallDetailPage() {
                             )}
                             {visibleColumns.includes("start_time") && (
                                 <TableHead
-                                    onClick={() => handleSort("duration")}
+                                    onClick={() => handleSort("start_time")}
                                     className="text-xs font-semibold cursor-pointer"
                                 >
                                     <span className="flex items-center justify-between gap-1">
