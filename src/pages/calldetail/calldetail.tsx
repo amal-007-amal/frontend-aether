@@ -17,7 +17,6 @@ import type { DateRange } from "react-day-picker";
 import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
 
-const PAGE_SIZE = 10;
 
 export default function CallDetailPage() {
     const [isPass, setIsPass] = useState(false)
