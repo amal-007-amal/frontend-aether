@@ -1,4 +1,4 @@
-import { AudioLines, CheckCircle, ChevronLeft, ChevronRight, Eye, EyeClosed, X } from "lucide-react";
+import { AudioLines, CheckCircle, ChevronLeft, ChevronRight, Eye, EyeClosed, Loader, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -240,7 +240,7 @@ export default function OTPComponent() {
 
     return (
         <div className="p-4 max-w-md mx-auto">
-            <h2 className="text-5xl font-light mb-4 flex justify-center items-center">A<span className="text-purple-500">ether</span>&nbsp;Hub&nbsp;<AudioLines className="h-10 w-10" /></h2>
+            <h2 className="text-5xl font-light mb-4 flex justify-center items-center">A<span className="text-fuchsia-500">ether</span>&nbsp;Hub&nbsp;<AudioLines className="h-10 w-10" /></h2>
             {
                 step === 0 ? (
                     <div className="flex flex-col">
@@ -257,7 +257,7 @@ export default function OTPComponent() {
                                     handleServerUrl()
                                 }
                             }}
-                            className={`${surl === "" ? 'cursor-not-allowed opacity-50' : ''} bg-gradient-to-r from-purple-600 to-gray-300 text-white flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}>Submit <ChevronRight /> </button>
+                            className={`${surl === "" ? 'cursor-not-allowed opacity-50' : ''} bg-gradient-to-r from-fuchsia-600 to-gray-300 text-white flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}>Submit <ChevronRight /> </button>
                     </div>
                 ) : step === 1 ? (
                     <>
@@ -285,7 +285,7 @@ export default function OTPComponent() {
                                 }
                             }}
                             className={`${password === "" || phone === "" ? "cursor-not-allowed opacity-50" : ""
-                                } bg-gradient-to-r from-purple-600 to-gray-300 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}
+                                } bg-gradient-to-r from-fuchsia-600 to-gray-300 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}
                         >
                             Login
                         </button>
@@ -302,11 +302,11 @@ export default function OTPComponent() {
                             </button>
                         </div>
                         <div className="flex justify-between">
-                            <button className="flex items-center bg-purple-100 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
-                                <ChevronLeft className="text-purple-800" />
+                            <button className="flex items-center bg-fuchsia-100 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
+                                <ChevronLeft className="text-fuchsia-800" />
                             </button>
-                            <button className="flex items-center bg-purple-100 shadow-sm rounded-full p-2"
-                                onClick={() => setStep(prev => prev + 1)}><ChevronRight className="text-purple-800" /></button>
+                            <button className="flex items-center bg-fuchsia-100 shadow-sm rounded-full p-2"
+                                onClick={() => setStep(prev => prev + 1)}><ChevronRight className="text-fuchsia-800" /></button>
                         </div>
                     </>
                 ) : (
@@ -321,8 +321,8 @@ export default function OTPComponent() {
                             />
                             <button
                                 onClick={handleSendOtp}
-                                className="absolute bg-purple-500 text-xs text-white hover:shadow-md right-2 top-2 p-1 rounded-full flex gap-2 items-center">
-                                {verified ? ('verified') : (<>{isLoad ? (<AetherLoader />) : 'Verify'}</>)}
+                                className="absolute bg-fuchsia-500 text-xs text-white hover:shadow-md right-2 top-2 p-1 rounded-full flex gap-2 items-center">
+                                {verified ? ('verified') : (<>{isLoad ? (<Loader className="w-4 h-4 animate-spin" />) : 'Verify'}</>)}
                             </button>
                         </div>
                         <div className="relative">
@@ -346,13 +346,13 @@ export default function OTPComponent() {
                             className={`${password === "" || !verified
                                 ? "cursor-not-allowed opacity-50"
                                 : ""
-                                } bg-gradient-to-r from-purple-500 to-gray-300 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}
+                                } bg-gradient-to-r from-fuchsia-500 to-gray-300 text-white w-full flex my-5 justify-center p-2 rounded-full hover:shadow-lg transition-all`}
                         >
                             Set Password
                         </button>
                         <div className="flex justify-between">
-                            <button className="flex items-center bg-purple-100 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
-                                <ChevronLeft className="text-purple-800" /></button>
+                            <button className="flex items-center bg-fuchsia-100 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
+                                <ChevronLeft className="text-fuchsia-800" /></button>
                         </div>
                         {showPopup && (
                             <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
@@ -368,7 +368,7 @@ export default function OTPComponent() {
                                     <div className="flex justify-center gap-10">
                                         <button
                                             onClick={handleVerifyOtp}
-                                            className="bg-gradient-to-r from-purple-500 to-gray-300 text-white px-4 py-1 hover:bg-purple-600 w-full rounded-full"
+                                            className="bg-gradient-to-r from-fuchsia-500 to-gray-300 text-white px-4 py-1 hover:bg-fuchsia-600 w-full rounded-full"
                                         >
                                             Verify
                                         </button>

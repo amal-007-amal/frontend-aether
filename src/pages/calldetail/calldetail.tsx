@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { BookCopy, ChevronsLeft, ChevronsRight, FunnelPlus } from "lucide-react";
+import { BookCopy, ChevronsLeft, ChevronsRight, Funnel, FunnelPlus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -35,7 +35,7 @@ export default function CallDetailPage() {
         other_name: "",
         agent_number: ""
     });
-
+    console.log(setFilters);
     const fetchCallLogs = useCallback(async () => {
         setIsPass(true);
         try {
@@ -93,15 +93,10 @@ export default function CallDetailPage() {
         }
     };
 
-    const handleFilterChange = (field: string, value: string) => {
-        setFilters(prev => ({ ...prev, [field]: value }));
-    };
-
-
 
     return (
-        <div className="p-2">
-            <div className="flex justify-between mb-2 shadow p-2 items-center border-l-2 border-l-purple-500">
+        <div>
+            <div className="flex justify-between mb-2 p-3 items-center rounded-xl border border-gray-200">
                 <h2 className="text-sm font-normal flex items-center"><BookCopy className="h-4" />Call Logs</h2>
                 <DropdownMenu>
                     <DropdownMenuTrigger>
@@ -134,72 +129,42 @@ export default function CallDetailPage() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="shadow-md p-2">
-                <Table >
+            <div className="p-2 rounded-xl border border-gray-200 my-4">
+                <Table className="cursor-pointer">
                     <TableHeader>
                         <TableRow className="text-sm font-light">
                             <TableHead className="text-xs font-semibold">Sl No.</TableHead>
-                            <TableHead className="text-xs font-semibold">USERNAME</TableHead>
-                            <TableHead className="text-xs font-semibold">DEVICE ID</TableHead>
-                            <TableHead className="text-xs font-semibold">TYPE</TableHead>
-                            <TableHead className="text-xs font-semibold">DURATION</TableHead>
-                            <TableHead className="text-xs font-semibold">START TIME</TableHead>
-                            <TableHead className="text-xs font-semibold">OTHER NUMBER</TableHead>
-                            <TableHead className="text-xs font-semibold">OTHER NAME</TableHead>
-                            <TableHead className="text-xs font-semibold">AGENT NUMBER</TableHead>
-                        </TableRow>
-                        <TableRow>
-                            <TableHead />
-                            <TableHead>
-                                <Input placeholder="Search name" className="placeholder:text-xs h-6"
-                                    value={filters.user_id}
-                                    onChange={e => handleFilterChange("user_id", e.target.value)}
-                                />
-                            </TableHead>
-                            <TableHead>
-                                <Input placeholder="Search device" className="placeholder:text-xs h-6"
-                                    value={filters.device_id}
-                                    onChange={e => handleFilterChange("device_id", e.target.value)}
-                                />
-                            </TableHead>
-                            <TableHead>
-                                <Input placeholder="Search type" className="placeholder:text-xs h-6"
-                                    value={filters.type}
-                                    onChange={e => handleFilterChange("type", e.target.value)}
-                                />
-                            </TableHead>
-                            <TableHead>
-                                <Input placeholder="Search duration" className="placeholder:text-xs h-6"
-                                    value={filters.duration}
-                                    onChange={e => handleFilterChange("duration", e.target.value)}
-                                />
-                            </TableHead>
-                            <TableHead>
-                                <Input placeholder="Search time" className="placeholder:text-xs h-6"
-                                    value={filters.start_time}
-                                    onChange={e => handleFilterChange("start_time", e.target.value)}
-                                />
-                            </TableHead>
-                            <TableHead>
-                                <Input placeholder="Search number" className="placeholder:text-xs h-6"
-                                    value={filters.other_number}
-                                    onChange={e => handleFilterChange("other_number", e.target.value)}
-                                />
-                            </TableHead>
-                            <TableHead>
-                                <Input placeholder="Search name" className="placeholder:text-xs h-6"
-                                    value={filters.other_name}
-                                    onChange={e => handleFilterChange("other_name", e.target.value)}
-                                />
-                            </TableHead>
-                            <TableHead>
-                                <Input placeholder="Search agent" className="placeholder:text-xs h-6"
-                                    value={filters.agent_number}
-                                    onChange={e => handleFilterChange("agent_number", e.target.value)}
-                                />
-                            </TableHead>
-                        </TableRow>
+                            <TableHead className="text-xs font-semibold">
+                                <div className="flex items-center justify-between gap-1">
+                                    Username
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button className="p-1 rounded hover:bg-gray-100">
+                                                <Funnel className="h-3 w-4 text-gray-400" />
+                                            </button>
+                                        </DropdownMenuTrigger>
 
+                                        <DropdownMenuContent align="end" className="w-full">
+                                            <div onClick={(e) => e.stopPropagation()}>
+                                                <AetherMultiSelect
+                                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                                    selected={selectedUserIDs}
+                                                    onChange={setSelectedUserIDs}
+                                                />
+                                            </div>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                            </TableHead>
+
+                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Device ID<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
+                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Type<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
+                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Duration<Funnel className="h-3 w-4 text-gray-400" /></span> </TableHead>
+                            <TableHead className="text-xs font-semibold">Start Time</TableHead>
+                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Other Number<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
+                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Other Name<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
+                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Agent Number<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
+                        </TableRow>
                     </TableHeader>
                     <TableBody>
                         {currentPageData.length !== 0 && (
@@ -236,7 +201,7 @@ export default function CallDetailPage() {
                     <div className="flex items-center gap-2">
                         <Input
                             type="number"
-                            className="w-16 text-center"
+                            className="w-16 text-center shadow-none rounded-xl border border-gray-200"
                             min={1}
                             max={totalPages}
                             value={inputPage}
@@ -248,7 +213,7 @@ export default function CallDetailPage() {
                             }}
                         />
                         <span>of {totalPages}</span>
-                        <Button className="bg-white text-xs text-black hover:bg-white" onClick={handlePageChange}>Go</Button>
+                        <Button className="bg-white text-xs shadow-none rounded-xl border border-gray-200 text-black hover:bg-white" onClick={handlePageChange}>Go</Button>
                     </div>
 
                     <Button

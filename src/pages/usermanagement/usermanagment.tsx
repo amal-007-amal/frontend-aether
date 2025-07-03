@@ -109,10 +109,10 @@ export default function UserManagmentPage() {
 
 
     return (
-        <div className="p-2">
-            <div className="flex justify-between mb-4 shadow p-2 items-center border-l-2 border-l-purple-500 ">
+        <div>
+            <div className="flex justify-between mb-4 p-2 items-center rounded-xl border border-gray-200">
                 <h2 className="text-sm font-normal flex items-center"><Users className="h-4"/>User List</h2>
-                <Button variant={'outline'} onClick={() => {
+                <Button variant={'default'} className="text-xs rounded-xl border border-gray-200 bg-white shadow-none text-black hover:bg-gray-100" onClick={() => {
                     setUserData({
                         name: "",
                         phone_number: "",
@@ -122,10 +122,10 @@ export default function UserManagmentPage() {
                     })
                     setOpen(prev => !prev);
                     setIsEditMode(false);
-                }}>Add User <Plus />
+                }}>Add User <Plus className="h-4" />
                </Button>
             </div>
-            <div className="shadow-md p-2">
+            <div className="p-2 rounded-xl border border-gray-200 my-4">
                 <Table >
                     <TableHeader>
                         <TableRow className="text-sm font-light">
