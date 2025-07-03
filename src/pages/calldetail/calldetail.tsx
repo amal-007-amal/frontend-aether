@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { ChevronsLeft, ChevronsRight, Funnel, FunnelPlus } from "lucide-react";
+import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, Funnel, FunnelPlus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -26,6 +26,8 @@ export default function CallDetailPage() {
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
     const [pageSize, setPageSize] = useState(10);
+    const [sortKey, setSortKey] = useState<string>('user_id');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [filters, setFilters] = useState({
         user_id: "",
         device_id: "",
@@ -67,7 +69,6 @@ export default function CallDetailPage() {
     }, [fetchCallLogs, fetchUsers]);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [inputPage, setInputPage] = useState("1");
 
     console.log("Call logs:", selectedUserIDs.length);
 
@@ -81,10 +82,25 @@ export default function CallDetailPage() {
         });
     }, [filters, calllogs]);
 
+    const sortedData = useMemo(() => {
+        if (!sortKey) return filteredData;
+
+        return [...filteredData].sort((a, b) => {
+            const aVal = (a as any)[sortKey];
+            const bVal = (b as any)[sortKey];
+
+            if (typeof aVal === 'number' && typeof bVal === 'number') {
+                return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+            }
+
+            return String(aVal).localeCompare(String(bVal), undefined, { sensitivity: 'base' }) * (sortOrder === 'asc' ? 1 : -1);
+        });
+    }, [filteredData, sortKey, sortOrder]);
+
     // Step 2: Pagination
     const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
     const startIndex = (currentPage - 1) * pageSize;
-    const currentPageData = filteredData.slice(startIndex, startIndex + pageSize);
+    const currentPageData = sortedData.slice(startIndex, startIndex + pageSize);
 
     useEffect(() => {
         if (currentPage > totalPages) {
@@ -92,12 +108,12 @@ export default function CallDetailPage() {
         }
     }, [pageSize, totalPages]);
 
-    // Step 3: Handlers
-    const handlePageChange = () => {
-        const page = parseInt(inputPage);
-        if (!isNaN(page)) {
-            const validPage = Math.max(1, Math.min(page, totalPages));
-            setCurrentPage(validPage);
+    const handleSort = (key: string) => {
+        if (sortKey === key) {
+            setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+        } else {
+            setSortKey(key);
+            setSortOrder('asc');
         }
     };
 
@@ -141,9 +157,17 @@ export default function CallDetailPage() {
                     <TableHeader>
                         <TableRow className="text-sm font-light">
                             <TableHead className="text-xs font-semibold">Sl No.</TableHead>
-                            <TableHead className="text-xs font-semibold">
+                            <TableHead onClick={() => handleSort("user_id")} className="text-xs font-semibold">
                                 <div className="flex items-center justify-between gap-1">
-                                    Username
+                                    <span className="flex items-center justify-between gap-1">
+                                        <span className="flex items-center gap-1">
+                                            Username
+                                            {sortKey === "user_id" && (
+                                                sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                            )}
+                                        </span>
+                                        <Funnel className="h-3 w-4 text-gray-400" />
+                                    </span>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <button className="p-1 rounded hover:bg-gray-100">
@@ -163,14 +187,105 @@ export default function CallDetailPage() {
                                     </DropdownMenu>
                                 </div>
                             </TableHead>
+                            <TableHead
+                                onClick={() => handleSort("device_id")}
+                                className="text-xs font-semibold cursor-pointer"
+                            >
+                                <span className="flex items-center justify-between gap-1">
+                                    <span className="flex items-center gap-1">
+                                        Device ID
+                                        {sortKey === "device_id" && (
+                                            sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                        )}
+                                    </span>
+                                    <Funnel className="h-3 w-4 text-gray-400" />
+                                </span>
+                            </TableHead>
+                            <TableHead
+                                onClick={() => handleSort("type")}
+                                className="text-xs font-semibold cursor-pointer"
+                            >
+                                <span className="flex items-center justify-between gap-1">
+                                    <span className="flex items-center gap-1">
+                                        Type
+                                        {sortKey === "type" && (
+                                            sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                        )}
+                                    </span>
+                                    <Funnel className="h-3 w-4 text-gray-400" />
+                                </span>
+                            </TableHead>
+                            <TableHead
+                                onClick={() => handleSort("duration")}
+                                className="text-xs font-semibold cursor-pointer"
+                            >
+                                <span className="flex items-center justify-between gap-1">
+                                    <span className="flex items-center gap-1">
+                                        Duration
+                                        {sortKey === "duration" && (
+                                            sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                        )}
+                                    </span>
+                                    <Funnel className="h-3 w-4 text-gray-400" />
+                                </span>
+                            </TableHead>
+                            <TableHead
+                                onClick={() => handleSort("duration")}
+                                className="text-xs font-semibold cursor-pointer"
+                            >
+                                <span className="flex items-center justify-between gap-1">
+                                    <span className="flex items-center gap-1">
+                                        Start Time
+                                        {sortKey === "start_time" && (
+                                            sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                        )}
+                                    </span>
+                                    <Funnel className="h-3 w-4 text-gray-400" />
+                                </span>
+                            </TableHead>
+                            <TableHead
+                                onClick={() => handleSort("other_number")}
+                                className="text-xs font-semibold cursor-pointer"
+                            >
+                                <span className="flex items-center justify-between gap-1">
+                                    <span className="flex items-center gap-1">
+                                        Other Number
+                                        {sortKey === "other_number" && (
+                                            sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                        )}
+                                    </span>
+                                    <Funnel className="h-3 w-4 text-gray-400" />
+                                </span>
+                            </TableHead>
+                            <TableHead
+                                onClick={() => handleSort("other_name")}
+                                className="text-xs font-semibold cursor-pointer"
+                            >
+                                <span className="flex items-center justify-between gap-1">
+                                    <span className="flex items-center gap-1">
+                                        Other Name
+                                        {sortKey === "other_name" && (
+                                            sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                        )}
+                                    </span>
+                                    <Funnel className="h-3 w-4 text-gray-400" />
+                                </span>
+                            </TableHead>
 
-                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Device ID<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
-                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Type<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
-                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Duration<Funnel className="h-3 w-4 text-gray-400" /></span> </TableHead>
-                            <TableHead className="text-xs font-semibold">Start Time</TableHead>
-                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Other Number<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
-                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Other Name<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
-                            <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Agent Number<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
+                            <TableHead
+                                onClick={() => handleSort("agent_number")}
+                                className="text-xs font-semibold cursor-pointer"
+                            >
+                                <span className="flex items-center justify-between gap-1">
+                                    <span className="flex items-center gap-1">
+                                        Agent Number
+                                        {sortKey === "agent_number" && (
+                                            sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                        )}
+                                    </span>
+                                    <Funnel className="h-3 w-4 text-gray-400" />
+                                </span>
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody className="text-xs">
@@ -197,7 +312,6 @@ export default function CallDetailPage() {
                         onClick={() => {
                             const newPage = Math.max(currentPage - 1, 1);
                             setCurrentPage(newPage);
-                            setInputPage(newPage.toString());
                         }}
                         disabled={currentPage === 1}
                     >
@@ -228,9 +342,6 @@ export default function CallDetailPage() {
                                 }
                             }}
                         />
-
-                        <span>of {totalPages}</span>
-                        <Button className="bg-white text-xs shadow-none rounded-xl border border-gray-200 text-black hover:bg-white" onClick={handlePageChange}>Go</Button>
                     </div>
 
                     <Button
@@ -238,7 +349,6 @@ export default function CallDetailPage() {
                         onClick={() => {
                             const newPage = Math.min(currentPage + 1, totalPages);
                             setCurrentPage(newPage);
-                            setInputPage(newPage.toString());
                         }}
                         disabled={currentPage === totalPages}
                     >
