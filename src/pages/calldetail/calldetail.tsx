@@ -166,7 +166,6 @@ export default function CallDetailPage() {
                                                 sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                                             )}
                                         </span>
-                                        <Funnel className="h-3 w-4 text-gray-400" />
                                     </span>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
