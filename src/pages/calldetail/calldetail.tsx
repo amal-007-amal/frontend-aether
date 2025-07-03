@@ -15,6 +15,7 @@ import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import type { DateRange } from "react-day-picker";
 import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
+import { useFormattedDuration } from "../../hooks/useDurationFormat";
 
 const PAGE_SIZE = 10;
 
@@ -25,6 +26,7 @@ export default function CallDetailPage() {
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
+    const [pageSize, setPageSize] = useState(10);
     const [filters, setFilters] = useState({
         user_id: "",
         device_id: "",
@@ -81,56 +83,62 @@ export default function CallDetailPage() {
     }, [filters, calllogs]);
 
     // Step 2: Pagination
-    const totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
-    const currentPageData = filteredData.slice(startIndex, startIndex + PAGE_SIZE);
+    const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+    const startIndex = (currentPage - 1) * pageSize;
+    const currentPageData = filteredData.slice(startIndex, startIndex + pageSize);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [pageSize, totalPages]);
 
     // Step 3: Handlers
     const handlePageChange = () => {
         const page = parseInt(inputPage);
-        if (!isNaN(page) && page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
+        if (!isNaN(page)) {
+            const validPage = Math.max(1, Math.min(page, totalPages));
+            setCurrentPage(validPage);
         }
     };
-
 
     return (
         <div>
             <div className="p-2 rounded-xl border border-gray-200">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
-                <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
-                <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <FunnelPlus className="h-4 w-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="space-y-2 p-3 me-10">
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <Select onValueChange={(value) => setSelFilter(value)}>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select a filter" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="today">Today</SelectItem>
-                                    <SelectItem value="week">This Week</SelectItem>
-                                    <SelectItem value="custom">Custom</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {selfilter === "custom" && (
-                                <div className="w-full mt-2"><AetherDateRangePicker date={range} onChange={setRange} /></div>
-                            )}
-                        </div>
+                    <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>
+                            <FunnelPlus className="h-4 w-4" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="space-y-2 p-3 me-10">
+                            <div onClick={(e) => e.stopPropagation()}>
+                                <Select onValueChange={(value) => setSelFilter(value)}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select a filter" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="today">Today</SelectItem>
+                                        <SelectItem value="week">This Week</SelectItem>
+                                        <SelectItem value="custom">Custom</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {selfilter === "custom" && (
+                                    <div className="w-full mt-2"><AetherDateRangePicker date={range} onChange={setRange} /></div>
+                                )}
+                            </div>
 
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <AetherMultiSelect
-                                data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                selected={selectedUserIDs}
-                                onChange={setSelectedUserIDs}
-                            />
-                        </div>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-                <Table className="cursor-pointer">
+                            <div onClick={(e) => e.stopPropagation()}>
+                                <AetherMultiSelect
+                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                    selected={selectedUserIDs}
+                                    onChange={setSelectedUserIDs}
+                                />
+                            </div>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                <Table className="cursor-pointer max-h-64 overflow-y-auto border-t">
                     <TableHeader>
                         <TableRow className="text-sm font-light">
                             <TableHead className="text-xs font-semibold">Sl No.</TableHead>
@@ -166,28 +174,27 @@ export default function CallDetailPage() {
                             <TableHead className="text-xs font-semibold"><span className="flex items-center justify-between">Agent Number<Funnel className="h-3 w-4 text-gray-400" /></span></TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
-                        {currentPageData.length !== 0 && (
+                    <TableBody className="text-xs">
+                        {currentPageData.length !== 0 &&
                             currentPageData.map((call, index) => (
-                                <TableRow key={call.id} className="text-xs">
+                                <TableRow key={call.id}>
                                     <TableCell className="text-left">{index + 1}</TableCell>
                                     <TableCell className="text-left">{call.user_id}</TableCell>
                                     <TableCell className="text-left">{call.device_id}</TableCell>
                                     <TableCell className="text-left">{call.type}</TableCell>
-                                    <TableCell className="text-left">{call.duration}</TableCell>
+                                    <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
                                     <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
                                     <TableCell className="text-left">{call.other_number}</TableCell>
                                     <TableCell className="text-left">{call.other_name}</TableCell>
                                     <TableCell className="text-left">{call.agent_number}</TableCell>
                                 </TableRow>
-                            ))
-                        )}
+                            ))}
                     </TableBody>
                 </Table>
 
                 <div className="flex items-center justify-end mt-4 gap-4 text-sm">
                     <Button
-                        className="bg-white shadow-none text-xs text-black hover:bg-white"
+                        className="bg-white shadow-none text-xs text-black hover:bg-gray-100"
                         onClick={() => {
                             const newPage = Math.max(currentPage - 1, 1);
                             setCurrentPage(newPage);
@@ -201,23 +208,34 @@ export default function CallDetailPage() {
                     <div className="flex items-center gap-2">
                         <Input
                             type="number"
-                            className="w-16 text-center shadow-none rounded-xl border border-gray-200"
+                            className="w-20 text-center shadow-none rounded-xl border border-gray-200"
                             min={1}
-                            max={totalPages}
-                            value={inputPage}
-                            onChange={(e) => setInputPage(e.target.value)}
+                            value={pageSize}
+                            onChange={(e) => {
+                                const value = parseInt(e.target.value);
+                                if (!isNaN(value) && value > 0) {
+                                    setPageSize(value);
+                                    setCurrentPage(1); // reset to first page when size changes
+                                }
+                            }}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
-                                    handlePageChange();
+                                    // Optional: enforce min/max
+                                    const value = parseInt(e.currentTarget.value);
+                                    if (!isNaN(value) && value > 0) {
+                                        setPageSize(value);
+                                        setCurrentPage(1);
+                                    }
                                 }
                             }}
                         />
+
                         <span>of {totalPages}</span>
                         <Button className="bg-white text-xs shadow-none rounded-xl border border-gray-200 text-black hover:bg-white" onClick={handlePageChange}>Go</Button>
                     </div>
 
                     <Button
-                        className="bg-white shadow-none text-black hover:bg-white text-xs"
+                        className="bg-white shadow-none text-black hover:bg-gray-100 text-xs"
                         onClick={() => {
                             const newPage = Math.min(currentPage + 1, totalPages);
                             setCurrentPage(newPage);

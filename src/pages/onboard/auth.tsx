@@ -33,7 +33,7 @@ export default function OTPComponent() {
     const [refId, setRefId] = useState("");
     const [surl, setSurl] = useState("")
     const [otpjwt, setOtpjwt] = useState("")
-    const [step, setStep] = useState(0)
+    const [step, setStep] = useState(1)
     const [showPopup, setShowPopup] = useState(false);
     const [isPass, setIsPass] = useState(false);
 
@@ -302,11 +302,9 @@ export default function OTPComponent() {
                             </button>
                         </div>
                         <div className="flex justify-between">
-                            <button className="flex items-center bg-fuchsia-100 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
-                                <ChevronLeft className="text-fuchsia-800" />
+                            <button className="absolute top-4 left-5 flex items-center border border-gray-200 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
+                                <ChevronLeft className="text-black" />
                             </button>
-                            <button className="flex items-center bg-fuchsia-100 shadow-sm rounded-full p-2"
-                                onClick={() => setStep(prev => prev + 1)}><ChevronRight className="text-fuchsia-800" /></button>
                         </div>
                     </>
                 ) : (
@@ -320,9 +318,10 @@ export default function OTPComponent() {
                                 className="border rounded-full p-2 w-full mb-4 placeholder:text-sm"
                             />
                             <button
-                                onClick={handleSendOtp}
-                                className="absolute bg-fuchsia-500 text-xs text-white hover:shadow-md right-2 top-2 p-1 rounded-full flex gap-2 items-center">
-                                {verified ? ('verified') : (<>{isLoad ? (<Loader className="w-4 h-4 animate-spin" />) : 'Verify'}</>)}
+                                onClick={!verified ? handleSendOtp : undefined}
+                                className="absolute bg-fuchsia-500 text-xs text-white hover:shadow-md right-2 top-2 p-1 rounded-full flex gap-2 items-center"
+                            >
+                                {verified ? 'Verified' : (isLoad ? <Loader className="w-4 h-4 animate-spin" /> : 'Verify')}
                             </button>
                         </div>
                         <div className="relative">
@@ -351,8 +350,8 @@ export default function OTPComponent() {
                             Set Password
                         </button>
                         <div className="flex justify-between">
-                            <button className="flex items-center bg-fuchsia-100 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
-                                <ChevronLeft className="text-fuchsia-800" /></button>
+                            <button className="absolute top-4 left-5 flex items-center border border-gray-200 shadow-sm rounded-full p-2" onClick={() => setStep(prev => prev - 1)}>
+                                <ChevronLeft className="text-black" /></button>
                         </div>
                         {showPopup && (
                             <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
