@@ -65,10 +65,10 @@ export default function UserManagmentPage() {
         }
     };
 
-    const handleRemoveUser = async (userId:any) => {
+    const handleRemoveUser = async (userId: any) => {
         setIsPass(true)
         try {
-           const deleteUserReponse =  await deleteUser(userId);
+            const deleteUserReponse = await deleteUser(userId);
             console.log(deleteUserReponse)
             toast.success("User deleted successfully");
             await fetchUsers();
@@ -77,7 +77,7 @@ export default function UserManagmentPage() {
         } finally {
             setIsPass(false)
         }
-    }   
+    }
 
     const handleChange = (field: keyof CreateUser, value: any) => {
         setUserData((prev) => ({ ...prev, [field]: value }))
@@ -110,22 +110,22 @@ export default function UserManagmentPage() {
 
     return (
         <div>
-            <div className="flex justify-between mb-4 p-2 items-center rounded-xl border border-gray-200">
-                <h2 className="text-sm font-normal flex items-center"><Users className="h-4"/>User List</h2>
-                <Button variant={'default'} className="text-xs rounded-xl border border-gray-200 bg-white shadow-none text-black hover:bg-gray-100" onClick={() => {
-                    setUserData({
-                        name: "",
-                        phone_number: "",
-                        has_console_access: false,
-                        has_agent_access: false,
-                        is_superuser: false
-                    })
-                    setOpen(prev => !prev);
-                    setIsEditMode(false);
-                }}>Add User <Plus className="h-4" />
-               </Button>
-            </div>
-            <div className="p-2 rounded-xl border border-gray-200 my-4">
+            <div className="p-2 rounded-xl border border-gray-200">
+                <div className="flex justify-between mb-2 items-center px-1">
+                    <h2 className="text-sm font-normal flex items-center"><Users className="h-4" />User List</h2>
+                    <Button variant={'default'} className="text-xs bg-white shadow-none text-black hover:bg-gray-100" onClick={() => {
+                        setUserData({
+                            name: "",
+                            phone_number: "",
+                            has_console_access: false,
+                            has_agent_access: false,
+                            is_superuser: false
+                        })
+                        setOpen(prev => !prev);
+                        setIsEditMode(false);
+                    }}>Add User <Plus className="h-4" />
+                    </Button>
+                </div>
                 <Table >
                     <TableHeader>
                         <TableRow className="text-sm font-light">
@@ -148,11 +148,11 @@ export default function UserManagmentPage() {
                                 <TableCell className="text-left">{user.has_console_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left">{user.has_agent_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left flex items-center gap-2">
-                                    <Button className="rounded-full h-8 w-8 bg-gray-400" onClick={() => handleEdit(user)} variant="outline" size="sm">
-                                        <Pencil className="w-4 h-4 text-white" />
+                                    <Button className="rounded-full border-none shadow-none h-3 w-3" onClick={() => handleEdit(user)} variant="outline" size="sm">
+                                        <Pencil className="w-3 h-3 text-black" />
                                     </Button>
-                                    <Button className="rounded-full h-8 w-8 bg-red-400" onClick={() => handleRemoveUser(user.id)} variant="outline" size="sm">
-                                        <Trash className="w-4 h-4 text-white" />
+                                    <Button className="rounded-full border-none shadow-none h-3 w-3" onClick={() => handleRemoveUser(user.id)} variant="outline" size="sm">
+                                        <Trash className="w-3 h-3 text-red-400" />
                                     </Button>
                                 </TableCell>
                             </TableRow>
@@ -161,7 +161,7 @@ export default function UserManagmentPage() {
                 </Table>
             </div>
             {isPass && (
-                <AetherLoader/>
+                <AetherLoader />
             )}
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>

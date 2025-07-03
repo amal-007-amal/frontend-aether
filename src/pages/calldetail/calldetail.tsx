@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { BookCopy, ChevronsLeft, ChevronsRight, Funnel, FunnelPlus } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Funnel, FunnelPlus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -96,8 +96,9 @@ export default function CallDetailPage() {
 
     return (
         <div>
-            <div className="flex justify-between mb-2 p-3 items-center rounded-xl border border-gray-200">
-                <h2 className="text-sm font-normal flex items-center"><BookCopy className="h-4" />Call Logs</h2>
+            <div className="p-2 rounded-xl border border-gray-200">
+                <div className="flex justify-between mb-2 items-center py-1 px-1">
+                <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                         <FunnelPlus className="h-4 w-4" />
@@ -129,7 +130,6 @@ export default function CallDetailPage() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="p-2 rounded-xl border border-gray-200 my-4">
                 <Table className="cursor-pointer">
                     <TableHeader>
                         <TableRow className="text-sm font-light">

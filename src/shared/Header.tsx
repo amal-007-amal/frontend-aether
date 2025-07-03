@@ -10,7 +10,7 @@ export default function Header() {
         aetherNaviagte('/')
     }
     return (
-        <header className="bg-white text-white p-4 rounded-xl border border-gray-200 flex justify-between items-center">
+        <header className="bg-white text-white p-3 rounded-xl border border-gray-200 flex justify-between items-center">
             <h2 className="font-light flex text-black text-xl items-center">
                 A<span className="text-fuchsia-500 font-normal">ether</span>&nbsp;Hub&nbsp;
                 <AudioLines className="h-5 w-5" />
@@ -18,7 +18,7 @@ export default function Header() {
 
             <Button
                 onClick={handleLogout}
-                className="flex items-center border gap-2 text-xs bg-white text-black px-4 py-2 shadow-none hover:bg-gray-100 transition-all"
+                className="flex items-center gap-2 text-xs bg-white text-black px-4 py-2 shadow-none hover:bg-gray-100 transition-all"
             >
                 <LogOut className="w-4 h-4" />
                 Logout
