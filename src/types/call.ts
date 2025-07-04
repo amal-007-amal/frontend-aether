@@ -11,3 +11,9 @@ export interface CallLogDetails {
     agent_number: string,
     created_at: string
 }
+
+export type FilterState = {
+  otherName: string[];
+  otherNumber: string[];
+  agentNumber: string[];
+};

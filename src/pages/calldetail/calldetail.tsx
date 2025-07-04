@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, Funnel, FunnelPlus } from "lucide-react";
+import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FolderOpen, Funnel, FunnelPlus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
-import type { CallLogDetails } from "../../types/call";
+import type { CallLogDetails, FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import AetherLoader from "../../shared/AetherLoader";
@@ -21,12 +21,33 @@ import { AetherNameMultiSelect } from "../../components/aethernamesselector";
 
 
 export default function CallDetailPage() {
+    const filterRefs = {
+        funnelRef: useRef(null),
+        otherNameRef: useRef(null),
+        otherNumberRef: useRef(null),
+        agentNumberRef: useRef(null),
+    };
     const [isPass, setIsPass] = useState(false)
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
-    const [openFilter, setOpenFilter] = useState(false);
+    const [openFilter, setOpenFilter] = useState({
+        usernameOpen: false,
+        otherNameOpen: false,
+        otherNumberOpen: false,
+        agentNumberOpen: false,
+    });
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTempUserIDs, setSelectedTempUserIDs] = useState<string[]>([]);
+    const [selectedFilters, setSelectedFilters] = useState({
+        otherNames: [] as string[],
+        otherNumbers: [] as string[],
+        agentNumbers: [] as string[],
+    });
+    const [tableFiller, setTableFiller] = useState<FilterState>({
+        otherName: [],
+        otherNumber: [],
+        agentNumber: [],
+    });
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
     const [pageSize, setPageSize] = useState(10);
@@ -42,6 +63,7 @@ export default function CallDetailPage() {
         other_name: "",
         agent_number: ""
     });
+    console.log(setFilters)
     const allColumns = [
         { key: "user_id", label: "Username" },
         { key: "device_id", label: "Device ID" },
@@ -62,12 +84,24 @@ export default function CallDetailPage() {
                 : [...prev, key]
         );
     };
-    console.log(setFilters);
     const fetchCallLogs = useCallback(async () => {
         setIsPass(true);
         try {
             const data = await getCalls();
             setCalllogs([...data]);
+            const otNameSet = new Set<string>();
+            const otNumberSet = new Set<string>();
+            const agNumberSet = new Set<string>();
+            data.forEach(item => {
+                if (item.other_name) otNameSet.add(item.other_name);
+                if (item.other_number) otNumberSet.add(item.other_number);
+                if (item.agent_number) agNumberSet.add(item.agent_number);
+            });
+            setSelectedFilters({
+                otherNames: [...otNameSet],
+                otherNumbers: [...otNumberSet],
+                agentNumbers: [...agNumberSet],
+            });
         } catch (err) {
             toast.error("Failed to fetch call logs");
         } finally {
@@ -97,20 +131,38 @@ export default function CallDetailPage() {
     console.log("Call logs:", selectedUserIDs.length);
 
     const filteredData = useMemo(() => {
-        console.log("added items", JSON.stringify(selectedTempUserIDs))
-        return calllogs.filter(call => {
+        return calllogs.filter((call) => {
             const userFilterPass =
                 selectedTempUserIDs.length === 0 ||
                 selectedTempUserIDs.includes(String(call.user_id));
+
+            const otherNumberFilterPass =
+                tableFiller.otherNumber.length === 0 ||
+                tableFiller.otherNumber.includes(String(call.other_number));
+
+            const otherNameFilterPass =
+                tableFiller.otherName.length === 0 ||
+                tableFiller.otherName.includes(String(call.other_name));
+
+            const agentNumberFilterPass =
+                tableFiller.agentNumber.length === 0 ||
+                tableFiller.agentNumber.includes(String(call.agent_number));
 
             const otherFiltersPass = Object.entries(filters).every(([key, value]) => {
                 if (!value) return true;
                 const field = String((call as any)[key] ?? "").toLowerCase();
                 return field.includes(value.toLowerCase());
             });
-            return userFilterPass && otherFiltersPass;
+
+            return (
+                userFilterPass &&
+                otherNumberFilterPass &&
+                otherNameFilterPass &&
+                agentNumberFilterPass &&
+                otherFiltersPass
+            );
         });
-    }, [calllogs, filters, selectedTempUserIDs]);
+    }, [calllogs, filters, selectedTempUserIDs, tableFiller.otherNumber, tableFiller.otherName, tableFiller.agentNumber]);
 
 
     const sortedData = useMemo(() => {
@@ -204,26 +256,23 @@ export default function CallDetailPage() {
                         <TableRow className="text-sm font-light">
                             <TableHead className="text-xs font-semibold">Sl No.</TableHead>
                             {visibleColumns.includes("user_id") && (
-                                <TableHead onClick={() => handleSort("user_id")} className="text-xs font-semibold">
-                                    <div className="flex items-center justify-between gap-1">
-                                        <span className="flex items-center justify-between gap-1">
-                                            <span className="flex items-center gap-1">
-                                                Username
-                                                {sortKey === "user_id" && (
-                                                    sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                                )}
-                                            </span>
-                                        </span>
+                                <TableHead className="text-xs font-semibold">
+                                    <div className="flex items-center justify-between gap-1 relative">
+                                        <span>Username</span>
                                         <Funnel
-                                            onClick={() => setOpenFilter(true)}
+                                            ref={filterRefs.funnelRef}
+                                            onClick={() => setOpenFilter(prev => ({
+                                                ...prev, usernameOpen: true
+                                            }))}
                                             className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
                                         />
                                         <AetherNameMultiSelect
                                             data={users.map((user) => ({ label: user.name, value: user.id }))}
                                             selected={selectedTempUserIDs}
                                             onChange={setSelectedTempUserIDs}
-                                            open={openFilter}
-                                            setOpen={setOpenFilter}
+                                            open={openFilter.usernameOpen}
+                                            setOpen={(open) => { setOpenFilter(prev => ({ ...prev, usernameOpen: open })) }}
+                                            referenceRef={filterRefs.funnelRef}
                                         />
                                     </div>
                                 </TableHead>
@@ -242,11 +291,10 @@ export default function CallDetailPage() {
                             )}
                             {visibleColumns.includes("duration") && (
                                 <TableHead
-                                    onClick={() => handleSort("duration")}
                                     className="text-xs font-semibold cursor-pointer"
                                 >
                                     <span className="flex items-center justify-between gap-1">
-                                        <span className="flex items-center gap-1">
+                                        <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
                                             Duration
                                             {sortKey === "duration" && (
                                                 sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -258,11 +306,10 @@ export default function CallDetailPage() {
                             )}
                             {visibleColumns.includes("start_time") && (
                                 <TableHead
-                                    onClick={() => handleSort("start_time")}
                                     className="text-xs font-semibold cursor-pointer"
                                 >
                                     <span className="flex items-center justify-between gap-1">
-                                        <span className="flex items-center gap-1">
+                                        <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
                                             Start Time
                                             {sortKey === "start_time" && (
                                                 sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
@@ -274,56 +321,92 @@ export default function CallDetailPage() {
                             )}
                             {visibleColumns.includes("other_number") && (
                                 <TableHead
-                                    onClick={() => handleSort("other_number")}
-                                    className="text-xs font-semibold cursor-pointer"
+                                    className="text-xs font-semibold flex items-center justify-between relative"
                                 >
-                                    <span className="flex items-center justify-between gap-1">
-                                        <span className="flex items-center gap-1">
-                                            Other Number
-                                            {sortKey === "other_number" && (
-                                                sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                            )}
-                                        </span>
-                                        <Funnel className="h-3 w-4 text-gray-400" />
-                                    </span>
+                                    Other Number
+                                    <Funnel
+                                        ref={filterRefs.otherNumberRef}
+                                        onClick={() => setOpenFilter(prev => ({
+                                            ...prev, otherNumberOpen: true
+                                        }))}
+                                        className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
+                                    />
+                                    <div className="relative">
+                                        <AetherNameMultiSelect
+                                            data={selectedFilters.otherNumbers.map((name) => ({ label: name, value: name }))}
+                                            selected={tableFiller.otherNumber}
+                                            onChange={(selected) =>
+                                                setTableFiller((prev) => ({ ...prev, otherNumber: selected }))
+                                            }
+                                            open={openFilter.otherNumberOpen}
+                                            setOpen={(val) =>
+                                                setOpenFilter((prev) => ({ ...prev, otherNumberOpen: val }))
+                                            }
+                                            referenceRef={filterRefs.otherNumberRef}
+                                        />
+                                    </div>
                                 </TableHead>
                             )}
                             {visibleColumns.includes("other_name") && (
-                                <TableHead
-                                    onClick={() => handleSort("other_name")}
-                                    className="text-xs font-semibold cursor-pointer"
-                                >
+                                <TableHead className="text-xs font-semibold cursor-pointer">
                                     <span className="flex items-center justify-between gap-1">
-                                        <span className="flex items-center gap-1">
-                                            Other Name
-                                            {sortKey === "other_name" && (
-                                                sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                            )}
-                                        </span>
-                                        <Funnel className="h-3 w-4 text-gray-400" />
+                                        Other Name
+                                        <Funnel
+                                            ref={filterRefs.otherNameRef}
+                                            onClick={() => setOpenFilter(prev => ({
+                                                ...prev, otherNameOpen: true
+                                            }))}
+                                            className={`h-3 w-4 ${tableFiller.otherName.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
+                                        />
+                                        <div className="relative">
+                                            <AetherNameMultiSelect
+                                                data={selectedFilters.otherNames.map((name) => ({ label: name, value: name }))}
+                                                selected={tableFiller.otherName}
+                                                onChange={(selected) =>
+                                                    setTableFiller((prev) => ({ ...prev, otherName: selected }))
+                                                }
+                                                open={openFilter.otherNameOpen}
+                                                setOpen={(val) =>
+                                                    setOpenFilter((prev) => ({ ...prev, otherNameOpen: val }))
+                                                }
+                                                referenceRef={filterRefs.otherNameRef}
+                                            />
+                                        </div>
                                     </span>
                                 </TableHead>
                             )}
                             {visibleColumns.includes("agent_number") && (
-                                <TableHead
-                                    onClick={() => handleSort("agent_number")}
-                                    className="text-xs font-semibold cursor-pointer"
-                                >
+                                <TableHead className="text-xs font-semibold cursor-pointer">
                                     <span className="flex items-center justify-between gap-1">
-                                        <span className="flex items-center gap-1">
-                                            Agent Number
-                                            {sortKey === "agent_number" && (
-                                                sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                            )}
-                                        </span>
-                                        <Funnel className="h-3 w-4 text-gray-400" />
+                                        Agent Number
+                                        <Funnel
+                                            ref={filterRefs.agentNumberRef}
+                                            onClick={() => setOpenFilter(prev => ({
+                                                ...prev, agentNumberOpen: true
+                                            }))}
+                                            className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
+                                        />
+                                        <div className="relative">
+                                            <AetherNameMultiSelect
+                                                data={selectedFilters.agentNumbers.map((name) => ({ label: name, value: name }))}
+                                                selected={tableFiller.agentNumber}
+                                                onChange={(selected) =>
+                                                    setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
+                                                }
+                                                open={openFilter.agentNumberOpen}
+                                                setOpen={(val) =>
+                                                    setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
+                                                }
+                                                referenceRef={filterRefs.agentNumberRef}
+                                            />
+                                        </div>
                                     </span>
                                 </TableHead>
                             )}
                         </TableRow>
                     </TableHeader>
                     <TableBody className="text-xs">
-                        {currentPageData.length !== 0 ? (
+                        {currentPageData.length !== 0 && (
                             currentPageData.map((call, index) => (
                                 <TableRow key={call.id}>
                                     <TableCell className="text-left">{index + 1}</TableCell>
@@ -346,21 +429,23 @@ export default function CallDetailPage() {
                                         <TableCell className="text-left">{call.other_number}</TableCell>
                                     )}
                                     {visibleColumns.includes("other_name") && (
-                                        <TableCell className="text-left">{call.other_name}</TableCell>
+                                        <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
                                     )}
                                     {visibleColumns.includes("agent_number") && (
                                         <TableCell className="text-left">{call.agent_number}</TableCell>
                                     )}
                                 </TableRow>
                             ))
-                        ) : (
-                            <div className="flex items-center justify-center py-4">
-                                <p className="text-center"></p>
-                            </div>
                         )
                         }
                     </TableBody>
                 </Table>
+                {currentPageData.length === 0 && (
+                    <div className="flex flex-col items-center mt-10">
+                        <FolderOpen className="text-gray-500 w-10 h-10"/>
+                        <p className="text-center text-xs text-gray-500 py-2">No data available</p>
+                    </div>
+                )}
 
                 <div className="flex items-center justify-end mt-4 gap-4 text-sm">
                     <div className="flex items-center gap-2">
@@ -373,7 +458,7 @@ export default function CallDetailPage() {
                                 const value = parseInt(e.target.value);
                                 if (!isNaN(value) && value > 0) {
                                     setPageSize(value);
-                                    setCurrentPage(1); // reset to first page when size changes
+                                    setCurrentPage(1);
                                 }
                             }}
                             onKeyDown={(e) => {
