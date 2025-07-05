@@ -33,25 +33,22 @@ export default function UserManagmentPage() {
     }, [fetchUsers]);
 
     const handleEdit = (user: User) => {
-        setIsEditMode(prev => !prev)
-        setIsPass(true)
+        setIsEditMode(true);
+        setIsPass(true);
         try {
-            setOpen(true)
-            setUserData(prev => (
-                {
-                    ...prev,
-                    id: user.id,
-                    name: user.name,
-                    phone_number: user.phone_number,
-                    has_agent_access: user.has_agent_access,
-                    has_console_access: user.has_console_access,
-                    is_superuser: user.is_superuser
-                }
-            ))
+            setOpen(true);
+            setUserData({
+                id: user.id,
+                name: user.name,
+                phone_number: user.phone_number,
+                has_agent_access: user.has_agent_access,
+                has_console_access: user.has_console_access,
+                is_superuser: user.is_superuser
+            });
         } catch (error) {
-
+            // You can handle the error if needed
         } finally {
-            setIsPass(false)
+            setIsPass(false);
         }
     };
 
