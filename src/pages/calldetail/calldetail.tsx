@@ -369,7 +369,7 @@ export default function CallDetailPage() {
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold">Sl No.</TableHead>
                                 {visibleColumns.includes("user_id") && (
-                                    <TableHead className="text-xs font-semibold">
+                                    <TableHead className="text-xs font-semibold text-center">
                                         <div className="flex items-center justify-between gap-1 relative">
                                             <span>Agent name</span>
                                             <Funnel
@@ -396,13 +396,13 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("device_id") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
+                                        className="text-xs font-semibold cursor-pointer text-center"
                                     > Device ID
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("direction") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
+                                        className="text-xs font-semibold cursor-pointer text-center"
                                     >
                                         <div className="flex items-center justify-between relative">
                                             <span>Direction</span>
@@ -434,7 +434,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("status") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
+                                        className="text-xs font-semibold cursor-pointer text-center"
                                     >
                                         <div className="flex items-center justify-between">
                                             <span>Status</span>
@@ -468,7 +468,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("duration") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
+                                        className="text-xs font-semibold cursor-pointer text-center"
                                     >
                                         <span className="flex items-center justify-between gap-1">
                                             <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
@@ -481,8 +481,8 @@ export default function CallDetailPage() {
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("start_time") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
-                                        <span className="flex items-center justify-between gap-1">
+                                    <TableHead className="text-xs font-semibold cursor-pointer text-center">
+                                        <span className="flex items-center justify-between">
                                             <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
                                                 Start Time
                                                 {sortKey === "start_time" && (
@@ -506,7 +506,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("other_number") && (
                                     <TableHead
-                                        className="text-xs font-semibold flex items-center justify-between relative shadow-none"
+                                        className="text-center text-xs font-semibold flex items-center justify-between relative shadow-none"
                                     >
                                         Caller ID
                                         <Funnel
@@ -535,7 +535,7 @@ export default function CallDetailPage() {
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("other_name") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-center text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center justify-between gap-1">
                                             Caller Name
                                             <Funnel
@@ -565,7 +565,7 @@ export default function CallDetailPage() {
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("agent_number") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-center text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center justify-between gap-1">
                                             Agent number
                                             <Funnel
@@ -596,7 +596,7 @@ export default function CallDetailPage() {
                                 )}
 
                                 {visibleColumns.includes("agent_number") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-center text-xs font-semibold cursor-pointer">
                                         Recordings
                                     </TableHead>
                                 )}
