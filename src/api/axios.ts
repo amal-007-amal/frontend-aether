@@ -12,7 +12,7 @@ export const apiClient = axios.create({
 });
 
 
-apiClient.interceptors.request.use((config:any) => {
+apiClient.interceptors.request.use((config: any) => {
   const accessToken = localStorage.getItem("aether_access_token");
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -25,20 +25,22 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
         const refreshToken = localStorage.getItem("aether_refresh_token");
 
+        const formData = new URLSearchParams();
+        formData.append("refresh_token", refreshToken || "");
         const refreshResponse = await axios.post(
           `${baseUrlFromStorage}/api/v1/auth/refresh-tokens`,
-          { refresh_token: refreshToken }
+          formData
         );
 
         const newAccessToken = refreshResponse.data.access_token;
 
-        localStorage.setItem("access_token", newAccessToken);
+        localStorage.setItem("aether_access_token", newAccessToken);
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return apiClient(originalRequest);
