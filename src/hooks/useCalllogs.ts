@@ -41,7 +41,7 @@ export function useCallLogs() {
         params.append("filter_max_start_time", filters.filterMaxStart);
       }
       if (filters.userIDs.length > 0) {
-        params.append("filter_user_ids", filters.userIDs.join(","));
+        filters.userIDs.forEach(userID => {params.append("filter_user_ids", userID);});
       }
 
       const data = await getCalls(params);
