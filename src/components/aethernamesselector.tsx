@@ -101,10 +101,10 @@ export function AetherNameMultiSelect({
                         dropdownRef.current = node;
                     }}
                     style={floatingStyles}
-                    className={cn(
-                        "absolute z-50 w-[250px] bg-white rounded border shadow-md p-0 text-sm transition-all duration-200 ease-out origin-center",
-                        open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-                    )}
+className={cn(
+  "absolute z-50 w-[250px] bg-white rounded border shadow-md p-0 text-sm transition-transform duration-200 ease-out origin-top",
+  open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+)}
                 >
                     <Command>
                         <CommandInput

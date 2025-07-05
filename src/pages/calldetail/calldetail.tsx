@@ -59,7 +59,7 @@ export default function CallDetailPage() {
     const [pageSize, setPageSize] = useState(10);
     const [sortKey, setSortKey] = useState<string>('start_time');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [filters, setFilters] = useState({
+    const filters = {
         user_id: "",
         device_id: "",
         direction: "",
@@ -69,8 +69,7 @@ export default function CallDetailPage() {
         other_number: "",
         other_name: "",
         agent_number: ""
-    });
-    console.log(setFilters)
+    };
     const Portal = ({ children }: { children: React.ReactNode }) => {
         if (typeof window === "undefined") return null;
         const portalRoot = document.getElementById("portal-root");
@@ -266,371 +265,371 @@ export default function CallDetailPage() {
                                 <Menu className="h-4 w-4 text-black" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
-                                <span className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4"/> Export To Pdf</span>
+                                <span className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export To Pdf</span>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 </div>
-                  <div className="max-h-[500px] overflow-y-auto">
-                   <Table className="cursor-pointer">
-                    <TableHeader>
-                        <TableRow className="text-sm font-light">
-                            <TableHead className="text-xs font-semibold">Sl No.</TableHead>
-                            {visibleColumns.includes("user_id") && (
-                                <TableHead className="text-xs font-semibold">
-                                    <div className="flex items-center justify-between gap-1 relative">
-                                        <span>Username</span>
-                                        <Funnel
-                                            ref={filterRefs.funnelRef}
-                                            onClick={() => setOpenFilter(prev => ({
-                                                ...prev, usernameOpen: true
-                                            }))}
-                                            className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                        />
-                                        <Portal>
-                                            <div className="relative">
-                                                <AetherNameMultiSelect
-                                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                                    selected={selectedTempUserIDs}
-                                                    onChange={setSelectedTempUserIDs}
-                                                    open={openFilter.usernameOpen}
-                                                    setOpen={(open) => { setOpenFilter(prev => ({ ...prev, usernameOpen: open })) }}
-                                                    referenceRef={filterRefs.funnelRef}
-                                                />
-                                            </div>
-                                        </Portal>
-                                    </div>
-                                </TableHead>
-                            )}
-                            {visibleColumns.includes("device_id") && (
-                                <TableHead
-                                    className="text-xs font-semibold cursor-pointer"
-                                > Device ID
-                                </TableHead>
-                            )}
-                            {visibleColumns.includes("direction") && (
-                                <TableHead
-                                    className="text-xs font-semibold cursor-pointer"
-                                >
-                                    <div className="flex items-center justify-between relative">
-                                        <span>Direction</span>
-                                        <Funnel
-                                            ref={filterRefs.directionRef}
-                                            onClick={() => setOpenFilter(prev => ({
-                                                ...prev, directionOpen: true
-                                            }))}
-                                            className={`h-3 w-4 ${tableFiller.direction.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                        />
-                                        <Portal>
-                                            <div className="relative">
-                                                <AetherNameMultiSelect
-                                                    data={selectedFilters.direction.map((name) => ({ label: name, value: name }))}
-                                                    selected={tableFiller.direction}
-                                                    onChange={(selected) =>
-                                                        setTableFiller((prev) => ({ ...prev, direction: selected }))
-                                                    }
-                                                    open={openFilter.directionOpen}
-                                                    setOpen={(val) =>
-                                                        setOpenFilter((prev) => ({ ...prev, directionOpen: val }))
-                                                    }
-                                                    referenceRef={filterRefs.directionRef}
-                                                />
-                                            </div>
-                                        </Portal>
-                                    </div>
-                                </TableHead>
-                            )}
-                            {visibleColumns.includes("status") && (
-                                <TableHead
-                                    className="text-xs font-semibold cursor-pointer"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <span>Status</span>
-                                        <div>
+                <div className="max-h-[500px] overflow-y-auto">
+                    <Table className="cursor-pointer">
+                        <TableHeader>
+                            <TableRow className="text-sm font-light">
+                                <TableHead className="text-xs font-semibold">Sl No.</TableHead>
+                                {visibleColumns.includes("user_id") && (
+                                    <TableHead className="text-xs font-semibold">
+                                        <div className="flex items-center justify-between gap-1 relative">
+                                            <span>Username</span>
                                             <Funnel
-                                                ref={filterRefs.statusRef}
+                                                ref={filterRefs.funnelRef}
                                                 onClick={() => setOpenFilter(prev => ({
-                                                    ...prev, statusOpen: true
+                                                    ...prev, usernameOpen: true
                                                 }))}
-                                                className={`h-3 w-4 ${tableFiller.callstatus.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                                className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                             />
-                                        </div>
-                                        <Portal>
-                                            <div className="relative">
-                                                <AetherNameMultiSelect
-                                                    data={selectedFilters.callstatus.map((name) => ({ label: name, value: name }))}
-                                                    selected={tableFiller.callstatus}
-                                                    onChange={(selected) =>
-                                                        setTableFiller((prev) => ({ ...prev, callstatus: selected }))
-                                                    }
-                                                    open={openFilter.statusOpen}
-                                                    setOpen={(val) =>
-                                                        setOpenFilter((prev) => ({ ...prev, statusOpen: val }))
-                                                    }
-                                                    referenceRef={filterRefs.statusRef}
-                                                />
-                                            </div>
-                                        </Portal>
-                                    </div>
-                                </TableHead>
-                            )}
-                            {visibleColumns.includes("duration") && (
-                                <TableHead
-                                    className="text-xs font-semibold cursor-pointer"
-                                >
-                                    <span className="flex items-center justify-between gap-1">
-                                        <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
-                                            Duration
-                                            {sortKey === "duration" && (
-                                                sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                            )}
-                                        </span>
-                                    </span>
-                                </TableHead>
-                            )}
-                            {visibleColumns.includes("start_time") && (
-                                <TableHead className="text-xs font-semibold cursor-pointer">
-                                    <span className="flex items-center justify-between gap-1">
-                                        <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
-                                            Start Time
-                                            {sortKey === "start_time" && (
-                                                sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                            )}
-                                        </span>
-                                        <Popover
-                                            open={openFilter.timeFillOpen}
-                                            onOpenChange={(open) => {
-                                                if (open) setDraft(timesave);
-                                                setOpenFilter(prev => ({ ...prev, timeFillOpen: open }));
-                                            }}
-                                        >
-                                            <PopoverTrigger asChild>
+                                            <Portal>
                                                 <div className="relative">
-                                                    <Funnel
-                                                        onClick={() => {
-                                                            setOpenFilter(prev => ({
-                                                                ...prev,
-                                                                timeFillOpen: true
-                                                            }));
-                                                        }}
-                                                        className={`h-3 w-4 cursor-pointer ${timesave.startHour !== 0 || timesave.endHour !== 24
-                                                            ? "text-fuchsia-500"
-                                                            : "text-gray-400"
-                                                            }`}
-                                                    />
-                                                    {(timesave.startHour !== 0 || timesave.endHour !== 24) && (
-                                                        <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-fuchsia-500" />
-                                                    )}
-                                                </div>
-                                            </PopoverTrigger>
-
-                                            <PopoverContent className="w-64 space-y-4">
-                                                <div>
-                                                    <label className="text-xs text-gray-500">
-                                                        Start: {draft.startHour}:00
-                                                    </label>
-                                                    <input
-                                                        type="range"
-                                                        min="0"
-                                                        max="23"
-                                                        value={draft.startHour}
-                                                        onChange={(e) =>
-                                                            setDraft((prev) => ({
-                                                                ...prev,
-                                                                startHour: Number(e.target.value)
-                                                            }))
-                                                        }
-                                                        className="w-full"
+                                                    <AetherNameMultiSelect
+                                                        data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                                        selected={selectedTempUserIDs}
+                                                        onChange={setSelectedTempUserIDs}
+                                                        open={openFilter.usernameOpen}
+                                                        setOpen={(open) => { setOpenFilter(prev => ({ ...prev, usernameOpen: open })) }}
+                                                        referenceRef={filterRefs.funnelRef}
                                                     />
                                                 </div>
-                                                <div>
-                                                    <label className="text-xs text-gray-500">
-                                                        End: {draft.endHour}:00
-                                                    </label>
-                                                    <input
-                                                        type="range"
-                                                        min={draft.startHour}
-                                                        max="24"
-                                                        value={draft.endHour}
-                                                        onChange={(e) =>
-                                                            setDraft((prev) => ({
-                                                                ...prev,
-                                                                endHour: Number(e.target.value)
-                                                            }))
-                                                        }
-                                                        className="w-full"
-                                                    />
-                                                </div>
-
-                                                <div className="flex justify-between gap-2">
-                                                    <button
-                                                        onClick={() => {
-                                                            setDraft({ startHour: 0, endHour: 24 });
-                                                            setTimeSave({ startHour: 0, endHour: 24 });
-                                                            setOpenFilter((prev) => ({
-                                                                ...prev,
-                                                                timeFillOpen: false
-                                                            }));
-                                                        }}
-                                                        className="text-xs text-gray-500 underline"
-                                                    >
-                                                        Reset
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            setTimeSave(draft);
-                                                            setOpenFilter((prev) => ({
-                                                                ...prev,
-                                                                timeFillOpen: false
-                                                            }));
-                                                        }}
-                                                        className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md"
-                                                    >
-                                                        Apply
-                                                    </button>
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-
-                                    </span>
-                                </TableHead>
-
-                            )}
-                            {visibleColumns.includes("other_number") && (
-                                <TableHead
-                                    className="text-xs font-semibold flex items-center justify-between relative shadow-none"
-                                >
-                                    Other Number
-                                    <Funnel
-                                        ref={filterRefs.otherNumberRef}
-                                        onClick={() => setOpenFilter(prev => ({
-                                            ...prev, otherNumberOpen: true
-                                        }))}
-                                        className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                    />
-                                    <Portal>
-                                        <div className="relative">
-                                            <AetherNameMultiSelect
-                                                data={selectedFilters.otherNumber.map((name) => ({ label: name, value: name }))}
-                                                selected={tableFiller.otherNumber}
-                                                onChange={(selected) =>
-                                                    setTableFiller((prev) => ({ ...prev, otherNumber: selected }))
-                                                }
-                                                open={openFilter.otherNumberOpen}
-                                                setOpen={(val) =>
-                                                    setOpenFilter((prev) => ({ ...prev, otherNumberOpen: val }))
-                                                }
-                                                referenceRef={filterRefs.otherNumberRef}
-                                            />
+                                            </Portal>
                                         </div>
-                                    </Portal>
-                                </TableHead>
-                            )}
-                            {visibleColumns.includes("other_name") && (
-                                <TableHead className="text-xs font-semibold cursor-pointer">
-                                    <span className="flex items-center justify-between gap-1">
-                                        Other Name
-                                        <Funnel
-                                            ref={filterRefs.otherNameRef}
-                                            onClick={() => setOpenFilter(prev => ({
-                                                ...prev, otherNameOpen: true
-                                            }))}
-                                            className={`h-3 w-4 ${tableFiller.otherName.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                        />
-                                        <Portal>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("device_id") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    > Device ID
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("direction") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    >
+                                        <div className="flex items-center justify-between relative">
+                                            <span>Direction</span>
+                                            <Funnel
+                                                ref={filterRefs.directionRef}
+                                                onClick={() => setOpenFilter(prev => ({
+                                                    ...prev, directionOpen: true
+                                                }))}
+                                                className={`h-3 w-4 ${tableFiller.direction.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            />
+                                            <Portal>
+                                                <div className="relative">
+                                                    <AetherNameMultiSelect
+                                                        data={selectedFilters.direction.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.direction}
+                                                        onChange={(selected) =>
+                                                            setTableFiller((prev) => ({ ...prev, direction: selected }))
+                                                        }
+                                                        open={openFilter.directionOpen}
+                                                        setOpen={(val) =>
+                                                            setOpenFilter((prev) => ({ ...prev, directionOpen: val }))
+                                                        }
+                                                        referenceRef={filterRefs.directionRef}
+                                                    />
+                                                </div>
+                                            </Portal>
+                                        </div>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("status") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span>Status</span>
                                             <div>
-                                                <AetherNameMultiSelect
-                                                    data={selectedFilters.otherName.map((name) => ({ label: name, value: name }))}
-                                                    selected={tableFiller.otherName}
-                                                    onChange={(selected) =>
-                                                        setTableFiller((prev) => ({ ...prev, otherName: selected }))
-                                                    }
-                                                    open={openFilter.otherNameOpen}
-                                                    setOpen={(val) =>
-                                                        setOpenFilter((prev) => ({ ...prev, otherNameOpen: val }))
-                                                    }
-                                                    referenceRef={filterRefs.otherNameRef}
+                                                <Funnel
+                                                    ref={filterRefs.statusRef}
+                                                    onClick={() => setOpenFilter(prev => ({
+                                                        ...prev, statusOpen: true
+                                                    }))}
+                                                    className={`h-3 w-4 ${tableFiller.callstatus.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                                 />
                                             </div>
-                                        </Portal>
-                                    </span>
-                                </TableHead>
-                            )}
-                            {visibleColumns.includes("agent_number") && (
-                                <TableHead className="text-xs font-semibold cursor-pointer">
-                                    <span className="flex items-center justify-between gap-1">
-                                        Agent Number
+                                            <Portal>
+                                                <div className="relative">
+                                                    <AetherNameMultiSelect
+                                                        data={selectedFilters.callstatus.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.callstatus}
+                                                        onChange={(selected) =>
+                                                            setTableFiller((prev) => ({ ...prev, callstatus: selected }))
+                                                        }
+                                                        open={openFilter.statusOpen}
+                                                        setOpen={(val) =>
+                                                            setOpenFilter((prev) => ({ ...prev, statusOpen: val }))
+                                                        }
+                                                        referenceRef={filterRefs.statusRef}
+                                                    />
+                                                </div>
+                                            </Portal>
+                                        </div>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("duration") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    >
+                                        <span className="flex items-center justify-between gap-1">
+                                            <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
+                                                Duration
+                                                {sortKey === "duration" && (
+                                                    sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                                )}
+                                            </span>
+                                        </span>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("start_time") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        <span className="flex items-center justify-between gap-1">
+                                            <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
+                                                Start Time
+                                                {sortKey === "start_time" && (
+                                                    sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                                )}
+                                            </span>
+                                            <Popover
+                                                open={openFilter.timeFillOpen}
+                                                onOpenChange={(open) => {
+                                                    if (open) setDraft(timesave);
+                                                    setOpenFilter(prev => ({ ...prev, timeFillOpen: open }));
+                                                }}
+                                            >
+                                                <PopoverTrigger asChild>
+                                                    <div className="relative">
+                                                        <Funnel
+                                                            onClick={() => {
+                                                                setOpenFilter(prev => ({
+                                                                    ...prev,
+                                                                    timeFillOpen: true
+                                                                }));
+                                                            }}
+                                                            className={`h-3 w-4 cursor-pointer ${timesave.startHour !== 0 || timesave.endHour !== 24
+                                                                ? "text-fuchsia-500"
+                                                                : "text-gray-400"
+                                                                }`}
+                                                        />
+                                                        {(timesave.startHour !== 0 || timesave.endHour !== 24) && (
+                                                            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-fuchsia-500" />
+                                                        )}
+                                                    </div>
+                                                </PopoverTrigger>
+
+                                                <PopoverContent className="w-64 space-y-4">
+                                                    <div>
+                                                        <label className="text-xs text-gray-500">
+                                                            Start: {draft.startHour}:00
+                                                        </label>
+                                                        <input
+                                                            type="range"
+                                                            min="0"
+                                                            max="23"
+                                                            value={draft.startHour}
+                                                            onChange={(e) =>
+                                                                setDraft((prev) => ({
+                                                                    ...prev,
+                                                                    startHour: Number(e.target.value)
+                                                                }))
+                                                            }
+                                                            className="w-full"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-xs text-gray-500">
+                                                            End: {draft.endHour}:00
+                                                        </label>
+                                                        <input
+                                                            type="range"
+                                                            min={draft.startHour}
+                                                            max="24"
+                                                            value={draft.endHour}
+                                                            onChange={(e) =>
+                                                                setDraft((prev) => ({
+                                                                    ...prev,
+                                                                    endHour: Number(e.target.value)
+                                                                }))
+                                                            }
+                                                            className="w-full"
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex justify-between gap-2">
+                                                        <button
+                                                            onClick={() => {
+                                                                setDraft({ startHour: 0, endHour: 24 });
+                                                                setTimeSave({ startHour: 0, endHour: 24 });
+                                                                setOpenFilter((prev) => ({
+                                                                    ...prev,
+                                                                    timeFillOpen: false
+                                                                }));
+                                                            }}
+                                                            className="text-xs text-gray-500 underline"
+                                                        >
+                                                            Reset
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setTimeSave(draft);
+                                                                setOpenFilter((prev) => ({
+                                                                    ...prev,
+                                                                    timeFillOpen: false
+                                                                }));
+                                                            }}
+                                                            className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md"
+                                                        >
+                                                            Apply
+                                                        </button>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
+
+                                        </span>
+                                    </TableHead>
+
+                                )}
+                                {visibleColumns.includes("other_number") && (
+                                    <TableHead
+                                        className="text-xs font-semibold flex items-center justify-between relative shadow-none"
+                                    >
+                                        Other Number
                                         <Funnel
-                                            ref={filterRefs.agentNumberRef}
+                                            ref={filterRefs.otherNumberRef}
                                             onClick={() => setOpenFilter(prev => ({
-                                                ...prev, agentNumberOpen: true
+                                                ...prev, otherNumberOpen: true
                                             }))}
-                                            className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
                                         <Portal>
                                             <div className="relative">
                                                 <AetherNameMultiSelect
-                                                    data={selectedFilters.agentNumber.map((name) => ({ label: name, value: name }))}
-                                                    selected={tableFiller.agentNumber}
+                                                    data={selectedFilters.otherNumber.map((name) => ({ label: name, value: name }))}
+                                                    selected={tableFiller.otherNumber}
                                                     onChange={(selected) =>
-                                                        setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
+                                                        setTableFiller((prev) => ({ ...prev, otherNumber: selected }))
                                                     }
-                                                    open={openFilter.agentNumberOpen}
+                                                    open={openFilter.otherNumberOpen}
                                                     setOpen={(val) =>
-                                                        setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
+                                                        setOpenFilter((prev) => ({ ...prev, otherNumberOpen: val }))
                                                     }
-                                                    referenceRef={filterRefs.agentNumberRef}
+                                                    referenceRef={filterRefs.otherNumberRef}
                                                 />
                                             </div>
                                         </Portal>
-                                    </span>
-                                </TableHead>
-                            )}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody className="text-xs">
-                        {currentPageData.length !== 0 && (
-                            currentPageData.map((call, index) => (
-                                <TableRow key={call.id}>
-                                    <TableCell className="text-left">{index + 1}</TableCell>
-                                    {visibleColumns.includes("user_id") && (
-                                        <TableCell className="text-left">{call.user_id}</TableCell>
-                                    )}
-                                    {visibleColumns.includes("device_id") && (
-                                        <TableCell className="text-left">{call.device_id}</TableCell>
-                                    )}
-                                    {visibleColumns.includes("direction") && (
-                                        <TableCell className="text-left">{call.direction}</TableCell>
-                                    )}
-                                    {visibleColumns.includes("status") && (
-                                        <TableCell className="text-left">{call.status}</TableCell>
-                                    )}
-                                    {visibleColumns.includes("duration") && (
-                                        <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
-                                    )}
-                                    {visibleColumns.includes("start_time") && (
-                                        <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
-                                    )}
-                                    {visibleColumns.includes("other_number") && (
-                                        <TableCell className="text-left">{call.other_number}</TableCell>
-                                    )}
-                                    {visibleColumns.includes("other_name") && (
-                                        <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
-                                    )}
-                                    {visibleColumns.includes("agent_number") && (
-                                        call.agent_number !== "" ? (
-                                            <TableCell className="text-left">{call.agent_number}</TableCell>
-                                        ) : (
-                                            <TableCell className="text-left">{'-'}</TableCell>
-                                        )
-                                    )}
-                                </TableRow>
-                            ))
-                        )
-                        }
-                    </TableBody>
-                </Table>
-                  </div>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("other_name") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        <span className="flex items-center justify-between gap-1">
+                                            Other Name
+                                            <Funnel
+                                                ref={filterRefs.otherNameRef}
+                                                onClick={() => setOpenFilter(prev => ({
+                                                    ...prev, otherNameOpen: true
+                                                }))}
+                                                className={`h-3 w-4 ${tableFiller.otherName.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            />
+                                            <Portal>
+                                                <div>
+                                                    <AetherNameMultiSelect
+                                                        data={selectedFilters.otherName.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.otherName}
+                                                        onChange={(selected) =>
+                                                            setTableFiller((prev) => ({ ...prev, otherName: selected }))
+                                                        }
+                                                        open={openFilter.otherNameOpen}
+                                                        setOpen={(val) =>
+                                                            setOpenFilter((prev) => ({ ...prev, otherNameOpen: val }))
+                                                        }
+                                                        referenceRef={filterRefs.otherNameRef}
+                                                    />
+                                                </div>
+                                            </Portal>
+                                        </span>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("agent_number") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        <span className="flex items-center justify-between gap-1">
+                                            Agent Number
+                                            <Funnel
+                                                ref={filterRefs.agentNumberRef}
+                                                onClick={() => setOpenFilter(prev => ({
+                                                    ...prev, agentNumberOpen: true
+                                                }))}
+                                                className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            />
+                                            <Portal>
+                                                <div className="relative">
+                                                    <AetherNameMultiSelect
+                                                        data={selectedFilters.agentNumber.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.agentNumber}
+                                                        onChange={(selected) =>
+                                                            setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
+                                                        }
+                                                        open={openFilter.agentNumberOpen}
+                                                        setOpen={(val) =>
+                                                            setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
+                                                        }
+                                                        referenceRef={filterRefs.agentNumberRef}
+                                                    />
+                                                </div>
+                                            </Portal>
+                                        </span>
+                                    </TableHead>
+                                )}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody className="text-xs">
+                            {currentPageData.length !== 0 && (
+                                currentPageData.map((call, index) => (
+                                    <TableRow key={call.id}>
+                                        <TableCell className="text-left">{index + 1}</TableCell>
+                                        {visibleColumns.includes("user_id") && (
+                                            <TableCell className="text-left">{call.user_id}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("device_id") && (
+                                            <TableCell className="text-left">{call.device_id}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("direction") && (
+                                            <TableCell className="text-left">{call.direction}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("status") && (
+                                            <TableCell className="text-left">{call.status}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("duration") && (
+                                            <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("start_time") && (
+                                            <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("other_number") && (
+                                            <TableCell className="text-left">{call.other_number}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("other_name") && (
+                                            <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("agent_number") && (
+                                            call.agent_number !== "" ? (
+                                                <TableCell className="text-left">{call.agent_number}</TableCell>
+                                            ) : (
+                                                <TableCell className="text-left">{'-'}</TableCell>
+                                            )
+                                        )}
+                                    </TableRow>
+                                ))
+                            )
+                            }
+                        </TableBody>
+                    </Table>
+                </div>
                 {currentPageData.length === 0 && (
                     <div className="flex flex-col items-center mt-10">
                         <FolderOpen className="text-gray-500 w-10 h-10" />

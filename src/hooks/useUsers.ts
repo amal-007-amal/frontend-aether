@@ -14,7 +14,7 @@ export function useUsers() {
             const data = await getUsers();
             setUsers([...data]);
         } catch (err) {
-            toast.error("Failed to fetch users");
+            toast.error("Unable to connect with server!");
         } finally {
             setIsLoading(false);
         }

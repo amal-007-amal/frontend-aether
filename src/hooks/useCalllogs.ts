@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { getCalls } from "../api/call";
 import type { CallLogDetails, FilterState } from "../types/call";
+import { toast } from "sonner";
 
 export function useCallLogs() {
   const [calllogs, setCalllogs] = useState<CallLogDetails[]>([]);
@@ -40,7 +41,7 @@ export function useCallLogs() {
         callstatus: [...callstatusSet],
       });
     } catch (error) {
-    console.log("Failed to fetch call logs");
+      toast.error("Unable to connect with server!")
     } finally {
       setIsLoading(false);
     }

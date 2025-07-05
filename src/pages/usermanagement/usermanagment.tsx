@@ -121,7 +121,7 @@ export default function UserManagmentPage() {
                             <Menu className="h-4 w-4 text-black" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="space-y-2 p-3 me-10">
-                            <span className="text-xs flex gap-3 cursor-pointer"><DownloadCloud className="w-4 h-4" /> Import Multiple</span>
+                            <span className="text-xs flex gap-3 cursor-pointer"><DownloadCloud className="w-4 h-4" /> Import as CSV</span>
                         </DropdownMenuContent>
                     </DropdownMenu>
                     </div>
