@@ -6,6 +6,7 @@ export interface CallLogDetails {
   direction: string,
   status: string,
   duration: number,
+  type:string,
   start_time: string,
   other_number: string,
   other_name: string,
@@ -21,5 +22,3 @@ export interface FilterState {
   direction: string[]
   callstatus: string[]
 }
-
-

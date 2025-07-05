@@ -38,6 +38,20 @@ export default function CallDetailPage() {
         statusOpen: false,
         timeFillOpen: false
     });
+    const directionMap: Record<string, string> = {
+        incoming: "Incoming",
+        outgoing: "Outgoing"
+    };
+    const typeMap: Record<string, string> = {
+        incoming: "Incoming",
+        outgoing: "Outgoing",
+        rejected: "Rejected",
+        missed: "Missed",
+        unknown: "Unknown",
+        voicemail:"Voicemail",
+        blocked:"Blocked",
+        answered_externally:"Answered Externally"
+    }
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTempUserIDs, setSelectedTempUserIDs] = useState<string[]>([]);
     const [tableFiller, setTableFiller] = useState<FilterState>({
@@ -87,7 +101,8 @@ export default function CallDetailPage() {
         { key: "other_number", label: "Other Number" },
         { key: "other_name", label: "Other Name" },
         { key: "agent_number", label: "Agent Number" },
-        { key: "recording_ids", label: "Recordings" }
+        { key: "recording_ids", label: "Recordings" },
+        { key: "type", label: "Type" }
     ];
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
         allColumns.map((col) => col.key)
@@ -358,7 +373,7 @@ export default function CallDetailPage() {
                                 <Menu className="h-4 w-4 text-black" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
-                                <span className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export To Pdf</span>
+                                <span className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export as Pdf</span>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -394,10 +409,51 @@ export default function CallDetailPage() {
                                         </div>
                                     </TableHead>
                                 )}
+                                {visibleColumns.includes("agent_number") && (
+                                    <TableHead className="text-center text-xs font-semibold cursor-pointer">
+                                        <span className="flex items-center justify-between gap-1">
+                                            Agent number
+                                            <Funnel
+                                                ref={filterRefs.agentNumberRef}
+                                                onClick={() => setOpenFilter(prev => ({
+                                                    ...prev, agentNumberOpen: true
+                                                }))}
+                                                className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            />
+                                            <Portal>
+                                                <div className="relative">
+                                                    <AetherNameMultiSelect
+                                                        data={selectedFilters.agentNumber.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.agentNumber}
+                                                        onChange={(selected) =>
+                                                            setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
+                                                        }
+                                                        open={openFilter.agentNumberOpen}
+                                                        setOpen={(val) =>
+                                                            setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
+                                                        }
+                                                        referenceRef={filterRefs.agentNumberRef}
+                                                    />
+                                                </div>
+                                            </Portal>
+                                        </span>
+                                    </TableHead>
+                                )}
                                 {visibleColumns.includes("device_id") && (
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer text-center"
                                     > Device ID
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("type") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer text-center"
+                                    >
+                                        <span className="flex items-center justify-between gap-1">
+                                            <span className="flex items-center gap-1">
+                                                Type
+                                            </span>
+                                        </span>
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("direction") && (
@@ -466,20 +522,6 @@ export default function CallDetailPage() {
                                         </div>
                                     </TableHead>
                                 )}
-                                {visibleColumns.includes("duration") && (
-                                    <TableHead
-                                        className="text-xs font-semibold cursor-pointer text-center"
-                                    >
-                                        <span className="flex items-center justify-between gap-1">
-                                            <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
-                                                Duration
-                                                {sortKey === "duration" && (
-                                                    sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                                                )}
-                                            </span>
-                                        </span>
-                                    </TableHead>
-                                )}
                                 {visibleColumns.includes("start_time") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer text-center">
                                         <span className="flex items-center justify-between">
@@ -503,6 +545,20 @@ export default function CallDetailPage() {
                                         </span>
                                     </TableHead>
 
+                                )}
+                                {visibleColumns.includes("duration") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer text-center"
+                                    >
+                                        <span className="flex items-center justify-between gap-1">
+                                            <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
+                                                Duration
+                                                {sortKey === "duration" && (
+                                                    sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                                )}
+                                            </span>
+                                        </span>
+                                    </TableHead>
                                 )}
                                 {visibleColumns.includes("other_number") && (
                                     <TableHead
@@ -564,36 +620,6 @@ export default function CallDetailPage() {
                                         </span>
                                     </TableHead>
                                 )}
-                                {visibleColumns.includes("agent_number") && (
-                                    <TableHead className="text-center text-xs font-semibold cursor-pointer">
-                                        <span className="flex items-center justify-between gap-1">
-                                            Agent number
-                                            <Funnel
-                                                ref={filterRefs.agentNumberRef}
-                                                onClick={() => setOpenFilter(prev => ({
-                                                    ...prev, agentNumberOpen: true
-                                                }))}
-                                                className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                            />
-                                            <Portal>
-                                                <div className="relative">
-                                                    <AetherNameMultiSelect
-                                                        data={selectedFilters.agentNumber.map((name) => ({ label: name, value: name }))}
-                                                        selected={tableFiller.agentNumber}
-                                                        onChange={(selected) =>
-                                                            setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
-                                                        }
-                                                        open={openFilter.agentNumberOpen}
-                                                        setOpen={(val) =>
-                                                            setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
-                                                        }
-                                                        referenceRef={filterRefs.agentNumberRef}
-                                                    />
-                                                </div>
-                                            </Portal>
-                                        </span>
-                                    </TableHead>
-                                )}
 
                                 {visibleColumns.includes("agent_number") && (
                                     <TableHead className="text-center text-xs font-semibold cursor-pointer">
@@ -610,27 +636,6 @@ export default function CallDetailPage() {
                                         {visibleColumns.includes("user_id") && (
                                             <TableCell className="text-left">{call.user_id}</TableCell>
                                         )}
-                                        {visibleColumns.includes("device_id") && (
-                                            <TableCell className="text-left">{call.device_id}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("direction") && (
-                                            <TableCell className="text-left">{call.direction}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("status") && (
-                                            <TableCell className="text-left">{call.status}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("duration") && (
-                                            <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("start_time") && (
-                                            <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("other_number") && (
-                                            <TableCell className="text-left">{call.other_number}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("other_name") && (
-                                            <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
-                                        )}
                                         {visibleColumns.includes("agent_number") && (
                                             call.agent_number !== "" ? (
                                                 <TableCell className="text-left">{call.agent_number}</TableCell>
@@ -638,6 +643,31 @@ export default function CallDetailPage() {
                                                 <TableCell className="text-left">{'-'}</TableCell>
                                             )
                                         )}
+                                        {visibleColumns.includes("device_id") && (
+                                            <TableCell className="text-left">{call.device_id}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("type") && (
+                                            <TableCell className="text-left">{typeMap[call.type] || call.type}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("direction") && (
+                                            <TableCell className="text-left">{directionMap[call.direction] || call.direction}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("status") && (
+                                            <TableCell className="text-left">{call.status}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("start_time") && (
+                                            <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("duration") && (
+                                            <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("other_number") && (
+                                            <TableCell className="text-left">{call.other_number}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("other_name") && (
+                                            <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
+                                        )}
+
                                         {visibleColumns.includes("recording_ids") && (
                                             <TableCell>
                                                 {call.recording_ids?.map((item, index) => (
@@ -715,7 +745,7 @@ export default function CallDetailPage() {
                                     setCurrentPage(Math.min(Math.max(1, page), totalPages)); // Clamp between 1 and totalPages
                                 }
                             }}
-                           className="w-20 h-8 text-center shadow-none rounded-xl border border-gray-200 px-2"
+                            className="w-20 h-8 text-center shadow-none rounded-xl border border-gray-200 px-2"
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                     const page = parseInt((e.target as HTMLInputElement).value);
