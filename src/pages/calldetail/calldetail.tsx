@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FolderOpen, Funnel, FunnelPlus, RefreshCcw } from "lucide-react";
+import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -261,10 +261,18 @@ export default function CallDetailPage() {
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
-
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Menu className="h-4 w-4 text-black" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="space-y-2 p-3 me-10">
+                                <span className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4"/> Export To Pdf</span>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
-                <Table className="cursor-pointer max-h-64 overflow-y-auto border-t">
+                  <div className="max-h-[500px] overflow-y-auto">
+                   <Table className="cursor-pointer">
                     <TableHeader>
                         <TableRow className="text-sm font-light">
                             <TableHead className="text-xs font-semibold">Sl No.</TableHead>
@@ -490,7 +498,7 @@ export default function CallDetailPage() {
                             )}
                             {visibleColumns.includes("other_number") && (
                                 <TableHead
-                                    className="text-xs font-semibold flex items-center justify-between relative"
+                                    className="text-xs font-semibold flex items-center justify-between relative shadow-none"
                                 >
                                     Other Number
                                     <Funnel
@@ -622,6 +630,7 @@ export default function CallDetailPage() {
                         }
                     </TableBody>
                 </Table>
+                  </div>
                 {currentPageData.length === 0 && (
                     <div className="flex flex-col items-center mt-10">
                         <FolderOpen className="text-gray-500 w-10 h-10" />

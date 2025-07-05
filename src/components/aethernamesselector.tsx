@@ -13,6 +13,7 @@ import {
 import { Checkbox } from "../components/ui/checkbox";
 import { useEffect, useState, useRef } from "react";
 import { useClickOutside } from "../hooks/useClickOutside";
+import { cn } from "../lib/utils";
 
 type MultiSelectOption = {
     label: string;
@@ -100,7 +101,10 @@ export function AetherNameMultiSelect({
                         dropdownRef.current = node;
                     }}
                     style={floatingStyles}
-                    className="absolute z-50 w-[300px] bg-white rounded border shadow-md p-0 text-sm"
+                    className={cn(
+                        "absolute z-50 w-[250px] bg-white rounded border shadow-md p-0 text-sm transition-all duration-200 ease-out origin-center",
+                        open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                    )}
                 >
                     <Command>
                         <CommandInput
@@ -157,6 +161,7 @@ export function AetherNameMultiSelect({
                     </Command>
                 </div>
             )}
+
         </>
 
     );

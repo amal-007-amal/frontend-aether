@@ -6,10 +6,7 @@ export const getCalls = async (): Promise<CallLogDetails[]> => {
     const { data } = await apiClient.get('/api/v1/calls', {
         headers: {
             "Authorization": `Bearer ${token}`
-        },
-        params: {
-            limit: encodeURIComponent(1000), // optional, axios will encode automatically
-        },
+        }
     })
     return data.calls
 }

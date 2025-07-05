@@ -58,13 +58,14 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+      "border-b border-b-gray-200 transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
       className
     )}
     {...props}
   />
-))
-TableRow.displayName = "TableRow"
+));
+TableRow.displayName = "TableRow";
+
 
 const TableHead = React.forwardRef<
   HTMLTableCellElement,

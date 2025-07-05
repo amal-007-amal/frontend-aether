@@ -16,19 +16,19 @@ export default function SideBar() {
       path: "/calldetails",
       label: "Call Details",
       icon: AlignLeft,
-      tooltip: false,
+      tooltip: true,
     },
     {
       path: "/usermanagment",
       label: "User Management",
       icon: UserCog,
-      tooltip: false,
+      tooltip: true,
     },
     {
       path: "/settings",
       label: "Settings",
       icon: Cog,
-      tooltip: false,
+      tooltip: true,
     },
   ]
   const isActive = (path: string) => location.pathname === path;
@@ -52,7 +52,7 @@ export default function SideBar() {
           return tooltip ? (
             <Tooltip key={path}>
               <TooltipTrigger asChild>{link}</TooltipTrigger>
-              <TooltipContent side="right">{label}</TooltipContent>
+              <TooltipContent  side="right">{label}</TooltipContent>
             </Tooltip>
           ) : (
             link

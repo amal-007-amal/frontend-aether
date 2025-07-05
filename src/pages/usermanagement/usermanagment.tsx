@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { Button } from "../../components/ui/button";
-import { Pencil, Plus, Trash, Users } from "lucide-react";
-import { createUser, deleteUser, getUsers, updateUser } from "../../api/login";
+import { DownloadCloud, Menu, Pencil, RefreshCcw, Trash, UserRoundPlus, Users } from "lucide-react";
+import { createUser, deleteUser, updateUser } from "../../api/login";
 import type { CreateUser, User } from "../../types/login";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Checkbox } from "../../components/ui/checkbox";
 import AetherLoader from "../../shared/AetherLoader";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
+import { useUsers } from "../../hooks/useUsers";
 
 export default function UserManagmentPage() {
-
-    const [users, setUsers] = useState<User[]>([]);
     const [open, setOpen] = useState(false)
     const [isEditMode, setIsEditMode] = useState(false)
     const [userData, setUserData] = useState<CreateUser>({
@@ -26,17 +26,7 @@ export default function UserManagmentPage() {
     })
     const [isPass, setIsPass] = useState(false)
 
-    const fetchUsers = useCallback(async () => {
-        setIsPass(true);
-        try {
-            const data = await getUsers();
-            setUsers([...data]);
-        } catch (err) {
-            toast.error("Failed to fetch users");
-        } finally {
-            setIsPass(false);
-        }
-    }, []);
+    const {users,fetchUsers,isLoading} = useUsers()
 
     useEffect(() => {
         fetchUsers();
@@ -113,7 +103,8 @@ export default function UserManagmentPage() {
             <div className="p-2 rounded-xl border border-gray-200">
                 <div className="flex justify-between mb-2 items-center px-1">
                     <h2 className="text-sm font-normal flex items-center"><Users className="h-4" />User List</h2>
-                    <Button variant={'default'} className="text-xs bg-white shadow-none text-black hover:bg-gray-100" onClick={() => {
+                    <div className="flex justify-between items-center gap-3">
+                     <UserRoundPlus onClick={() => {
                         setUserData({
                             name: "",
                             phone_number: "",
@@ -123,8 +114,17 @@ export default function UserManagmentPage() {
                         })
                         setOpen(prev => !prev);
                         setIsEditMode(false);
-                    }}>Add User <Plus className="h-4" />
-                    </Button>
+                    }} className="h-4 w-4 cursor-pointer" />
+                    <RefreshCcw onClick={fetchUsers} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>
+                            <Menu className="h-4 w-4 text-black" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="space-y-2 p-3 me-10">
+                            <span className="text-xs flex gap-3 cursor-pointer"><DownloadCloud className="w-4 h-4" /> Import Multiple</span>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </div>
                 </div>
                 <Table >
                     <TableHeader>
@@ -148,7 +148,7 @@ export default function UserManagmentPage() {
                                 <TableCell className="text-left">{user.has_console_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left">{user.has_agent_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left flex items-center gap-2">
-                                    <Button className="rounded-full border-none shadow-none h-3 w-3" onClick={() => handleEdit(user)} variant="outline" size="sm">
+                                    <Button className="rounded-full shadow-none h-3 w-3 border-none" onClick={() => handleEdit(user)} variant="outline" size="sm">
                                         <Pencil className="w-3 h-3 text-black" />
                                     </Button>
                                     <Button className="rounded-full border-none shadow-none h-3 w-3" onClick={() => handleRemoveUser(user.id)} variant="outline" size="sm">
@@ -160,7 +160,7 @@ export default function UserManagmentPage() {
                     </TableBody>
                 </Table>
             </div>
-            {isPass && (
+            {isPass || isLoading  && (
                 <AetherLoader />
             )}
             <Dialog open={open} onOpenChange={setOpen}>
@@ -226,7 +226,7 @@ export default function UserManagmentPage() {
                         <Button variant="ghost" onClick={() => setOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleCreateUserSubmit}>Save</Button>
+                        <Button className="bg-fuchsia-500" onClick={handleCreateUserSubmit}>Save</Button>
                     </div>
                 </DialogContent>
             </Dialog>
