@@ -641,7 +641,7 @@ export default function CallDetailPage() {
                                         {visibleColumns.includes("recording_ids") && (
                                             <TableCell>
                                                 {call.recording_ids?.map((item, index) => (
-                                                    <div key={index} className="mb-2">
+                                                    <div key={index} className="my-1">
                                                         <audio
                                                             controls
                                                             className="w-28 h-7 text-xs rounded"
@@ -669,6 +669,7 @@ export default function CallDetailPage() {
 
                 <div className="flex items-center justify-end mt-4 gap-4 text-sm">
                     <div className="flex items-center gap-2">
+                        <span className="text-xs">Rows per Page</span>
                         <Input
                             type="number"
                             className="w-20 text-center shadow-none rounded-xl border border-gray-200"
@@ -702,7 +703,28 @@ export default function CallDetailPage() {
                     >
                         <ChevronsLeft className="h-4 w-4" />Prev
                     </Button>
-
+                    <span>
+                        <input
+                            type="number"
+                            min={1}
+                            max={totalPages}
+                            value={currentPage}
+                            onChange={(e) => {
+                                const page = parseInt(e.target.value);
+                                if (!isNaN(page)) {
+                                    setCurrentPage(Math.min(Math.max(1, page), totalPages)); // Clamp between 1 and totalPages
+                                }
+                            }}
+                           className="w-20 h-8 text-center shadow-none rounded-xl border border-gray-200 px-2"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    const page = parseInt((e.target as HTMLInputElement).value);
+                                    if (!isNaN(page)) {
+                                        setCurrentPage(Math.min(Math.max(1, page), totalPages));
+                                    }
+                                }
+                            }}
+                        />&nbsp;&nbsp;&nbsp;of&nbsp;&nbsp;{totalPages}</span>
                     <Button
                         className="bg-white shadow-none text-black hover:bg-gray-100 text-xs"
                         onClick={() => {

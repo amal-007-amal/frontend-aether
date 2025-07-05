@@ -102,8 +102,8 @@ export function AetherNameMultiSelect({
                     }}
                     style={floatingStyles}
 className={cn(
-  "absolute z-50 w-[250px] bg-white rounded border shadow-md p-0 text-sm transition-transform duration-200 ease-out origin-top",
-  open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+  "absolute z-50 w-[250px] bg-white rounded border shadow-md p-0 text-sm transition-opacity duration-150 ease-in-out",
+  open ? "opacity-100" : "opacity-0 pointer-events-none"
 )}
                 >
                     <Command>
@@ -143,7 +143,7 @@ className={cn(
                                     No results found
                                 </div>
                             )}
-                            {filteredData.map((item) => (
+                            {filteredData.sort((a, b) => a.label.localeCompare(b.label)).map((item) => (
                                 <div
                                     key={item.value}
                                     className="px-2 py-1.5 cursor-pointer hover:bg-gray-100 flex items-center gap-2"

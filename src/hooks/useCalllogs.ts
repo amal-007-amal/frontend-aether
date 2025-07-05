@@ -63,12 +63,13 @@ export function useCallLogs() {
       });
 
       setSelectedFilters({
-        otherName: [...otNameSet],
-        otherNumber: [...otNumberSet],
-        agentNumber: [...agNumberSet],
-        direction: [...directionSet],
-        callstatus: [...callstatusSet],
+        otherName: [...otNameSet].sort((a, b) => a.localeCompare(b)),
+        otherNumber: [...otNumberSet].sort((a, b) => a.localeCompare(b)),
+        agentNumber: [...agNumberSet].sort((a, b) => a.localeCompare(b)),
+        direction: [...directionSet].sort((a, b) => a.localeCompare(b)),
+        callstatus: [...callstatusSet].sort((a, b) => a.localeCompare(b)),
       });
+
     } catch (error) {
       toast.error("Unable to connect with server!");
     } finally {
