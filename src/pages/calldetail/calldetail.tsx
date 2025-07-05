@@ -102,6 +102,7 @@ export default function CallDetailPage() {
     const { calllogs,
         selectedFilters,
         fetchCallLogsWith,
+        timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
 
@@ -124,7 +125,6 @@ export default function CallDetailPage() {
                 fetchCallLogsWith(parsed);
             } catch (err) {
                 console.error("Invalid filters in localStorage", err);
-                // fallback to default if needed
                 const defaultFilters = {
                     filterMinStart: null,
                     filterMaxStart: null,
@@ -302,7 +302,7 @@ export default function CallDetailPage() {
                     <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
 
                     <div className="flex items-center gap-5">
-                        <RefreshCcw className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
+                        <RefreshCcw onClick={() => fetchCallLogsWith(timeFilters)} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <FunnelPlus className="h-4 w-4" />
@@ -371,7 +371,7 @@ export default function CallDetailPage() {
                                 {visibleColumns.includes("user_id") && (
                                     <TableHead className="text-xs font-semibold">
                                         <div className="flex items-center justify-between gap-1 relative">
-                                            <span>Username</span>
+                                            <span>Agent name</span>
                                             <Funnel
                                                 ref={filterRefs.funnelRef}
                                                 onClick={() => setOpenFilter(prev => ({
@@ -508,7 +508,7 @@ export default function CallDetailPage() {
                                     <TableHead
                                         className="text-xs font-semibold flex items-center justify-between relative shadow-none"
                                     >
-                                        Other Number
+                                        Caller ID
                                         <Funnel
                                             ref={filterRefs.otherNumberRef}
                                             onClick={() => setOpenFilter(prev => ({
@@ -537,7 +537,7 @@ export default function CallDetailPage() {
                                 {visibleColumns.includes("other_name") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center justify-between gap-1">
-                                            Other Name
+                                            Caller Name
                                             <Funnel
                                                 ref={filterRefs.otherNameRef}
                                                 onClick={() => setOpenFilter(prev => ({
@@ -567,7 +567,7 @@ export default function CallDetailPage() {
                                 {visibleColumns.includes("agent_number") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center justify-between gap-1">
-                                            Agent Number
+                                            Agent number
                                             <Funnel
                                                 ref={filterRefs.agentNumberRef}
                                                 onClick={() => setOpenFilter(prev => ({

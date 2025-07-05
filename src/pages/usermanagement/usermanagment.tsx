@@ -26,7 +26,7 @@ export default function UserManagmentPage() {
     })
     const [isPass, setIsPass] = useState(false)
 
-    const {users,fetchUsers,isLoading} = useUsers()
+    const { users, fetchUsers, isLoading } = useUsers()
 
     useEffect(() => {
         fetchUsers();
@@ -81,14 +81,18 @@ export default function UserManagmentPage() {
                 console.log(updateUserResponse)
                 await fetchUsers()
                 toast.success("User updated")
+                setOpen(false)
             } else {
-                const createUserResponse = await createUser(userData)
-                console.log(createUserResponse)
-                toast.success("User created")
-                await fetchUsers()
+                if (userData.phone_number !== "") {
+                    const createUserResponse = await createUser(userData)
+                    console.log(createUserResponse)
+                    toast.success("User created")
+                    await fetchUsers()
+                    setOpen(false)
+                } else {
+                    toast.warning("Enter Valid Phone number!")
+                }
             }
-
-            setOpen(false)
         } catch (err) {
             toast.error("Failed to create user")
         } finally {
@@ -104,26 +108,26 @@ export default function UserManagmentPage() {
                 <div className="flex justify-between mb-2 items-center px-1">
                     <h2 className="text-sm font-normal flex items-center"><Users className="h-4" />User List</h2>
                     <div className="flex justify-between items-center gap-3">
-                     <UserRoundPlus onClick={() => {
-                        setUserData({
-                            name: "",
-                            phone_number: "",
-                            has_console_access: false,
-                            has_agent_access: false,
-                            is_superuser: false
-                        })
-                        setOpen(prev => !prev);
-                        setIsEditMode(false);
-                    }} className="h-4 w-4 cursor-pointer" />
-                    <RefreshCcw onClick={fetchUsers} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <Menu className="h-4 w-4 text-black" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="space-y-2 p-3 me-10">
-                            <span className="text-xs flex gap-3 cursor-pointer"><DownloadCloud className="w-4 h-4" /> Import as CSV</span>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                        <UserRoundPlus onClick={() => {
+                            setUserData({
+                                name: "",
+                                phone_number: "",
+                                has_console_access: false,
+                                has_agent_access: false,
+                                is_superuser: false
+                            })
+                            setOpen(prev => !prev);
+                            setIsEditMode(false);
+                        }} className="h-4 w-4 cursor-pointer" />
+                        <RefreshCcw onClick={fetchUsers} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Menu className="h-4 w-4 text-black" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="space-y-2 p-3 me-10">
+                                <span className="text-xs flex gap-3 cursor-pointer"><DownloadCloud className="w-4 h-4" /> Import as CSV</span>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
                 <Table >
@@ -160,13 +164,13 @@ export default function UserManagmentPage() {
                     </TableBody>
                 </Table>
             </div>
-            {isPass || isLoading  && (
+            {isPass || isLoading && (
                 <AetherLoader />
             )}
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Create New User</DialogTitle>
+                        <DialogTitle>{isEditMode ? 'Update' : 'Create New'} User</DialogTitle>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
