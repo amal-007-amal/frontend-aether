@@ -1,15 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getCalls } from "../../api/call";
-import { toast } from "sonner";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FolderOpen, Funnel, FunnelPlus, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
-import type { CallLogDetails, FilterState } from "../../types/call";
+import type { FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import AetherLoader from "../../shared/AetherLoader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { getUsers } from "../../api/login";
-import type { User } from "../../types/login";
 import { aetherFormatDate } from "../../hooks/useFormattedDate";
 import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
@@ -19,6 +15,9 @@ import { useFormattedDuration } from "../../hooks/useDurationFormat";
 import { Checkbox } from "../../components/ui/checkbox";
 import { AetherNameMultiSelect } from "../../components/aethernamesselector";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import { useCallLogs } from "../../hooks/useCalllogs";
+import { useUsers } from "../../hooks/useUsers";
+import { createPortal } from "react-dom";
 
 export default function CallDetailPage() {
     const filterRefs = {
@@ -29,8 +28,6 @@ export default function CallDetailPage() {
         directionRef: useRef(null),
         statusRef: useRef(null)
     };
-    const [isPass, setIsPass] = useState(false)
-    const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
     const [openFilter, setOpenFilter] = useState({
         usernameOpen: false,
         otherNameOpen: false,
@@ -40,16 +37,8 @@ export default function CallDetailPage() {
         statusOpen: false,
         timeFillOpen: false
     });
-    const [users, setUsers] = useState<User[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTempUserIDs, setSelectedTempUserIDs] = useState<string[]>([]);
-    const [selectedFilters, setSelectedFilters] = useState({
-        otherNames: [] as string[],
-        otherNumbers: [] as string[],
-        agentNumbers: [] as string[],
-        direction: [] as string[],
-        callstatus: [] as string[]
-    });
     const [tableFiller, setTableFiller] = useState<FilterState>({
         otherName: [],
         otherNumber: [],
@@ -82,6 +71,11 @@ export default function CallDetailPage() {
         agent_number: ""
     });
     console.log(setFilters)
+    const Portal = ({ children }: { children: React.ReactNode }) => {
+        if (typeof window === "undefined") return null;
+        const portalRoot = document.getElementById("portal-root");
+        return portalRoot ? createPortal(children, portalRoot) : null;
+    };
     const allColumns = [
         { key: "user_id", label: "Username" },
         { key: "device_id", label: "Device ID" },
@@ -103,54 +97,17 @@ export default function CallDetailPage() {
                 : [...prev, key]
         );
     };
-    const fetchCallLogs = useCallback(async () => {
-        setIsPass(true);
-        try {
-            const data = await getCalls();
-            setCalllogs([...data]);
-            const otNameSet = new Set<string>();
-            const otNumberSet = new Set<string>();
-            const agNumberSet = new Set<string>();
-            const directionSet = new Set<string>();
-            const callstatusSet = new Set<string>();
+    const { calllogs,
+        selectedFilters,
+        fetchCallLogs,
+        isLoading } = useCallLogs()
 
-            data.forEach(item => {
-                if (item.other_name) otNameSet.add(item.other_name);
-                if (item.other_number) otNumberSet.add(item.other_number);
-                if (item.agent_number) agNumberSet.add(item.agent_number);
-                if (item.direction) directionSet.add(item.direction);
-                if (item.status) callstatusSet.add(item.status)
-            });
-            setSelectedFilters({
-                otherNames: [...otNameSet],
-                otherNumbers: [...otNumberSet],
-                agentNumbers: [...agNumberSet],
-                direction: [...directionSet],
-                callstatus: [...callstatusSet]
-            });
-        } catch (err) {
-            toast.error("Failed to fetch call logs");
-        } finally {
-            setIsPass(false);
-        }
-    }, []);
-
-    const fetchUsers = useCallback(async () => {
-        setIsPass(true);
-        try {
-            const data = await getUsers();
-            setUsers([...data]);
-        } catch (err) {
-            toast.error("Failed to fetch users");
-        } finally {
-            setIsPass(false);
-        }
-    }, []);
+    const { users, fetchUsers, isLoading: isUserloading } = useUsers()
 
     useEffect(() => {
-        fetchCallLogs();
-        fetchUsers();
-    }, [fetchCallLogs, fetchUsers]);
+        fetchCallLogs()
+        fetchUsers()
+    }, [])
 
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -215,7 +172,6 @@ export default function CallDetailPage() {
         timesave
     ]);
 
-
     const sortedData = useMemo(() => {
         if (!sortKey) return filteredData;
 
@@ -231,7 +187,6 @@ export default function CallDetailPage() {
         });
     }, [filteredData, sortKey, sortOrder]);
 
-    // Step 2: Pagination
     const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
     const startIndex = (currentPage - 1) * pageSize;
     const currentPageData = sortedData.slice(startIndex, startIndex + pageSize);
@@ -258,15 +213,15 @@ export default function CallDetailPage() {
                     <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
 
                     <div className="flex items-center gap-5">
-                        <RefreshCcw onClick={fetchCallLogs} className={`h-4 w-4 cursor-pointer ${isPass ? 'animate-spin' : ''}`} />
+                        <RefreshCcw onClick={fetchCallLogs} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <FunnelPlus className="h-4 w-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
-                                <div onClick={(e) => e.stopPropagation()}>
+                                <div onClick={(e) => e.stopPropagation()} >
                                     <Select onValueChange={(value) => setSelFilter(value)}>
-                                        <SelectTrigger className="w-full">
+                                        <SelectTrigger className="w-full text-xs shadow-none">
                                             <SelectValue placeholder="Select a filter" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -289,18 +244,20 @@ export default function CallDetailPage() {
                                 </div>
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <p className="text-sm font-semibold mb-1">Columns</p>
-                                    {allColumns.map((col) => (
-                                        <div key={col.key} className="flex items-center gap-2 text-sm">
-                                            <Checkbox
-                                                id={`col-${col.key}`}
-                                                checked={visibleColumns.includes(col.key)}
-                                                onCheckedChange={() => toggleColumn(col.key)}
-                                            />
-                                            <label htmlFor={`col-${col.key}`} className="cursor-pointer">
-                                                {col.label}
-                                            </label>
-                                        </div>
-                                    ))}
+                                    <div className="grid grid-cols-2 gap-x-6">
+                                        {allColumns.map((col) => (
+                                            <div key={col.key} className="flex items-center gap-2 text-sm">
+                                                <Checkbox
+                                                    id={`col-${col.key}`}
+                                                    checked={visibleColumns.includes(col.key)}
+                                                    onCheckedChange={() => toggleColumn(col.key)}
+                                                />
+                                                <label htmlFor={`col-${col.key}`} className="cursor-pointer text-xs py-1">
+                                                    {col.label}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -322,17 +279,18 @@ export default function CallDetailPage() {
                                             }))}
                                             className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
-                                        {selectedTempUserIDs.length !== 0 && (
-                                            <span className="absolute -top-[0.1rem] right-5 h-2 w-2 rounded-full bg-fuchsia-500" />
-                                        )}
-                                        <AetherNameMultiSelect
-                                            data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                            selected={selectedTempUserIDs}
-                                            onChange={setSelectedTempUserIDs}
-                                            open={openFilter.usernameOpen}
-                                            setOpen={(open) => { setOpenFilter(prev => ({ ...prev, usernameOpen: open })) }}
-                                            referenceRef={filterRefs.funnelRef}
-                                        />
+                                        <Portal>
+                                            <div className="relative">
+                                                <AetherNameMultiSelect
+                                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                                    selected={selectedTempUserIDs}
+                                                    onChange={setSelectedTempUserIDs}
+                                                    open={openFilter.usernameOpen}
+                                                    setOpen={(open) => { setOpenFilter(prev => ({ ...prev, usernameOpen: open })) }}
+                                                    referenceRef={filterRefs.funnelRef}
+                                                />
+                                            </div>
+                                        </Portal>
                                     </div>
                                 </TableHead>
                             )}
@@ -355,23 +313,22 @@ export default function CallDetailPage() {
                                             }))}
                                             className={`h-3 w-4 ${tableFiller.direction.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
-                                        {tableFiller.direction.length !== 0 && (
-                                            <span className="absolute -top-[0.1rem] right-3 h-2 w-2 rounded-full bg-fuchsia-500" />
-                                        )}
-                                        <div className="relative">
-                                            <AetherNameMultiSelect
-                                                data={selectedFilters.direction.map((name) => ({ label: name, value: name }))}
-                                                selected={tableFiller.direction}
-                                                onChange={(selected) =>
-                                                    setTableFiller((prev) => ({ ...prev, direction: selected }))
-                                                }
-                                                open={openFilter.directionOpen}
-                                                setOpen={(val) =>
-                                                    setOpenFilter((prev) => ({ ...prev, directionOpen: val }))
-                                                }
-                                                referenceRef={filterRefs.directionRef}
-                                            />
-                                        </div>
+                                        <Portal>
+                                            <div className="relative">
+                                                <AetherNameMultiSelect
+                                                    data={selectedFilters.direction.map((name) => ({ label: name, value: name }))}
+                                                    selected={tableFiller.direction}
+                                                    onChange={(selected) =>
+                                                        setTableFiller((prev) => ({ ...prev, direction: selected }))
+                                                    }
+                                                    open={openFilter.directionOpen}
+                                                    setOpen={(val) =>
+                                                        setOpenFilter((prev) => ({ ...prev, directionOpen: val }))
+                                                    }
+                                                    referenceRef={filterRefs.directionRef}
+                                                />
+                                            </div>
+                                        </Portal>
                                     </div>
                                 </TableHead>
                             )}
@@ -389,24 +346,23 @@ export default function CallDetailPage() {
                                                 }))}
                                                 className={`h-3 w-4 ${tableFiller.callstatus.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                             />
-                                            {tableFiller.callstatus.length !== 0 && (
-                                                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-fuchsia-500" />
-                                            )}
                                         </div>
-                                        <div className="relative">
-                                            <AetherNameMultiSelect
-                                                data={selectedFilters.callstatus.map((name) => ({ label: name, value: name }))}
-                                                selected={tableFiller.callstatus}
-                                                onChange={(selected) =>
-                                                    setTableFiller((prev) => ({ ...prev, callstatus: selected }))
-                                                }
-                                                open={openFilter.statusOpen}
-                                                setOpen={(val) =>
-                                                    setOpenFilter((prev) => ({ ...prev, statusOpen: val }))
-                                                }
-                                                referenceRef={filterRefs.statusRef}
-                                            />
-                                        </div>
+                                        <Portal>
+                                            <div className="relative">
+                                                <AetherNameMultiSelect
+                                                    data={selectedFilters.callstatus.map((name) => ({ label: name, value: name }))}
+                                                    selected={tableFiller.callstatus}
+                                                    onChange={(selected) =>
+                                                        setTableFiller((prev) => ({ ...prev, callstatus: selected }))
+                                                    }
+                                                    open={openFilter.statusOpen}
+                                                    setOpen={(val) =>
+                                                        setOpenFilter((prev) => ({ ...prev, statusOpen: val }))
+                                                    }
+                                                    referenceRef={filterRefs.statusRef}
+                                                />
+                                            </div>
+                                        </Portal>
                                     </div>
                                 </TableHead>
                             )}
@@ -450,8 +406,8 @@ export default function CallDetailPage() {
                                                             }));
                                                         }}
                                                         className={`h-3 w-4 cursor-pointer ${timesave.startHour !== 0 || timesave.endHour !== 24
-                                                                ? "text-blue-600"
-                                                                : "text-gray-400"
+                                                            ? "text-fuchsia-500"
+                                                            : "text-gray-400"
                                                             }`}
                                                     />
                                                     {(timesave.startHour !== 0 || timesave.endHour !== 24) && (
@@ -544,20 +500,22 @@ export default function CallDetailPage() {
                                         }))}
                                         className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                     />
-                                    <div className="relative">
-                                        <AetherNameMultiSelect
-                                            data={selectedFilters.otherNumbers.map((name) => ({ label: name, value: name }))}
-                                            selected={tableFiller.otherNumber}
-                                            onChange={(selected) =>
-                                                setTableFiller((prev) => ({ ...prev, otherNumber: selected }))
-                                            }
-                                            open={openFilter.otherNumberOpen}
-                                            setOpen={(val) =>
-                                                setOpenFilter((prev) => ({ ...prev, otherNumberOpen: val }))
-                                            }
-                                            referenceRef={filterRefs.otherNumberRef}
-                                        />
-                                    </div>
+                                    <Portal>
+                                        <div className="relative">
+                                            <AetherNameMultiSelect
+                                                data={selectedFilters.otherNumber.map((name) => ({ label: name, value: name }))}
+                                                selected={tableFiller.otherNumber}
+                                                onChange={(selected) =>
+                                                    setTableFiller((prev) => ({ ...prev, otherNumber: selected }))
+                                                }
+                                                open={openFilter.otherNumberOpen}
+                                                setOpen={(val) =>
+                                                    setOpenFilter((prev) => ({ ...prev, otherNumberOpen: val }))
+                                                }
+                                                referenceRef={filterRefs.otherNumberRef}
+                                            />
+                                        </div>
+                                    </Portal>
                                 </TableHead>
                             )}
                             {visibleColumns.includes("other_name") && (
@@ -571,20 +529,22 @@ export default function CallDetailPage() {
                                             }))}
                                             className={`h-3 w-4 ${tableFiller.otherName.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
-                                        <div className="relative">
-                                            <AetherNameMultiSelect
-                                                data={selectedFilters.otherNames.map((name) => ({ label: name, value: name }))}
-                                                selected={tableFiller.otherName}
-                                                onChange={(selected) =>
-                                                    setTableFiller((prev) => ({ ...prev, otherName: selected }))
-                                                }
-                                                open={openFilter.otherNameOpen}
-                                                setOpen={(val) =>
-                                                    setOpenFilter((prev) => ({ ...prev, otherNameOpen: val }))
-                                                }
-                                                referenceRef={filterRefs.otherNameRef}
-                                            />
-                                        </div>
+                                        <Portal>
+                                            <div>
+                                                <AetherNameMultiSelect
+                                                    data={selectedFilters.otherName.map((name) => ({ label: name, value: name }))}
+                                                    selected={tableFiller.otherName}
+                                                    onChange={(selected) =>
+                                                        setTableFiller((prev) => ({ ...prev, otherName: selected }))
+                                                    }
+                                                    open={openFilter.otherNameOpen}
+                                                    setOpen={(val) =>
+                                                        setOpenFilter((prev) => ({ ...prev, otherNameOpen: val }))
+                                                    }
+                                                    referenceRef={filterRefs.otherNameRef}
+                                                />
+                                            </div>
+                                        </Portal>
                                     </span>
                                 </TableHead>
                             )}
@@ -599,20 +559,22 @@ export default function CallDetailPage() {
                                             }))}
                                             className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
-                                        <div className="relative">
-                                            <AetherNameMultiSelect
-                                                data={selectedFilters.agentNumbers.map((name) => ({ label: name, value: name }))}
-                                                selected={tableFiller.agentNumber}
-                                                onChange={(selected) =>
-                                                    setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
-                                                }
-                                                open={openFilter.agentNumberOpen}
-                                                setOpen={(val) =>
-                                                    setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
-                                                }
-                                                referenceRef={filterRefs.agentNumberRef}
-                                            />
-                                        </div>
+                                        <Portal>
+                                            <div className="relative">
+                                                <AetherNameMultiSelect
+                                                    data={selectedFilters.agentNumber.map((name) => ({ label: name, value: name }))}
+                                                    selected={tableFiller.agentNumber}
+                                                    onChange={(selected) =>
+                                                        setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
+                                                    }
+                                                    open={openFilter.agentNumberOpen}
+                                                    setOpen={(val) =>
+                                                        setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
+                                                    }
+                                                    referenceRef={filterRefs.agentNumberRef}
+                                                />
+                                            </div>
+                                        </Portal>
                                     </span>
                                 </TableHead>
                             )}
@@ -648,7 +610,11 @@ export default function CallDetailPage() {
                                         <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
                                     )}
                                     {visibleColumns.includes("agent_number") && (
-                                        <TableCell className="text-left">{call.agent_number}</TableCell>
+                                        call.agent_number !== "" ? (
+                                            <TableCell className="text-left">{call.agent_number}</TableCell>
+                                        ) : (
+                                            <TableCell className="text-left">{'-'}</TableCell>
+                                        )
                                     )}
                                 </TableRow>
                             ))
@@ -712,7 +678,7 @@ export default function CallDetailPage() {
                 </div>
 
             </div>
-            {isPass && (
+            {isLoading || isUserloading && (
                 <AetherLoader />
             )}
         </div>

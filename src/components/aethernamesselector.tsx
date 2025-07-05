@@ -43,7 +43,7 @@ export function AetherNameMultiSelect({
         open,
         onOpenChange: setOpen,
         middleware: [offset({ mainAxis: 15, crossAxis: -25 }), flip(), shift()],
-        placement: "top-start",
+        placement: "bottom-start",
         whileElementsMounted: autoUpdate,
     });
 
@@ -92,7 +92,7 @@ export function AetherNameMultiSelect({
 
     return (
         <>
-            <div ref={refs.setReference} className="inline-block" />
+            <div ref={refs.setReference} className="inline-block relative" />
             {open && (
                 <div
                     ref={(node) => {
@@ -100,7 +100,7 @@ export function AetherNameMultiSelect({
                         dropdownRef.current = node;
                     }}
                     style={floatingStyles}
-                    className="z-50 w-[300px] bg-white rounded border shadow-md p-0 text-sm"
+                    className="absolute z-50 w-[300px] bg-white rounded border shadow-md p-0 text-sm"
                 >
                     <Command>
                         <CommandInput
@@ -158,5 +158,6 @@ export function AetherNameMultiSelect({
                 </div>
             )}
         </>
+
     );
 }

@@ -13,10 +13,10 @@ export interface CallLogDetails {
   created_at: string
 }
 
-export type FilterState = {
-  otherName: string[];
-  otherNumber: string[];
-  agentNumber: string[];
-  direction: string[],
+export interface FilterState{
+  otherName: string[]
+  otherNumber: string[]
+  agentNumber: string[]
+  direction: string[]
   callstatus: string[]
-};
+}

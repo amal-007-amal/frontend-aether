@@ -1,31 +1,13 @@
 import { useState, useCallback } from "react";
 import { getCalls } from "../api/call";
-
-interface CallLogDetails {
-  user_id: string;
-  other_name?: string;
-  other_number?: string;
-  agent_number?: string;
-  direction?: string;
-  status?: string;
-  start_time?: string;
-  [key: string]: any;
-}
-
-interface SelectedFilters {
-  otherNames: string[];
-  otherNumbers: string[];
-  agentNumbers: string[];
-  direction: string[];
-  callstatus: string[];
-}
+import type { CallLogDetails, FilterState } from "../types/call";
 
 export function useCallLogs() {
   const [calllogs, setCalllogs] = useState<CallLogDetails[]>([]);
-  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
-    otherNames: [],
-    otherNumbers: [],
-    agentNumbers: [],
+  const [selectedFilters, setSelectedFilters] = useState<FilterState>({
+    otherName: [],
+    otherNumber: [],
+    agentNumber: [],
     direction: [],
     callstatus: [],
   });
@@ -51,9 +33,9 @@ export function useCallLogs() {
       });
 
       setSelectedFilters({
-        otherNames: [...otNameSet],
-        otherNumbers: [...otNumberSet],
-        agentNumbers: [...agNumberSet],
+        otherName: [...otNameSet],
+        otherNumber: [...otNumberSet],
+        agentNumber: [...agNumberSet],
         direction: [...directionSet],
         callstatus: [...callstatusSet],
       });

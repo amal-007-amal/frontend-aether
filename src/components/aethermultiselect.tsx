@@ -31,7 +31,7 @@ export function AetherMultiSelect({
   data,
   selected,
   onChange,
-  placeholder = "Select...",
+  placeholder = "Search users...",
 }: DynamicMultiSelectProps) {
   const [open, setOpen] = useState(false);
 
@@ -60,7 +60,7 @@ export function AetherMultiSelect({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-[300px] justify-between text-gray-400">
+        <Button variant="outline" className="w-[300px] justify-between text-gray-500 font-normal text-xs shadow-none">
           {selectedLabels || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
@@ -85,7 +85,7 @@ export function AetherMultiSelect({
                     checked={selected.includes(item.value)}
                     onCheckedChange={() => toggle(item.value)}
                   />
-                  <span>{item.label}</span>
+                  <span className="text-xs">{item.label}</span>
                 </div>
               </CommandItem>
             ))}
