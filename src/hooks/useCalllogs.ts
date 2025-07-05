@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 export function useCallLogs() {
   const [calllogs, setCalllogs] = useState<CallLogDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [selectedFilters, setSelectedFilters] = useState<FilterState>({
     otherName: [],
     otherNumber: [],
@@ -12,13 +14,40 @@ export function useCallLogs() {
     direction: [],
     callstatus: [],
   });
-  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchCallLogs = useCallback(async () => {
+  const [timeFilters, setTimeFilters] = useState<{
+    filterMinStart: string | null;
+    filterMaxStart: string | null;
+    userIDs: string[];
+  }>({
+    filterMinStart: null,
+    filterMaxStart: null,
+    userIDs: []
+  });
+
+  const fetchCallLogsWith = useCallback(async (filters: {
+    filterMinStart: string | null;
+    filterMaxStart: string | null;
+    userIDs: string[];
+  }) => {
     setIsLoading(true);
     try {
-      const data = await getCalls();
+      const params = new URLSearchParams();
+
+      if (filters.filterMinStart) {
+        params.append("filter_min_start_time", filters.filterMinStart);
+      }
+      if (filters.filterMaxStart) {
+        params.append("filter_max_start_time", filters.filterMaxStart);
+      }
+      if (filters.userIDs.length > 0) {
+        params.append("filter_user_ids", filters.userIDs.join(","));
+      }
+
+      const data = await getCalls(params);
       setCalllogs(data);
+
+      // Generate unique filter sets
       const otNameSet = new Set<string>();
       const otNumberSet = new Set<string>();
       const agNumberSet = new Set<string>();
@@ -41,7 +70,7 @@ export function useCallLogs() {
         callstatus: [...callstatusSet],
       });
     } catch (error) {
-      toast.error("Unable to connect with server!")
+      toast.error("Unable to connect with server!");
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +81,9 @@ export function useCallLogs() {
     setCalllogs,
     selectedFilters,
     setSelectedFilters,
-    fetchCallLogs,
-    isLoading,
+    timeFilters,
+    setTimeFilters,
+    fetchCallLogsWith,
+    isLoading
   };
 }

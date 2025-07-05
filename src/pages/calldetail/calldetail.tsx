@@ -9,15 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { aetherFormatDate } from "../../hooks/useFormattedDate";
 import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
-import type { DateRange } from "react-day-picker";
 import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
 import { Checkbox } from "../../components/ui/checkbox";
 import { AetherNameMultiSelect } from "../../components/aethernamesselector";
-import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { useCallLogs } from "../../hooks/useCalllogs";
+import type { DateRange } from "react-day-picker";
 import { useUsers } from "../../hooks/useUsers";
 import { createPortal } from "react-dom";
+import { startOfToday, startOfWeek } from "date-fns";
+
 
 export default function CallDetailPage() {
     const filterRefs = {
@@ -46,13 +47,14 @@ export default function CallDetailPage() {
         direction: [],
         callstatus: []
     });
-    const [timesave, setTimeSave] = useState({
-        startHour: 0,
-        endHour: 24
-    });
-    const [draft, setDraft] = useState({
-        startHour: 0,
-        endHour: 24
+    const [timesave, setTimeSave] = useState<{
+        filterMinStart: string | null;
+        filterMaxStart: string | null;
+        userIDs?: string[];
+    }>({
+        filterMinStart: startOfToday().toISOString(),
+        filterMaxStart: null,
+        userIDs: []
     });
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
@@ -85,6 +87,7 @@ export default function CallDetailPage() {
         { key: "other_number", label: "Other Number" },
         { key: "other_name", label: "Other Name" },
         { key: "agent_number", label: "Agent Number" },
+        { key: "recording_ids", label: "Recordings" }
     ];
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
         allColumns.map((col) => col.key)
@@ -98,20 +101,53 @@ export default function CallDetailPage() {
     };
     const { calllogs,
         selectedFilters,
-        fetchCallLogs,
+        fetchCallLogsWith,
+        setTimeFilters,
         isLoading } = useCallLogs()
 
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
 
     useEffect(() => {
-        fetchCallLogs()
-        fetchUsers()
-    }, [])
+        const stored = localStorage.getItem("call_filters");
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                const { filterMinStart, filterMaxStart, userIDs } = parsed;
+
+                setTimeSave({
+                    filterMinStart: filterMinStart || null,
+                    filterMaxStart: filterMaxStart || null,
+                });
+
+                setSelectedUserIDs(userIDs || []);
+                setTimeFilters(parsed);
+                fetchCallLogsWith(parsed);
+            } catch (err) {
+                console.error("Invalid filters in localStorage", err);
+                // fallback to default if needed
+                const defaultFilters = {
+                    filterMinStart: null,
+                    filterMaxStart: null,
+                    userIDs: []
+                };
+                setTimeFilters(defaultFilters);
+                fetchCallLogsWith(defaultFilters);
+            }
+        } else {
+            const defaultFilters = {
+                filterMinStart: null,
+                filterMaxStart: null,
+                userIDs: []
+            };
+            setTimeFilters(defaultFilters);
+            fetchCallLogsWith(defaultFilters);
+        }
+
+        fetchUsers();
+    }, []);
+
 
     const [currentPage, setCurrentPage] = useState(1);
-
-    console.log("Call logs:", selectedUserIDs.length);
-
     const filteredData = useMemo(() => {
         return calllogs.filter((call) => {
             const userFilterPass =
@@ -145,10 +181,6 @@ export default function CallDetailPage() {
             });
 
 
-            const callHour = parseInt(call.start_time?.slice(0, 2) || "0", 10);
-            const timeFilterPass =
-                callHour >= timesave.startHour && callHour <= timesave.endHour;
-
             return (
                 userFilterPass &&
                 otherNumberFilterPass &&
@@ -156,7 +188,6 @@ export default function CallDetailPage() {
                 agentNumberFilterPass &&
                 directionFilterPass &&
                 statusFilterPass &&
-                timeFilterPass &&
                 otherFiltersPass
             );
         });
@@ -204,6 +235,65 @@ export default function CallDetailPage() {
             setSortOrder('asc');
         }
     };
+    const handleDateFilterChange = (value: "today" | "week" | "custom") => {
+        setSelFilter(value);
+        if (value === "today") {
+            const from = startOfToday().toISOString(); // Today 00:00:00.000Z
+            setTimeSave((prev) => ({
+                ...prev,
+                filterMinStart: from,
+                filterMaxStart: null
+            }));
+        }
+        else if (value === "week") {
+            const from = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString(); // Sunday 00:00
+
+            setTimeSave((prev) => ({
+                ...prev,
+                filterMinStart: from,
+                filterMaxStart: null
+            }));
+        }
+        else {
+            if (range?.from && range?.to) {
+                setTimeSave((prev) => ({
+                    ...prev,
+                    filterMinStart: range.from instanceof Date ? range.from.toISOString() : new Date(range.from!).toISOString(),
+                    filterMaxStart: range.to instanceof Date ? range.to.toISOString() : new Date(range.to!).toISOString(),
+                }));
+            } else {
+                setTimeSave((prev) => ({
+                    ...prev,
+                    filterMinStart: null,
+                    filterMaxStart: null,
+                }));
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (selfilter === "custom" && range?.from && range?.to) {
+            setTimeSave({
+                filterMinStart: range.from.toISOString(),
+                filterMaxStart: range.to.toISOString()
+            });
+        }
+    }, [range, selfilter]);
+
+
+    const handleFilterApply = () => {
+        const filters = {
+            filterMinStart: timesave.filterMinStart,
+            filterMaxStart: timesave.filterMaxStart,
+            userIDs: selectedUserIDs
+        };
+
+        localStorage.setItem("aether_call_filters", JSON.stringify(filters));
+
+        setTimeFilters(filters);
+        fetchCallLogsWith(filters);
+    };
+
 
     return (
         <div>
@@ -212,14 +302,14 @@ export default function CallDetailPage() {
                     <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
 
                     <div className="flex items-center gap-5">
-                        <RefreshCcw onClick={fetchCallLogs} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
+                        <RefreshCcw className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <FunnelPlus className="h-4 w-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()} >
-                                    <Select onValueChange={(value) => setSelFilter(value)}>
+                                    <Select onValueChange={handleDateFilterChange}>
                                         <SelectTrigger className="w-full text-xs shadow-none">
                                             <SelectValue placeholder="Select a filter" />
                                         </SelectTrigger>
@@ -257,6 +347,9 @@ export default function CallDetailPage() {
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                                <div className="flex justify-end">
+                                    <Button onClick={handleFilterApply} className="bg-black text-white text-xs rounded-xl">Apply</Button>
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -396,101 +489,17 @@ export default function CallDetailPage() {
                                                     sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                                                 )}
                                             </span>
-                                            <Popover
-                                                open={openFilter.timeFillOpen}
-                                                onOpenChange={(open) => {
-                                                    if (open) setDraft(timesave);
-                                                    setOpenFilter(prev => ({ ...prev, timeFillOpen: open }));
-                                                }}
-                                            >
-                                                <PopoverTrigger asChild>
-                                                    <div className="relative">
-                                                        <Funnel
-                                                            onClick={() => {
-                                                                setOpenFilter(prev => ({
-                                                                    ...prev,
-                                                                    timeFillOpen: true
-                                                                }));
-                                                            }}
-                                                            className={`h-3 w-4 cursor-pointer ${timesave.startHour !== 0 || timesave.endHour !== 24
-                                                                ? "text-fuchsia-500"
-                                                                : "text-gray-400"
-                                                                }`}
-                                                        />
-                                                        {(timesave.startHour !== 0 || timesave.endHour !== 24) && (
-                                                            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-fuchsia-500" />
-                                                        )}
-                                                    </div>
-                                                </PopoverTrigger>
-
-                                                <PopoverContent className="w-64 space-y-4">
-                                                    <div>
-                                                        <label className="text-xs text-gray-500">
-                                                            Start: {draft.startHour}:00
-                                                        </label>
-                                                        <input
-                                                            type="range"
-                                                            min="0"
-                                                            max="23"
-                                                            value={draft.startHour}
-                                                            onChange={(e) =>
-                                                                setDraft((prev) => ({
-                                                                    ...prev,
-                                                                    startHour: Number(e.target.value)
-                                                                }))
-                                                            }
-                                                            className="w-full"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-xs text-gray-500">
-                                                            End: {draft.endHour}:00
-                                                        </label>
-                                                        <input
-                                                            type="range"
-                                                            min={draft.startHour}
-                                                            max="24"
-                                                            value={draft.endHour}
-                                                            onChange={(e) =>
-                                                                setDraft((prev) => ({
-                                                                    ...prev,
-                                                                    endHour: Number(e.target.value)
-                                                                }))
-                                                            }
-                                                            className="w-full"
-                                                        />
-                                                    </div>
-
-                                                    <div className="flex justify-between gap-2">
-                                                        <button
-                                                            onClick={() => {
-                                                                setDraft({ startHour: 0, endHour: 24 });
-                                                                setTimeSave({ startHour: 0, endHour: 24 });
-                                                                setOpenFilter((prev) => ({
-                                                                    ...prev,
-                                                                    timeFillOpen: false
-                                                                }));
-                                                            }}
-                                                            className="text-xs text-gray-500 underline"
-                                                        >
-                                                            Reset
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                setTimeSave(draft);
-                                                                setOpenFilter((prev) => ({
-                                                                    ...prev,
-                                                                    timeFillOpen: false
-                                                                }));
-                                                            }}
-                                                            className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md"
-                                                        >
-                                                            Apply
-                                                        </button>
-                                                    </div>
-                                                </PopoverContent>
-                                            </Popover>
-
+                                            <div className="relative">
+                                                <Funnel
+                                                    onClick={() => {
+                                                        setOpenFilter(prev => ({
+                                                            ...prev,
+                                                            timeFillOpen: true
+                                                        }));
+                                                    }}
+                                                    className={`h-3 w-4 cursor-pointer text-gray-400`}
+                                                />
+                                            </div>
                                         </span>
                                     </TableHead>
 
@@ -585,6 +594,12 @@ export default function CallDetailPage() {
                                         </span>
                                     </TableHead>
                                 )}
+
+                                {visibleColumns.includes("agent_number") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        Recordings
+                                    </TableHead>
+                                )}
                             </TableRow>
                         </TableHeader>
                         <TableBody className="text-xs">
@@ -622,6 +637,21 @@ export default function CallDetailPage() {
                                             ) : (
                                                 <TableCell className="text-left">{'-'}</TableCell>
                                             )
+                                        )}
+                                        {visibleColumns.includes("recording_ids") && (
+                                            <TableCell>
+                                                {call.recording_ids?.map((item, index) => (
+                                                    <div key={index} className="mb-2">
+                                                        <audio
+                                                            controls
+                                                            className="w-28 h-7 text-xs rounded"
+                                                        >
+                                                            <source src={item} type="audio/mpeg" />
+                                                            Your browser does not support the audio element.
+                                                        </audio>
+                                                    </div>
+                                                ))}
+                                            </TableCell>
                                         )}
                                     </TableRow>
                                 ))

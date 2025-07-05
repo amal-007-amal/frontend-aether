@@ -11,9 +11,10 @@ export interface CallLogDetails {
   other_name: string,
   agent_number: string,
   created_at: string
+  recording_ids: string[] | null
 }
 
-export interface FilterState{
+export interface FilterState {
   otherName: string[]
   otherNumber: string[]
   agentNumber: string[]
