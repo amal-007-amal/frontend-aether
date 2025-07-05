@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCalls } from "../../api/call";
 import { toast } from "sonner";
-import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FolderOpen, Funnel, FunnelPlus } from "lucide-react";
+import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FolderOpen, Funnel, FunnelPlus, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { CallLogDetails, FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -18,7 +18,7 @@ import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
 import { Checkbox } from "../../components/ui/checkbox";
 import { AetherNameMultiSelect } from "../../components/aethernamesselector";
-
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 
 export default function CallDetailPage() {
     const filterRefs = {
@@ -26,6 +26,8 @@ export default function CallDetailPage() {
         otherNameRef: useRef(null),
         otherNumberRef: useRef(null),
         agentNumberRef: useRef(null),
+        directionRef: useRef(null),
+        statusRef: useRef(null)
     };
     const [isPass, setIsPass] = useState(false)
     const [calllogs, setCalllogs] = useState<CallLogDetails[]>([])
@@ -34,6 +36,9 @@ export default function CallDetailPage() {
         otherNameOpen: false,
         otherNumberOpen: false,
         agentNumberOpen: false,
+        directionOpen: false,
+        statusOpen: false,
+        timeFillOpen: false
     });
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
@@ -42,11 +47,23 @@ export default function CallDetailPage() {
         otherNames: [] as string[],
         otherNumbers: [] as string[],
         agentNumbers: [] as string[],
+        direction: [] as string[],
+        callstatus: [] as string[]
     });
     const [tableFiller, setTableFiller] = useState<FilterState>({
         otherName: [],
         otherNumber: [],
         agentNumber: [],
+        direction: [],
+        callstatus: []
+    });
+    const [timesave, setTimeSave] = useState({
+        startHour: 0,
+        endHour: 24
+    });
+    const [draft, setDraft] = useState({
+        startHour: 0,
+        endHour: 24
     });
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
@@ -56,7 +73,8 @@ export default function CallDetailPage() {
     const [filters, setFilters] = useState({
         user_id: "",
         device_id: "",
-        type: "",
+        direction: "",
+        status: "",
         duration: "",
         start_time: "",
         other_number: "",
@@ -67,7 +85,8 @@ export default function CallDetailPage() {
     const allColumns = [
         { key: "user_id", label: "Username" },
         { key: "device_id", label: "Device ID" },
-        { key: "type", label: "Type" },
+        { key: "direction", label: "Direction" },
+        { key: "status", label: "Status" },
         { key: "duration", label: "Duration" },
         { key: "start_time", label: "Start Time" },
         { key: "other_number", label: "Other Number" },
@@ -92,15 +111,22 @@ export default function CallDetailPage() {
             const otNameSet = new Set<string>();
             const otNumberSet = new Set<string>();
             const agNumberSet = new Set<string>();
+            const directionSet = new Set<string>();
+            const callstatusSet = new Set<string>();
+
             data.forEach(item => {
                 if (item.other_name) otNameSet.add(item.other_name);
                 if (item.other_number) otNumberSet.add(item.other_number);
                 if (item.agent_number) agNumberSet.add(item.agent_number);
+                if (item.direction) directionSet.add(item.direction);
+                if (item.status) callstatusSet.add(item.status)
             });
             setSelectedFilters({
                 otherNames: [...otNameSet],
                 otherNumbers: [...otNumberSet],
                 agentNumbers: [...agNumberSet],
+                direction: [...directionSet],
+                callstatus: [...callstatusSet]
             });
         } catch (err) {
             toast.error("Failed to fetch call logs");
@@ -148,21 +174,46 @@ export default function CallDetailPage() {
                 tableFiller.agentNumber.length === 0 ||
                 tableFiller.agentNumber.includes(String(call.agent_number));
 
+            const directionFilterPass =
+                tableFiller.direction.length === 0 ||
+                tableFiller.direction.includes(String(call.direction));
+
+            const statusFilterPass =
+                tableFiller.callstatus.length === 0 ||
+                tableFiller.callstatus.includes(String(call.status));
+
             const otherFiltersPass = Object.entries(filters).every(([key, value]) => {
                 if (!value) return true;
                 const field = String((call as any)[key] ?? "").toLowerCase();
                 return field.includes(value.toLowerCase());
             });
 
+
+            const callHour = parseInt(call.start_time?.slice(0, 2) || "0", 10);
+            const timeFilterPass =
+                callHour >= timesave.startHour && callHour <= timesave.endHour;
+
             return (
                 userFilterPass &&
                 otherNumberFilterPass &&
                 otherNameFilterPass &&
                 agentNumberFilterPass &&
+                directionFilterPass &&
+                statusFilterPass &&
+                timeFilterPass &&
                 otherFiltersPass
             );
         });
-    }, [calllogs, filters, selectedTempUserIDs, tableFiller.otherNumber, tableFiller.otherName, tableFiller.agentNumber]);
+    }, [calllogs,
+        filters,
+        selectedTempUserIDs,
+        tableFiller.otherNumber,
+        tableFiller.otherName,
+        tableFiller.agentNumber,
+        tableFiller.direction,
+        tableFiller.callstatus,
+        timesave
+    ]);
 
 
     const sortedData = useMemo(() => {
@@ -205,51 +256,56 @@ export default function CallDetailPage() {
             <div className="p-2 rounded-xl border border-gray-200">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <FunnelPlus className="h-4 w-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="space-y-2 p-3 me-10">
-                            <div onClick={(e) => e.stopPropagation()}>
-                                <Select onValueChange={(value) => setSelFilter(value)}>
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select a filter" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="today">Today</SelectItem>
-                                        <SelectItem value="week">This Week</SelectItem>
-                                        <SelectItem value="custom">Custom</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {selfilter === "custom" && (
-                                    <div className="w-full mt-2"><AetherDateRangePicker date={range} onChange={setRange} /></div>
-                                )}
-                            </div>
 
-                            <div onClick={(e) => e.stopPropagation()}>
-                                <AetherMultiSelect
-                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                    selected={selectedUserIDs}
-                                    onChange={setSelectedUserIDs}
-                                />
-                            </div>
-                            <div onClick={(e) => e.stopPropagation()}>
-                                <p className="text-sm font-semibold mb-1">Columns</p>
-                                {allColumns.map((col) => (
-                                    <div key={col.key} className="flex items-center gap-2 text-sm">
-                                        <Checkbox
-                                            id={`col-${col.key}`}
-                                            checked={visibleColumns.includes(col.key)}
-                                            onCheckedChange={() => toggleColumn(col.key)}
-                                        />
-                                        <label htmlFor={`col-${col.key}`} className="cursor-pointer">
-                                            {col.label}
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center gap-5">
+                        <RefreshCcw onClick={fetchCallLogs} className={`h-4 w-4 cursor-pointer ${isPass ? 'animate-spin' : ''}`} />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <FunnelPlus className="h-4 w-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="space-y-2 p-3 me-10">
+                                <div onClick={(e) => e.stopPropagation()}>
+                                    <Select onValueChange={(value) => setSelFilter(value)}>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select a filter" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="today">Today</SelectItem>
+                                            <SelectItem value="week">This Week</SelectItem>
+                                            <SelectItem value="custom">Custom</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    {selfilter === "custom" && (
+                                        <div className="w-full mt-2"><AetherDateRangePicker date={range} onChange={setRange} /></div>
+                                    )}
+                                </div>
+
+                                <div onClick={(e) => e.stopPropagation()}>
+                                    <AetherMultiSelect
+                                        data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                        selected={selectedUserIDs}
+                                        onChange={setSelectedUserIDs}
+                                    />
+                                </div>
+                                <div onClick={(e) => e.stopPropagation()}>
+                                    <p className="text-sm font-semibold mb-1">Columns</p>
+                                    {allColumns.map((col) => (
+                                        <div key={col.key} className="flex items-center gap-2 text-sm">
+                                            <Checkbox
+                                                id={`col-${col.key}`}
+                                                checked={visibleColumns.includes(col.key)}
+                                                onCheckedChange={() => toggleColumn(col.key)}
+                                            />
+                                            <label htmlFor={`col-${col.key}`} className="cursor-pointer">
+                                                {col.label}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                    </div>
                 </div>
                 <Table className="cursor-pointer max-h-64 overflow-y-auto border-t">
                     <TableHeader>
@@ -264,8 +320,11 @@ export default function CallDetailPage() {
                                             onClick={() => setOpenFilter(prev => ({
                                                 ...prev, usernameOpen: true
                                             }))}
-                                            className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
+                                            className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
+                                        {selectedTempUserIDs.length !== 0 && (
+                                            <span className="absolute -top-[0.1rem] right-5 h-2 w-2 rounded-full bg-fuchsia-500" />
+                                        )}
                                         <AetherNameMultiSelect
                                             data={users.map((user) => ({ label: user.name, value: user.id }))}
                                             selected={selectedTempUserIDs}
@@ -283,10 +342,72 @@ export default function CallDetailPage() {
                                 > Device ID
                                 </TableHead>
                             )}
-                            {visibleColumns.includes("type") && (
+                            {visibleColumns.includes("direction") && (
                                 <TableHead
                                     className="text-xs font-semibold cursor-pointer"
-                                >Type
+                                >
+                                    <div className="flex items-center justify-between relative">
+                                        <span>Direction</span>
+                                        <Funnel
+                                            ref={filterRefs.directionRef}
+                                            onClick={() => setOpenFilter(prev => ({
+                                                ...prev, directionOpen: true
+                                            }))}
+                                            className={`h-3 w-4 ${tableFiller.direction.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                        />
+                                        {tableFiller.direction.length !== 0 && (
+                                            <span className="absolute -top-[0.1rem] right-3 h-2 w-2 rounded-full bg-fuchsia-500" />
+                                        )}
+                                        <div className="relative">
+                                            <AetherNameMultiSelect
+                                                data={selectedFilters.direction.map((name) => ({ label: name, value: name }))}
+                                                selected={tableFiller.direction}
+                                                onChange={(selected) =>
+                                                    setTableFiller((prev) => ({ ...prev, direction: selected }))
+                                                }
+                                                open={openFilter.directionOpen}
+                                                setOpen={(val) =>
+                                                    setOpenFilter((prev) => ({ ...prev, directionOpen: val }))
+                                                }
+                                                referenceRef={filterRefs.directionRef}
+                                            />
+                                        </div>
+                                    </div>
+                                </TableHead>
+                            )}
+                            {visibleColumns.includes("status") && (
+                                <TableHead
+                                    className="text-xs font-semibold cursor-pointer"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span>Status</span>
+                                        <div>
+                                            <Funnel
+                                                ref={filterRefs.statusRef}
+                                                onClick={() => setOpenFilter(prev => ({
+                                                    ...prev, statusOpen: true
+                                                }))}
+                                                className={`h-3 w-4 ${tableFiller.callstatus.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            />
+                                            {tableFiller.callstatus.length !== 0 && (
+                                                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-fuchsia-500" />
+                                            )}
+                                        </div>
+                                        <div className="relative">
+                                            <AetherNameMultiSelect
+                                                data={selectedFilters.callstatus.map((name) => ({ label: name, value: name }))}
+                                                selected={tableFiller.callstatus}
+                                                onChange={(selected) =>
+                                                    setTableFiller((prev) => ({ ...prev, callstatus: selected }))
+                                                }
+                                                open={openFilter.statusOpen}
+                                                setOpen={(val) =>
+                                                    setOpenFilter((prev) => ({ ...prev, statusOpen: val }))
+                                                }
+                                                referenceRef={filterRefs.statusRef}
+                                            />
+                                        </div>
+                                    </div>
                                 </TableHead>
                             )}
                             {visibleColumns.includes("duration") && (
@@ -300,14 +421,11 @@ export default function CallDetailPage() {
                                                 sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                                             )}
                                         </span>
-                                        <Funnel className="h-3 w-4 text-gray-400" />
                                     </span>
                                 </TableHead>
                             )}
                             {visibleColumns.includes("start_time") && (
-                                <TableHead
-                                    className="text-xs font-semibold cursor-pointer"
-                                >
+                                <TableHead className="text-xs font-semibold cursor-pointer">
                                     <span className="flex items-center justify-between gap-1">
                                         <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
                                             Start Time
@@ -315,9 +433,104 @@ export default function CallDetailPage() {
                                                 sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                                             )}
                                         </span>
-                                        <Funnel className="h-3 w-4 text-gray-400" />
+                                        <Popover
+                                            open={openFilter.timeFillOpen}
+                                            onOpenChange={(open) => {
+                                                if (open) setDraft(timesave);
+                                                setOpenFilter(prev => ({ ...prev, timeFillOpen: open }));
+                                            }}
+                                        >
+                                            <PopoverTrigger asChild>
+                                                <div className="relative">
+                                                    <Funnel
+                                                        onClick={() => {
+                                                            setOpenFilter(prev => ({
+                                                                ...prev,
+                                                                timeFillOpen: true
+                                                            }));
+                                                        }}
+                                                        className={`h-3 w-4 cursor-pointer ${timesave.startHour !== 0 || timesave.endHour !== 24
+                                                                ? "text-blue-600"
+                                                                : "text-gray-400"
+                                                            }`}
+                                                    />
+                                                    {(timesave.startHour !== 0 || timesave.endHour !== 24) && (
+                                                        <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-fuchsia-500" />
+                                                    )}
+                                                </div>
+                                            </PopoverTrigger>
+
+                                            <PopoverContent className="w-64 space-y-4">
+                                                <div>
+                                                    <label className="text-xs text-gray-500">
+                                                        Start: {draft.startHour}:00
+                                                    </label>
+                                                    <input
+                                                        type="range"
+                                                        min="0"
+                                                        max="23"
+                                                        value={draft.startHour}
+                                                        onChange={(e) =>
+                                                            setDraft((prev) => ({
+                                                                ...prev,
+                                                                startHour: Number(e.target.value)
+                                                            }))
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs text-gray-500">
+                                                        End: {draft.endHour}:00
+                                                    </label>
+                                                    <input
+                                                        type="range"
+                                                        min={draft.startHour}
+                                                        max="24"
+                                                        value={draft.endHour}
+                                                        onChange={(e) =>
+                                                            setDraft((prev) => ({
+                                                                ...prev,
+                                                                endHour: Number(e.target.value)
+                                                            }))
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                </div>
+
+                                                <div className="flex justify-between gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setDraft({ startHour: 0, endHour: 24 });
+                                                            setTimeSave({ startHour: 0, endHour: 24 });
+                                                            setOpenFilter((prev) => ({
+                                                                ...prev,
+                                                                timeFillOpen: false
+                                                            }));
+                                                        }}
+                                                        className="text-xs text-gray-500 underline"
+                                                    >
+                                                        Reset
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setTimeSave(draft);
+                                                            setOpenFilter((prev) => ({
+                                                                ...prev,
+                                                                timeFillOpen: false
+                                                            }));
+                                                        }}
+                                                        className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md"
+                                                    >
+                                                        Apply
+                                                    </button>
+                                                </div>
+                                            </PopoverContent>
+                                        </Popover>
+
                                     </span>
                                 </TableHead>
+
                             )}
                             {visibleColumns.includes("other_number") && (
                                 <TableHead
@@ -329,7 +542,7 @@ export default function CallDetailPage() {
                                         onClick={() => setOpenFilter(prev => ({
                                             ...prev, otherNumberOpen: true
                                         }))}
-                                        className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
+                                        className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                     />
                                     <div className="relative">
                                         <AetherNameMultiSelect
@@ -356,7 +569,7 @@ export default function CallDetailPage() {
                                             onClick={() => setOpenFilter(prev => ({
                                                 ...prev, otherNameOpen: true
                                             }))}
-                                            className={`h-3 w-4 ${tableFiller.otherName.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
+                                            className={`h-3 w-4 ${tableFiller.otherName.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
                                         <div className="relative">
                                             <AetherNameMultiSelect
@@ -384,7 +597,7 @@ export default function CallDetailPage() {
                                             onClick={() => setOpenFilter(prev => ({
                                                 ...prev, agentNumberOpen: true
                                             }))}
-                                            className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-blue-500' : 'text-gray-400'}`}
+                                            className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
                                         <div className="relative">
                                             <AetherNameMultiSelect
@@ -416,8 +629,11 @@ export default function CallDetailPage() {
                                     {visibleColumns.includes("device_id") && (
                                         <TableCell className="text-left">{call.device_id}</TableCell>
                                     )}
-                                    {visibleColumns.includes("type") && (
-                                        <TableCell className="text-left">{call.type}</TableCell>
+                                    {visibleColumns.includes("direction") && (
+                                        <TableCell className="text-left">{call.direction}</TableCell>
+                                    )}
+                                    {visibleColumns.includes("status") && (
+                                        <TableCell className="text-left">{call.status}</TableCell>
                                     )}
                                     {visibleColumns.includes("duration") && (
                                         <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
@@ -442,7 +658,7 @@ export default function CallDetailPage() {
                 </Table>
                 {currentPageData.length === 0 && (
                     <div className="flex flex-col items-center mt-10">
-                        <FolderOpen className="text-gray-500 w-10 h-10"/>
+                        <FolderOpen className="text-gray-500 w-10 h-10" />
                         <p className="text-center text-xs text-gray-500 py-2">No data available</p>
                     </div>
                 )}
