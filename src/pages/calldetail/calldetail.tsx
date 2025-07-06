@@ -48,9 +48,9 @@ export default function CallDetailPage() {
         rejected: "Rejected",
         missed: "Missed",
         unknown: "Unknown",
-        voicemail:"Voicemail",
-        blocked:"Blocked",
-        answered_externally:"Answered Externally"
+        voicemail: "Voicemail",
+        blocked: "Blocked",
+        answered_externally: "Answered Externally"
     }
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTempUserIDs, setSelectedTempUserIDs] = useState<string[]>([]);
@@ -124,7 +124,7 @@ export default function CallDetailPage() {
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
 
     useEffect(() => {
-        const stored = localStorage.getItem("call_filters");
+        const stored = localStorage.getItem("aether_call_filters");
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
@@ -253,7 +253,7 @@ export default function CallDetailPage() {
     const handleDateFilterChange = (value: "today" | "week" | "custom") => {
         setSelFilter(value);
         if (value === "today") {
-            const from = startOfToday().toISOString(); // Today 00:00:00.000Z
+            const from = startOfToday().toISOString();
             setTimeSave((prev) => ({
                 ...prev,
                 filterMinStart: from,
@@ -261,39 +261,31 @@ export default function CallDetailPage() {
             }));
         }
         else if (value === "week") {
-            const from = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString(); // Sunday 00:00
-
+            const from = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
             setTimeSave((prev) => ({
                 ...prev,
                 filterMinStart: from,
                 filterMaxStart: null
             }));
         }
-        else {
-            if (range?.from && range?.to) {
-                setTimeSave((prev) => ({
-                    ...prev,
-                    filterMinStart: range.from instanceof Date ? range.from.toISOString() : new Date(range.from!).toISOString(),
-                    filterMaxStart: range.to instanceof Date ? range.to.toISOString() : new Date(range.to!).toISOString(),
-                }));
-            } else {
-                setTimeSave((prev) => ({
-                    ...prev,
-                    filterMinStart: null,
-                    filterMaxStart: null,
-                }));
-            }
-        }
     };
 
     useEffect(() => {
         if (selfilter === "custom" && range?.from && range?.to) {
+            const startOfDay = new Date(range.from);
+            startOfDay.setHours(0, 0, 0, 0); // 00:00:00 local time
+
+            const endOfDay = new Date(range.to);
+            endOfDay.setHours(23, 59, 59, 999); // 23:59:59.999 local time
+
             setTimeSave({
-                filterMinStart: range.from.toISOString(),
-                filterMaxStart: range.to.toISOString()
+                filterMinStart: startOfDay.toISOString(),  // full-day range
+                filterMaxStart: endOfDay.toISOString()
             });
         }
     }, [range, selfilter]);
+
+
 
 
     const handleFilterApply = () => {
