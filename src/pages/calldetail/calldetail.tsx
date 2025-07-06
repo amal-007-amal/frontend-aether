@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -478,7 +478,7 @@ export default function CallDetailPage() {
                     </div>
                 </div>
                 <div className="max-h-[500px] overflow-y-auto">
-                    <Table className="cursor-pointer">
+                    <Table className="cursor-pointer max-h-[500px]">
                         <TableHeader>
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold">Sl No.</TableHead>
@@ -995,17 +995,7 @@ export default function CallDetailPage() {
                             }}
                         />
                     </div>
-                    <Button
-                        className="bg-white shadow-none text-xs text-black hover:bg-gray-100"
-                        onClick={() => {
-                            const newPage = Math.max(currentPage - 1, 1);
-                            setCurrentPage(newPage);
-                        }}
-                        disabled={currentPage === 1}
-                    >
-                        <ChevronsLeft className="h-4 w-4" />Prev
-                    </Button>
-                    <span>
+                              <span>
                         <input
                             type="number"
                             min={1}
@@ -1028,6 +1018,16 @@ export default function CallDetailPage() {
                             }}
                         />&nbsp;&nbsp;&nbsp;of&nbsp;&nbsp;{totalPages}</span>
                     <Button
+                        className="bg-white shadow-none text-xs text-black hover:bg-gray-100"
+                        onClick={() => {
+                            const newPage = Math.max(currentPage - 1, 1);
+                            setCurrentPage(newPage);
+                        }}
+                        disabled={currentPage === 1}
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
                         className="bg-white shadow-none text-black hover:bg-gray-100 text-xs"
                         onClick={() => {
                             const newPage = Math.min(currentPage + 1, totalPages);
@@ -1035,7 +1035,7 @@ export default function CallDetailPage() {
                         }}
                         disabled={currentPage === totalPages}
                     >
-                        Next <ChevronsRight className="h-4 w-4" />
+                        <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
 
