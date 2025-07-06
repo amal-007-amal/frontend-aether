@@ -73,8 +73,8 @@ export default function CallDetailPage() {
         filterMaxStart: null,
         userIDs: []
     });
-    const [values, setValues] = useState([10, 60]);
-    const [tempValues, setTempValues] = useState([10, 60])
+    const [values, setValues] = useState([0, 120]);
+    const [tempValues, setTempValues] = useState([0, 120])
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
     const [pageSize, setPageSize] = useState(10);
