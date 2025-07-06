@@ -20,6 +20,7 @@ import { createPortal } from "react-dom";
 import { startOfToday, startOfWeek } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { Range } from "react-range";
+import { Calendar } from "../../components/ui/calendar";
 
 
 export default function CallDetailPage() {
@@ -41,6 +42,11 @@ export default function CallDetailPage() {
         timeFillOpen: false,
         durationRangeOpen: false
     });
+    const timeOptions = Array.from({ length: 60 }, (_, i) => i);
+    const [fromHour, setFromHour] = useState<number>(0);
+    const [fromMinute, setFromMinute] = useState<number>(0);
+    const [toHour, setToHour] = useState<number>(23);
+    const [toMinute, setToMinute] = useState<number>(59);
     const directionMap: Record<string, string> = {
         incoming: "Incoming",
         outgoing: "Outgoing"
@@ -72,6 +78,13 @@ export default function CallDetailPage() {
         filterMinStart: startOfToday().toISOString(),
         filterMaxStart: null,
         userIDs: []
+    });
+    const [starttimeFill, setStarttimeFill] = useState<{
+        startFromTime: Date | undefined;
+        StartToTime: Date | undefined;
+    }>({
+        startFromTime: undefined,
+        StartToTime: undefined,
     });
     const [values, setValues] = useState([0, 120]);
     const [tempValues, setTempValues] = useState([0, 120])
@@ -133,13 +146,13 @@ export default function CallDetailPage() {
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
-                const { filterMinStart, filterMaxStart, userIDs } = parsed;
+                const { filterMinStart, filterMaxStart, userIDs, filterType } = parsed;
 
                 setTimeSave({
                     filterMinStart: filterMinStart || null,
                     filterMaxStart: filterMaxStart || null,
                 });
-
+                setSelFilter(filterType)
                 setSelectedUserIDs(userIDs || []);
                 setTimeFilters(parsed);
                 fetchCallLogsWith(parsed);
@@ -198,18 +211,32 @@ export default function CallDetailPage() {
                 tableFiller.callstatus.length === 0 ||
                 tableFiller.callstatus.includes(String(call.status));
 
+            // ✅ Duration filter
             const durationFilterPass =
                 (!minMinutes && !maxMinutes) || (
                     call.duration >= minSeconds &&
                     call.duration <= maxSeconds
                 );
 
+            // ✅ Start time filter
+            const callStartTime = new Date(call.start_time).getTime(); // convert to ms
+            const filterMinTime = timesave?.filterMinStart
+                ? new Date(timesave.filterMinStart).getTime()
+                : null;
+            const filterMaxTime = timesave?.filterMaxStart
+                ? new Date(timesave.filterMaxStart).getTime()
+                : null;
+
+            const startTimeFilterPass =
+                (!filterMinTime || callStartTime >= filterMinTime) &&
+                (!filterMaxTime || callStartTime <= filterMaxTime);
+
+            // ✅ Other text filters
             const otherFiltersPass = Object.entries(filters).every(([key, value]) => {
                 if (!value) return true;
                 const field = String((call as any)[key] ?? "").toLowerCase();
                 return field.includes(value.toLowerCase());
             });
-
 
             return (
                 userFilterPass &&
@@ -219,10 +246,12 @@ export default function CallDetailPage() {
                 directionFilterPass &&
                 statusFilterPass &&
                 durationFilterPass &&
+                startTimeFilterPass && // ✅ Apply time range
                 otherFiltersPass
             );
         });
-    }, [calllogs,
+    }, [
+        calllogs,
         filters,
         selectedTempUserIDs,
         tableFiller.otherNumber,
@@ -230,9 +259,10 @@ export default function CallDetailPage() {
         tableFiller.agentNumber,
         tableFiller.direction,
         tableFiller.callstatus,
-        timesave,
-        values
+        timesave, // ✅ includes filterMinStart & filterMaxStart
+        values,
     ]);
+
 
     const sortedData = useMemo(() => {
         if (!sortKey) return filteredData;
@@ -306,7 +336,8 @@ export default function CallDetailPage() {
         const filters = {
             filterMinStart: timesave.filterMinStart,
             filterMaxStart: timesave.filterMaxStart,
-            userIDs: selectedUserIDs
+            userIDs: selectedUserIDs,
+            filterType: selfilter
         };
 
         localStorage.setItem("aether_call_filters", JSON.stringify(filters));
@@ -320,6 +351,24 @@ export default function CallDetailPage() {
         setValues(tempValues);
         setOpenFilter(prev => ({ ...prev, durationRangeOpen: false }));
     };
+
+
+    const handleResetFilters = () => {
+        const defaultFilters = {
+            filterType: "today",
+            filterMinStart: startOfToday().toISOString(),
+            filterMaxStart: null,
+            userIDs: []
+        };
+        localStorage.setItem("aether_call_filters", JSON.stringify(defaultFilters));
+        setRange({ from: undefined, to: undefined });
+        setTimeFilters(defaultFilters);
+        fetchCallLogsWith(defaultFilters);
+    };
+
+    const handleStartTimeApply = () => {
+
+    }
 
     return (
         <div>
@@ -335,7 +384,7 @@ export default function CallDetailPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()} >
-                                    <Select onValueChange={handleDateFilterChange}>
+                                    <Select value={selfilter} onValueChange={handleDateFilterChange}>
                                         <SelectTrigger className="w-full text-xs shadow-none">
                                             <SelectValue placeholder="Select a filter" />
                                         </SelectTrigger>
@@ -374,7 +423,8 @@ export default function CallDetailPage() {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="flex justify-end">
+                                <div className="flex justify-end gap-4">
+                                    <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500" onClick={handleResetFilters}>Reset</Button>
                                     <Button onClick={handleFilterApply} className="bg-black text-white text-xs rounded-xl">Apply</Button>
                                 </div>
                             </DropdownMenuContent>
@@ -542,17 +592,101 @@ export default function CallDetailPage() {
                                                     sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                                                 )}
                                             </span>
-                                            <div className="relative">
-                                                <Funnel
-                                                    onClick={() => {
-                                                        setOpenFilter(prev => ({
-                                                            ...prev,
-                                                            timeFillOpen: true
-                                                        }));
-                                                    }}
-                                                    className={`h-3 w-4 cursor-pointer text-gray-400`}
-                                                />
-                                            </div>
+                                            <Popover
+                                                open={openFilter.timeFillOpen}
+                                                onOpenChange={(open) =>
+                                                    setOpenFilter((prev) => ({ ...prev, timeFillOpen: open }))
+                                                }
+                                            >
+                                                <PopoverTrigger asChild>
+                                                    <div className="relative">
+                                                        <Funnel
+                                                            onClick={() =>
+                                                                setOpenFilter((prev) => ({ ...prev, timeFillOpen: true }))
+                                                            }
+                                                            className="h-4 w-4 cursor-pointer text-gray-400"
+                                                        />
+                                                    </div>
+                                                </PopoverTrigger>
+
+                                                <PopoverContent className="w-fit flex items-center justify-between" align="end">
+                                                    {/* Start From */}
+                                                    <div className="flex flex-col items-center">
+                                                        <label className="text-xs font-medium  block">Start Time From</label>
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={starttimeFill.startFromTime}
+                                                            onSelect={(date) => setStarttimeFill((prev) => ({ ...prev, startFromTime: date }))}
+                                                            autoFocus
+                                                        />
+                                                        <div className="flex gap-2 mt-2">
+                                                            <select
+                                                                className="w-1/2 text-xs p-1 border rounded"
+                                                                value={fromHour}
+                                                                onChange={(e) => setFromHour(Number(e.target.value))}
+                                                            >
+                                                                {timeOptions.slice(0, 24).map((h) => (
+                                                                    <option key={h} value={h}>
+                                                                        {h.toString().padStart(2, "0")} h
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                            <select
+                                                                className="w-1/2 text-xs p-1 border rounded"
+                                                                value={fromMinute}
+                                                                onChange={(e) => setFromMinute(Number(e.target.value))}
+                                                            >
+                                                                {timeOptions.map((m) => (
+                                                                    <option key={m} value={m}>
+                                                                        {m.toString().padStart(2, "0")} m
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Start To */}
+                                                    <div className="flex flex-col items-center">
+                                                        <label className="text-xs font-medium block">Start Time To</label>
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={starttimeFill.StartToTime}
+                                                            onSelect={(date) => setStarttimeFill((prev) => ({ ...prev, StartToTime: date }))}
+                                                            autoFocus
+                                                        />
+                                                        <div className="flex gap-2 mt-2">
+                                                            <select
+                                                                className="w-1/2 text-xs p-1 border rounded"
+                                                                value={toHour}
+                                                                onChange={(e) => setToHour(Number(e.target.value))}
+                                                            >
+                                                                {timeOptions.slice(0, 24).map((h) => (
+                                                                    <option key={h} value={h}>
+                                                                        {h.toString().padStart(2, "0")} h
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                            <select
+                                                                className="w-1/2 text-xs p-1 border rounded"
+                                                                value={toMinute}
+                                                                onChange={(e) => setToMinute(Number(e.target.value))}
+                                                            >
+                                                                {timeOptions.map((m) => (
+                                                                    <option key={m} value={m}>
+                                                                        {m.toString().padStart(2, "0")} m
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex justify-end pt-2 flex-1">
+                                                        <Button size="sm" className="text-xs">
+                                                            Apply
+                                                        </Button>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
+
                                         </span>
                                     </TableHead>
 
