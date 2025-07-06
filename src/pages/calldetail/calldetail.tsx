@@ -21,6 +21,7 @@ import { startOfToday, startOfWeek } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { Range } from "react-range";
 import { Calendar } from "../../components/ui/calendar";
+import { cn } from "../../lib/utils";
 
 
 export default function CallDetailPage() {
@@ -30,7 +31,8 @@ export default function CallDetailPage() {
         otherNumberRef: useRef(null),
         agentNumberRef: useRef(null),
         directionRef: useRef(null),
-        statusRef: useRef(null)
+        statusRef: useRef(null),
+        typeCallRef: useRef(null)
     };
     const [openFilter, setOpenFilter] = useState({
         usernameOpen: false,
@@ -40,7 +42,8 @@ export default function CallDetailPage() {
         directionOpen: false,
         statusOpen: false,
         timeFillOpen: false,
-        durationRangeOpen: false
+        durationRangeOpen: false,
+        typeCallOpen: false
     });
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
     const [fromHour, setFromHour] = useState<number>(0);
@@ -68,7 +71,8 @@ export default function CallDetailPage() {
         otherNumber: [],
         agentNumber: [],
         direction: [],
-        callstatus: []
+        callstatus: [],
+        typecall: []
     });
     const [timesave, setTimeSave] = useState<{
         filterMinStart: string | null;
@@ -81,13 +85,21 @@ export default function CallDetailPage() {
     });
     const [starttimeFill, setStarttimeFill] = useState<{
         startFromTime: Date | undefined;
-        StartToTime: Date | undefined;
+        startToTime: Date | undefined;
     }>({
         startFromTime: undefined,
-        StartToTime: undefined,
+        startToTime: undefined,
     });
-    const [values, setValues] = useState([0, 120]);
-    const [tempValues, setTempValues] = useState([0, 120])
+
+    const [tempStarttimeFill, setTempStarttimeFill] = useState<{
+        startFromTime: Date | undefined;
+        startToTime: Date | undefined;
+    }>({
+        startFromTime: undefined,
+        startToTime: undefined,
+    });
+    const [values, setValues] = useState([0, 240]);
+    const [tempValues, setTempValues] = useState([0, 240])
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
     const [pageSize, setPageSize] = useState(10);
@@ -109,21 +121,21 @@ export default function CallDetailPage() {
         const portalRoot = document.getElementById("portal-root");
         return portalRoot ? createPortal(children, portalRoot) : null;
     };
-    const allColumns = [
-        { key: "user_id", label: "Username" },
-        { key: "device_id", label: "Device ID" },
-        { key: "direction", label: "Direction" },
-        { key: "status", label: "Status" },
-        { key: "duration", label: "Duration" },
-        { key: "start_time", label: "Start Time" },
-        { key: "other_number", label: "Other Number" },
-        { key: "other_name", label: "Other Name" },
-        { key: "agent_number", label: "Agent Number" },
-        { key: "recording_ids", label: "Recordings" },
-        { key: "type", label: "Type" }
-    ];
+    const [allColumns, setAllColumns] = useState([
+        { key: "user_id", label: "Username", active: true },
+        { key: "device_id", label: "Device ID", active: true },
+        { key: "direction", label: "Direction", active: true },
+        { key: "status", label: "Status", active: true },
+        { key: "duration", label: "Duration", active: true },
+        { key: "start_time", label: "Start Time", active: true },
+        { key: "other_number", label: "Other Number", active: true },
+        { key: "other_name", label: "Other Name", active: true },
+        { key: "agent_number", label: "Agent Number", active: true },
+        { key: "recording_ids", label: "Recordings", active: true },
+        { key: "type", label: "Type", active: false }
+    ]);
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
-        allColumns.map((col) => col.key)
+        allColumns.filter((col) => col.active).map((col) => col.key)
     );
     const toggleColumn = (key: string) => {
         setVisibleColumns((prev) =>
@@ -131,8 +143,16 @@ export default function CallDetailPage() {
                 ? prev.filter((col) => col !== key)
                 : [...prev, key]
         );
+
+        setAllColumns((prev) =>
+            prev.map((col) =>
+                col.key === key ? { ...col, active: !col.active } : col
+            )
+        );
     };
-    const { calllogs,
+
+    const {
+        calllogs,
         selectedFilters,
         fetchCallLogsWith,
         timeFilters,
@@ -211,27 +231,29 @@ export default function CallDetailPage() {
                 tableFiller.callstatus.length === 0 ||
                 tableFiller.callstatus.includes(String(call.status));
 
-            // ✅ Duration filter
+            const typeCallFilterPass =
+                tableFiller.typecall.length === 0 ||
+                tableFiller.typecall.includes(String(call.type));
+
             const durationFilterPass =
                 (!minMinutes && !maxMinutes) || (
                     call.duration >= minSeconds &&
                     call.duration <= maxSeconds
                 );
 
-            // ✅ Start time filter
-            const callStartTime = new Date(call.start_time).getTime(); // convert to ms
-            const filterMinTime = timesave?.filterMinStart
-                ? new Date(timesave.filterMinStart).getTime()
+            const callStartTime = new Date(call.start_time).getTime();
+            const filterMinTime = starttimeFill.startFromTime
+                ? new Date(starttimeFill.startFromTime).getTime()
                 : null;
-            const filterMaxTime = timesave?.filterMaxStart
-                ? new Date(timesave.filterMaxStart).getTime()
+
+            const filterMaxTime = starttimeFill.startToTime
+                ? new Date(starttimeFill.startToTime).getTime()
                 : null;
 
             const startTimeFilterPass =
                 (!filterMinTime || callStartTime >= filterMinTime) &&
                 (!filterMaxTime || callStartTime <= filterMaxTime);
 
-            // ✅ Other text filters
             const otherFiltersPass = Object.entries(filters).every(([key, value]) => {
                 if (!value) return true;
                 const field = String((call as any)[key] ?? "").toLowerCase();
@@ -246,7 +268,8 @@ export default function CallDetailPage() {
                 directionFilterPass &&
                 statusFilterPass &&
                 durationFilterPass &&
-                startTimeFilterPass && // ✅ Apply time range
+                startTimeFilterPass &&
+                typeCallFilterPass &&
                 otherFiltersPass
             );
         });
@@ -259,9 +282,10 @@ export default function CallDetailPage() {
         tableFiller.agentNumber,
         tableFiller.direction,
         tableFiller.callstatus,
-        timesave, // ✅ includes filterMinStart & filterMaxStart
         values,
+        starttimeFill
     ]);
+
 
 
     const sortedData = useMemo(() => {
@@ -367,8 +391,22 @@ export default function CallDetailPage() {
     };
 
     const handleStartTimeApply = () => {
-
+        setStarttimeFill(tempStarttimeFill)
     }
+
+    const handleStartimeReset = () => {
+        setOpenFilter(prev => ({ ...prev, timeFillOpen: false }))
+        setTempStarttimeFill({
+            startFromTime: undefined,
+            startToTime: undefined,
+        });
+
+        setStarttimeFill({
+            startFromTime: undefined,
+            startToTime: undefined,
+        });
+    }
+
 
     return (
         <div>
@@ -445,7 +483,7 @@ export default function CallDetailPage() {
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold">Sl No.</TableHead>
                                 {visibleColumns.includes("user_id") && (
-                                    <TableHead className="text-xs font-semibold text-center">
+                                    <TableHead className="text-xs font-semibold">
                                         <div className="flex items-center justify-between gap-1 relative">
                                             <span>Agent name</span>
                                             <Funnel
@@ -471,7 +509,7 @@ export default function CallDetailPage() {
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("agent_number") && (
-                                    <TableHead className="text-center text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center justify-between gap-1">
                                             Agent number
                                             <Funnel
@@ -502,24 +540,45 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("device_id") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer text-center"
+                                        className="text-xs font-semibold cursor-pointer"
                                     > Device ID
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("type") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer text-center"
+                                        className="text-xs font-semibold cursor-pointer"
                                     >
-                                        <span className="flex items-center justify-between gap-1">
-                                            <span className="flex items-center gap-1">
-                                                Type
-                                            </span>
-                                        </span>
+                                        <div className="flex items-center justify-between relative">
+                                            <span>Type</span>
+                                            <Funnel
+                                                ref={filterRefs.typeCallRef}
+                                                onClick={() => setOpenFilter(prev => ({
+                                                    ...prev, typeCallOpen: true
+                                                }))}
+                                                className={`h-3 w-4 ${tableFiller.typecall.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            />
+                                            <Portal>
+                                                <div className="relative">
+                                                    <AetherNameMultiSelect
+                                                        data={selectedFilters.typecall.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.typecall}
+                                                        onChange={(selected) =>
+                                                            setTableFiller((prev) => ({ ...prev, typecall: selected }))
+                                                        }
+                                                        open={openFilter.typeCallOpen}
+                                                        setOpen={(val) =>
+                                                            setOpenFilter((prev) => ({ ...prev, typeCallOpen: val }))
+                                                        }
+                                                        referenceRef={filterRefs.typeCallRef}
+                                                    />
+                                                </div>
+                                            </Portal>
+                                        </div>
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("direction") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer text-center"
+                                        className="text-xs font-semibold cursor-pointer"
                                     >
                                         <div className="flex items-center justify-between relative">
                                             <span>Direction</span>
@@ -551,7 +610,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("status") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer text-center"
+                                        className="text-xs font-semibold cursor-pointer"
                                     >
                                         <div className="flex items-center justify-between">
                                             <span>Status</span>
@@ -584,7 +643,7 @@ export default function CallDetailPage() {
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("start_time") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer text-center">
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center justify-between">
                                             <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
                                                 Start Time
@@ -599,88 +658,99 @@ export default function CallDetailPage() {
                                                 }
                                             >
                                                 <PopoverTrigger asChild>
-                                                    <div className="relative">
+                                                    <div className="relative mx-5">
                                                         <Funnel
                                                             onClick={() =>
                                                                 setOpenFilter((prev) => ({ ...prev, timeFillOpen: true }))
                                                             }
-                                                            className="h-4 w-4 cursor-pointer text-gray-400"
+                                                            className={cn(
+                                                                "h-3 w-3 cursor-pointer",
+                                                                starttimeFill.startFromTime || starttimeFill.startToTime
+                                                                    ? "text-fuchsia-500"
+                                                                    : "text-gray-400"
+                                                            )}
                                                         />
                                                     </div>
                                                 </PopoverTrigger>
 
-                                                <PopoverContent className="w-fit flex items-center justify-between" align="end">
-                                                    {/* Start From */}
-                                                    <div className="flex flex-col items-center">
-                                                        <label className="text-xs font-medium  block">Start Time From</label>
-                                                        <Calendar
-                                                            mode="single"
-                                                            selected={starttimeFill.startFromTime}
-                                                            onSelect={(date) => setStarttimeFill((prev) => ({ ...prev, startFromTime: date }))}
-                                                            autoFocus
-                                                        />
-                                                        <div className="flex gap-2 mt-2">
-                                                            <select
-                                                                className="w-1/2 text-xs p-1 border rounded"
-                                                                value={fromHour}
-                                                                onChange={(e) => setFromHour(Number(e.target.value))}
-                                                            >
-                                                                {timeOptions.slice(0, 24).map((h) => (
-                                                                    <option key={h} value={h}>
-                                                                        {h.toString().padStart(2, "0")} h
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                            <select
-                                                                className="w-1/2 text-xs p-1 border rounded"
-                                                                value={fromMinute}
-                                                                onChange={(e) => setFromMinute(Number(e.target.value))}
-                                                            >
-                                                                {timeOptions.map((m) => (
-                                                                    <option key={m} value={m}>
-                                                                        {m.toString().padStart(2, "0")} m
-                                                                    </option>
-                                                                ))}
-                                                            </select>
+                                                <PopoverContent className="w-fit flex flex-col items-end" align="end">
+                                                    <div className="flex items-center">
+                                                        <div className="flex flex-col items-center">
+                                                            <label className="text-xs font-medium  block">Start Time From</label>
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={tempStarttimeFill.startFromTime}
+                                                                onSelect={(date) => setTempStarttimeFill((prev) => ({ ...prev, startFromTime: date }))}
+                                                                autoFocus
+                                                            />
+                                                            <div className="flex gap-2 mt-2">
+                                                                <select
+                                                                    className="w-1/2 text-xs p-1 border rounded"
+                                                                    value={fromHour}
+                                                                    onChange={(e) => setFromHour(Number(e.target.value))}
+                                                                >
+                                                                    {timeOptions.slice(0, 24).map((h) => (
+                                                                        <option key={h} value={h}>
+                                                                            {h.toString().padStart(2, "0")} h
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                                <select
+                                                                    className="w-1/2 text-xs p-1 border rounded"
+                                                                    value={fromMinute}
+                                                                    onChange={(e) => setFromMinute(Number(e.target.value))}
+                                                                >
+                                                                    {timeOptions.map((m) => (
+                                                                        <option key={m} value={m}>
+                                                                            {m.toString().padStart(2, "0")} m
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
                                                         </div>
-                                                    </div>
 
-                                                    {/* Start To */}
-                                                    <div className="flex flex-col items-center">
-                                                        <label className="text-xs font-medium block">Start Time To</label>
-                                                        <Calendar
-                                                            mode="single"
-                                                            selected={starttimeFill.StartToTime}
-                                                            onSelect={(date) => setStarttimeFill((prev) => ({ ...prev, StartToTime: date }))}
-                                                            autoFocus
-                                                        />
-                                                        <div className="flex gap-2 mt-2">
-                                                            <select
-                                                                className="w-1/2 text-xs p-1 border rounded"
-                                                                value={toHour}
-                                                                onChange={(e) => setToHour(Number(e.target.value))}
-                                                            >
-                                                                {timeOptions.slice(0, 24).map((h) => (
-                                                                    <option key={h} value={h}>
-                                                                        {h.toString().padStart(2, "0")} h
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                            <select
-                                                                className="w-1/2 text-xs p-1 border rounded"
-                                                                value={toMinute}
-                                                                onChange={(e) => setToMinute(Number(e.target.value))}
-                                                            >
-                                                                {timeOptions.map((m) => (
-                                                                    <option key={m} value={m}>
-                                                                        {m.toString().padStart(2, "0")} m
-                                                                    </option>
-                                                                ))}
-                                                            </select>
+                                                        {/* Start To */}
+                                                        <div className="flex flex-col items-center">
+                                                            <label className="text-xs font-medium block">Start Time To</label>
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={tempStarttimeFill.startToTime}
+                                                                onSelect={(date) => setTempStarttimeFill((prev) => ({ ...prev, startToTime: date }))}
+                                                                autoFocus
+                                                            />
+                                                            <div className="flex gap-2 mt-2">
+                                                                <select
+                                                                    className="w-1/2 text-xs p-1 border rounded"
+                                                                    value={toHour}
+                                                                    onChange={(e) => setToHour(Number(e.target.value))}
+                                                                >
+                                                                    {timeOptions.slice(0, 24).map((h) => (
+                                                                        <option key={h} value={h}>
+                                                                            {h.toString().padStart(2, "0")} h
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                                <select
+                                                                    className="w-1/2 text-xs p-1 border rounded"
+                                                                    value={toMinute}
+                                                                    onChange={(e) => setToMinute(Number(e.target.value))}
+                                                                >
+                                                                    {timeOptions.map((m) => (
+                                                                        <option key={m} value={m}>
+                                                                            {m.toString().padStart(2, "0")} m
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div className="flex justify-end pt-2 flex-1">
-                                                        <Button size="sm" className="text-xs">
+                                                    <div className="flex justify-end pt-2 flex-1 gap-3">
+                                                        <Button size="sm"
+                                                            onClick={handleStartimeReset}
+                                                            className="text-xs text-black rounded-xl bg-white hover:bg-gray-200">
+                                                            Cancel
+                                                        </Button>
+                                                        <Button onClick={handleStartTimeApply} size="sm" className="text-xs rounded-xl">
                                                             Apply
                                                         </Button>
                                                     </div>
@@ -693,7 +763,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("duration") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer text-center"
+                                        className="text-xs font-semibold cursor-pointer"
                                     >
                                         <span className="flex items-center justify-between gap-1">
                                             <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
@@ -709,20 +779,14 @@ export default function CallDetailPage() {
                                                 </PopoverTrigger>
 
                                                 <PopoverContent className="w-[300px] p-4">
-                                                    <div className="mb-3 text-sm text-gray-700 flex items-center justify-between">
+                                                    <div className="mb-3 text-sm text-gray-700">
                                                         <span className="text-xs">Selected: {tempValues[0]} - {tempValues[1]} minutes minutes</span>
-                                                        <span
-                                                            className="text-xs text-blue-500 hover:underline cursor-pointer"
-                                                            onClick={handleDurationApply}
-                                                        >
-                                                            Apply
-                                                        </span>
                                                     </div>
 
                                                     <Range
                                                         step={1}
                                                         min={0}
-                                                        max={120}
+                                                        max={240}
                                                         values={tempValues}
                                                         onChange={setTempValues}
                                                         renderTrack={({ props, children }) => (
@@ -732,10 +796,10 @@ export default function CallDetailPage() {
                                                                 style={props.style}
                                                             >
                                                                 <div
-                                                                    className="h-2 bg-blue-500 rounded-full absolute"
+                                                                    className="h-2 bg-black rounded-full absolute"
                                                                     style={{
-                                                                        left: `${(tempValues[0] / 120) * 100}%`,
-                                                                        width: `${((tempValues[1] - tempValues[0]) / 120) * 100}%`,
+                                                                        left: `${(tempValues[0] / 240) * 100}%`,
+                                                                        width: `${((tempValues[1] - tempValues[0]) / 240) * 100}%`,
                                                                     }}
                                                                 />
                                                                 {children}
@@ -744,11 +808,24 @@ export default function CallDetailPage() {
                                                         renderThumb={({ props }) => (
                                                             <div
                                                                 {...props}
-                                                                className="h-5 w-5 bg-blue-600 rounded-full border border-white shadow"
+                                                                className="h-5 w-5 bg-black rounded-full border border-white shadow"
                                                             />
                                                         )}
                                                     />
-
+                                                    <div className="flex items-end justify-end gap-3">
+                                                        <Button
+                                                            className="text-xs bg-white hover:bg-gray-200 text-black rounded-xl my-3 hover:underline cursor-pointer"
+                                                            onClick={handleDurationApply}
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                        <Button
+                                                            className="text-xs text-right rounded-xl my-3 hover:underline cursor-pointer"
+                                                            onClick={handleDurationApply}
+                                                        >
+                                                            Apply
+                                                        </Button>
+                                                    </div>
                                                 </PopoverContent>
                                             </Popover>
 
@@ -757,7 +834,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("other_number") && (
                                     <TableHead
-                                        className="text-center text-xs font-semibold flex items-center justify-between relative shadow-none"
+                                        className="text-xs font-semibold flex items-center justify-between relative shadow-none"
                                     >
                                         Caller ID
                                         <Funnel
@@ -786,7 +863,7 @@ export default function CallDetailPage() {
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("other_name") && (
-                                    <TableHead className="text-center text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center justify-between gap-1">
                                             Caller Name
                                             <Funnel
@@ -817,7 +894,7 @@ export default function CallDetailPage() {
                                 )}
 
                                 {visibleColumns.includes("agent_number") && (
-                                    <TableHead className="text-center text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
                                         Recordings
                                     </TableHead>
                                 )}
@@ -963,10 +1040,12 @@ export default function CallDetailPage() {
                 </div>
 
             </div>
-            {isLoading || isUserloading && (
-                <AetherLoader />
-            )}
-        </div>
+            {
+                isLoading || isUserloading && (
+                    <AetherLoader />
+                )
+            }
+        </div >
     )
 
 }

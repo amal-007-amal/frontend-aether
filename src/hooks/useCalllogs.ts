@@ -13,6 +13,7 @@ export function useCallLogs() {
     agentNumber: [],
     direction: [],
     callstatus: [],
+    typecall:[]
   });
 
   const [timeFilters, setTimeFilters] = useState<{
@@ -53,6 +54,7 @@ export function useCallLogs() {
       const agNumberSet = new Set<string>();
       const directionSet = new Set<string>();
       const callstatusSet = new Set<string>();
+      const typecallSet = new Set<string>();
 
       data.forEach((item) => {
         if (item.other_name) otNameSet.add(item.other_name);
@@ -60,6 +62,7 @@ export function useCallLogs() {
         if (item.agent_number) agNumberSet.add(item.agent_number);
         if (item.direction) directionSet.add(item.direction);
         if (item.status) callstatusSet.add(item.status);
+        if(item.type) typecallSet.add(item.type)
       });
 
       setSelectedFilters({
@@ -68,6 +71,7 @@ export function useCallLogs() {
         agentNumber: [...agNumberSet].sort((a, b) => a.localeCompare(b)),
         direction: [...directionSet].sort((a, b) => a.localeCompare(b)),
         callstatus: [...callstatusSet].sort((a, b) => a.localeCompare(b)),
+        typecall: [...typecallSet].sort((a, b) => a.localeCompare(b)),
       });
 
     } catch (error) {

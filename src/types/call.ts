@@ -21,4 +21,5 @@ export interface FilterState {
   agentNumber: string[]
   direction: string[]
   callstatus: string[]
+  typecall:string[]
 }
