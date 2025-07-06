@@ -18,6 +18,8 @@ import type { DateRange } from "react-day-picker";
 import { useUsers } from "../../hooks/useUsers";
 import { createPortal } from "react-dom";
 import { startOfToday, startOfWeek } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import { Range } from "react-range";
 
 
 export default function CallDetailPage() {
@@ -36,7 +38,8 @@ export default function CallDetailPage() {
         agentNumberOpen: false,
         directionOpen: false,
         statusOpen: false,
-        timeFillOpen: false
+        timeFillOpen: false,
+        durationRangeOpen: false
     });
     const directionMap: Record<string, string> = {
         incoming: "Incoming",
@@ -70,6 +73,8 @@ export default function CallDetailPage() {
         filterMaxStart: null,
         userIDs: []
     });
+    const [values, setValues] = useState([10, 60]);
+    const [tempValues, setTempValues] = useState([10, 60])
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
     const [pageSize, setPageSize] = useState(10);
@@ -164,6 +169,10 @@ export default function CallDetailPage() {
 
     const [currentPage, setCurrentPage] = useState(1);
     const filteredData = useMemo(() => {
+        const [minMinutes, maxMinutes] = values;
+        const minSeconds = minMinutes * 60;
+        const maxSeconds = maxMinutes * 60;
+
         return calllogs.filter((call) => {
             const userFilterPass =
                 selectedTempUserIDs.length === 0 ||
@@ -189,6 +198,12 @@ export default function CallDetailPage() {
                 tableFiller.callstatus.length === 0 ||
                 tableFiller.callstatus.includes(String(call.status));
 
+            const durationFilterPass =
+                (!minMinutes && !maxMinutes) || (
+                    call.duration >= minSeconds &&
+                    call.duration <= maxSeconds
+                );
+
             const otherFiltersPass = Object.entries(filters).every(([key, value]) => {
                 if (!value) return true;
                 const field = String((call as any)[key] ?? "").toLowerCase();
@@ -203,6 +218,7 @@ export default function CallDetailPage() {
                 agentNumberFilterPass &&
                 directionFilterPass &&
                 statusFilterPass &&
+                durationFilterPass &&
                 otherFiltersPass
             );
         });
@@ -214,7 +230,8 @@ export default function CallDetailPage() {
         tableFiller.agentNumber,
         tableFiller.direction,
         tableFiller.callstatus,
-        timesave
+        timesave,
+        values
     ]);
 
     const sortedData = useMemo(() => {
@@ -273,20 +290,17 @@ export default function CallDetailPage() {
     useEffect(() => {
         if (selfilter === "custom" && range?.from && range?.to) {
             const startOfDay = new Date(range.from);
-            startOfDay.setHours(0, 0, 0, 0); // 00:00:00 local time
+            startOfDay.setHours(0, 0, 0, 0);
 
             const endOfDay = new Date(range.to);
-            endOfDay.setHours(23, 59, 59, 999); // 23:59:59.999 local time
+            endOfDay.setHours(23, 59, 59, 999);
 
             setTimeSave({
-                filterMinStart: startOfDay.toISOString(),  // full-day range
+                filterMinStart: startOfDay.toISOString(),
                 filterMaxStart: endOfDay.toISOString()
             });
         }
     }, [range, selfilter]);
-
-
-
 
     const handleFilterApply = () => {
         const filters = {
@@ -301,6 +315,11 @@ export default function CallDetailPage() {
         fetchCallLogsWith(filters);
     };
 
+
+    const handleDurationApply = () => {
+        setValues(tempValues);
+        setOpenFilter(prev => ({ ...prev, durationRangeOpen: false }));
+    };
 
     return (
         <div>
@@ -549,6 +568,56 @@ export default function CallDetailPage() {
                                                     sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                                                 )}
                                             </span>
+
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Funnel className="w-3 h-3 text-gray-400" />
+                                                </PopoverTrigger>
+
+                                                <PopoverContent className="w-[300px] p-4">
+                                                    <div className="mb-3 text-sm text-gray-700 flex items-center justify-between">
+                                                        <span className="text-xs">Selected: {tempValues[0]} - {tempValues[1]} minutes minutes</span>
+                                                        <span
+                                                            className="text-xs text-blue-500 hover:underline cursor-pointer"
+                                                            onClick={handleDurationApply}
+                                                        >
+                                                            Apply
+                                                        </span>
+                                                    </div>
+
+                                                    <Range
+                                                        step={1}
+                                                        min={0}
+                                                        max={120}
+                                                        values={tempValues}
+                                                        onChange={setTempValues}
+                                                        renderTrack={({ props, children }) => (
+                                                            <div
+                                                                {...props}
+                                                                className="h-2 bg-gray-200 rounded-full relative"
+                                                                style={props.style}
+                                                            >
+                                                                <div
+                                                                    className="h-2 bg-blue-500 rounded-full absolute"
+                                                                    style={{
+                                                                        left: `${(tempValues[0] / 120) * 100}%`,
+                                                                        width: `${((tempValues[1] - tempValues[0]) / 120) * 100}%`,
+                                                                    }}
+                                                                />
+                                                                {children}
+                                                            </div>
+                                                        )}
+                                                        renderThumb={({ props }) => (
+                                                            <div
+                                                                {...props}
+                                                                className="h-5 w-5 bg-blue-600 rounded-full border border-white shadow"
+                                                            />
+                                                        )}
+                                                    />
+
+                                                </PopoverContent>
+                                            </Popover>
+
                                         </span>
                                     </TableHead>
                                 )}
