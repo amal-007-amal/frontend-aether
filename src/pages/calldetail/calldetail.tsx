@@ -28,7 +28,6 @@ import autoTable from "jspdf-autotable";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../components/ui/dialog";
 import { directionMap, statusConnectMap, typeMap } from "../../types/callnamemap";
 
-
 export default function CallDetailPage() {
     const filterRefs = {
         funnelRef: useRef(null),
@@ -37,7 +36,8 @@ export default function CallDetailPage() {
         agentNumberRef: useRef(null),
         directionRef: useRef(null),
         statusRef: useRef(null),
-        typeCallRef: useRef(null)
+        typeCallRef: useRef(null),
+        callTypeRef: useRef(null)
     };
     const [openFilter, setOpenFilter] = useState({
         usernameOpen: false,
@@ -48,7 +48,8 @@ export default function CallDetailPage() {
         statusOpen: false,
         timeFillOpen: false,
         durationRangeOpen: false,
-        typeCallOpen: false
+        typeCallOpen: false,
+        callTypeOpen:false
     });
     const [showDialog, setShowDialog] = useState(false);
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
@@ -64,7 +65,8 @@ export default function CallDetailPage() {
         agentNumber: [],
         direction: [],
         callstatus: [],
-        typecall: []
+        typecall: [],
+        callTypes:[]
     });
     const [timesave, setTimeSave] = useState<{
         filterMinStart: string | null;
@@ -82,7 +84,6 @@ export default function CallDetailPage() {
         startFromTime: undefined,
         startToTime: undefined,
     });
-
     const [tempStarttimeFill, setTempStarttimeFill] = useState<{
         startFromTime: Date | undefined;
         startToTime: Date | undefined;
@@ -97,7 +98,6 @@ export default function CallDetailPage() {
     const [pageSize, setPageSize] = useState(10);
     const [sortKey, setSortKey] = useState<string>('start_time');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
     const Portal = ({ children }: { children: React.ReactNode }) => {
         if (typeof window === "undefined") return null;
         const portalRoot = document.getElementById("portal-root");
@@ -133,7 +133,6 @@ export default function CallDetailPage() {
             )
         );
     };
-
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
     const {
         calllogs,
@@ -180,8 +179,6 @@ export default function CallDetailPage() {
 
         fetchUsers();
     }, []);
-
-
     const [currentPage, setCurrentPage] = useState(1);
     const filteredData = useMemo(() => {
         const [minMinutes, maxMinutes] = values;
@@ -216,6 +213,10 @@ export default function CallDetailPage() {
             const typeCallFilterPass =
                 tableFiller.typecall.length === 0 ||
                 tableFiller.typecall.includes(String(call.type));
+
+            const callTypesFilterPass =
+                tableFiller.callTypes.length === 0 ||
+                tableFiller.callTypes.includes(String(call.call_type));
 
             const durationFilterPass =
                 (!minMinutes && !maxMinutes) || (
@@ -252,6 +253,7 @@ export default function CallDetailPage() {
                 durationFilterPass &&
                 startTimeFilterPass &&
                 typeCallFilterPass &&
+                callTypesFilterPass &&
                 otherFiltersPass
             );
         });
@@ -264,6 +266,8 @@ export default function CallDetailPage() {
         tableFiller.agentNumber,
         tableFiller.direction,
         tableFiller.callstatus,
+        tableFiller.callTypes,
+        tableFiller.typecall,
         values,
         starttimeFill
     ]);
@@ -549,7 +553,33 @@ export default function CallDetailPage() {
                                 {visibleColumns.includes("call_type") && (
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
-                                    > Call Type
+                                    >
+                                    <div className="flex items-center  relative">
+                                            <span> Call Type</span>
+                                            <Funnel
+                                                ref={filterRefs.callTypeRef}
+                                                onClick={() => setOpenFilter(prev => ({
+                                                    ...prev, callTypeOpen: true
+                                                }))}
+                                                className={`h-3 w-4 ${tableFiller.callTypes.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            />
+                                            <Portal>
+                                                <div className="relative">
+                                                    <AetherNameMultiSelect
+                                                        data={selectedFilters.callTypes.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.callTypes}
+                                                        onChange={(selected) =>
+                                                            setTableFiller((prev) => ({ ...prev, callTypes: selected }))
+                                                        }
+                                                        open={openFilter.callTypeOpen}
+                                                        setOpen={(val) =>
+                                                            setOpenFilter((prev) => ({ ...prev, callTypeOpen: val }))
+                                                        }
+                                                        referenceRef={filterRefs.callTypeRef}
+                                                    />
+                                                </div>
+                                            </Portal>
+                                        </div>
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("device_id") && (

@@ -22,6 +22,7 @@ export interface FilterState {
   direction: string[]
   callstatus: string[]
   typecall: string[]
+  callTypes:string[]
 }
 
 

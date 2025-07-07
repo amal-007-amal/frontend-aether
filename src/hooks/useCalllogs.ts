@@ -14,7 +14,8 @@ export function useCallLogs() {
     agentNumber: [],
     direction: [],
     callstatus: [],
-    typecall: []
+    typecall: [],
+    callTypes:[]
   });
 
   const [timeFilters, setTimeFilters] = useState<{
@@ -78,14 +79,16 @@ export function useCallLogs() {
       const directionSet = new Set<string>();
       const callstatusSet = new Set<string>();
       const typecallSet = new Set<string>();
+      const callTypesSet = new Set<string>();
 
-      data.forEach((item) => {
+      enrichedCalls.forEach((item) => {
         if (item.other_name) otNameSet.add(item.other_name);
         if (item.other_number) otNumberSet.add(item.other_number);
         if (item.agent_number) agNumberSet.add(item.agent_number);
         if (item.direction) directionSet.add(item.direction);
         if (item.status) callstatusSet.add(item.status);
         if (item.type) typecallSet.add(item.type)
+        if (item.call_type) callTypesSet.add(item.call_type)
       });
 
       setSelectedFilters({
@@ -95,6 +98,7 @@ export function useCallLogs() {
         direction: [...directionSet].sort((a, b) => a.localeCompare(b)),
         callstatus: [...callstatusSet].sort((a, b) => a.localeCompare(b)),
         typecall: [...typecallSet].sort((a, b) => a.localeCompare(b)),
+        callTypes:[...callTypesSet].sort((a,b)=>a.localeCompare(b))
       });
 
     } catch (error) {
