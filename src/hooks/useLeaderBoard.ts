@@ -22,7 +22,7 @@ export function useLeaderBoard() {
         setError(null);
         try {
             const response = await getDashboard(params);
-            setLead([...response.leaderboard, ...response.leaderboard]);
+            setLead(response.leaderboard);
             setActivity(response.call_activity);
             const raw = response.active_hours || [];
 
