@@ -495,7 +495,8 @@ export default function CallDetailPage() {
                         </DropdownMenu>
                     </div>
                 </div>
-                <div className="">
+
+                <div>
                     <Table className="w-full table-fixed border-collapse">
                         <TableHeader className="sticky top-0 bg-white z-10">
                             <TableRow className="text-sm font-light">
@@ -884,6 +885,12 @@ export default function CallDetailPage() {
                             </TableRow>
                         </TableHeader>
                     </Table>
+                                                    {currentPageData.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-48">
+                        <FolderOpen className="text-gray-500 w-10 h-10" />
+                        <p className="text-center text-xs text-gray-500 py-2">No data available</p>
+                    </div>
+                )}
                     <ScrollArea className="h-[370px]">
                         <Table className="w-full table-fixed border-collapse">
                             <TableBody className="text-xs">
@@ -1027,13 +1034,6 @@ export default function CallDetailPage() {
                         </Table>
                     </ScrollArea>
                 </div>
-
-                {currentPageData.length === 0 && (
-                    <div className="flex flex-col items-center py-48">
-                        <FolderOpen className="text-gray-500 w-10 h-10" />
-                        <p className="text-center text-xs text-gray-500 py-2">No data available</p>
-                    </div>
-                )}
 
                 <div className="flex items-center justify-end mt-4 gap-4 text-sm">
                     <div className="flex items-center gap-2">
