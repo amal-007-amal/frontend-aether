@@ -80,7 +80,7 @@ export const AetherDashboard = () => {
         const filters = {
             time_filter: "custom",
             start_date: timesave.filterMinStart ?? undefined,
-            end_date: timesave.filterMaxStart ?? undefined,
+            end_date: timesave.filterMaxStart ?? new Date().toISOString(),
             user_ids: selectedUserIDs,
         };
         fetchLeaderBoard(filters);

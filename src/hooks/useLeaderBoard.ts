@@ -30,25 +30,25 @@ export function useLeaderBoard() {
                 labels: raw.map((h: ActiveHour) => h.hour_range),
                 datasets: [
                     {
-                        label: "Incoming Connected",
+                        label: "Incoming",
                         data: raw.map((h: ActiveHour) => h.incoming_connected),
                         backgroundColor: "#c2b0f7",
                         stack: "incoming",
                     },
                     {
-                        label: "Incoming Not Connected",
+                        label: "Missed",
                         data: raw.map((h: ActiveHour) => h.incoming_not_connected),
                         backgroundColor: "#a182f2",
                         stack: "incoming",
                     },
                     {
-                        label: "Outgoing Connected",
+                        label: "Outgoing",
                         data: raw.map((h: ActiveHour) => h.outgoing_connected),
                         backgroundColor: "#f7b0d5",
                         stack: "outgoing",
                     },
                     {
-                        label: "Outgoing Not Connected",
+                        label: "Not Connected",
                         data: raw.map((h: ActiveHour) => h.outgoing_not_connected),
                         backgroundColor: "#eb8fcb",
                         stack: "outgoing",
