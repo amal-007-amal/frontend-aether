@@ -45,7 +45,7 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
                 />
             </svg>
             {/* Center value */}
-            <div className="absolute top-[38%] text-sm font-semibold text-gray-800">
+            <div className="absolute top-[30%] text-sm font-semibold text-gray-800">
                 {value}
             </div>
             {/* Label */}
