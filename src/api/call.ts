@@ -11,3 +11,16 @@ export const getCalls = async (params:any): Promise<CallLogDetails[]> => {
     })
     return data.calls
 }
+
+
+export const getRecording = async(recordingid:any):Promise<Blob>=>{
+    const token = localStorage.getItem('aether_access_token')
+        const response = await apiClient.get(`/api/v1/calls/recordings/${recordingid}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        },
+        responseType: 'blob'
+    })
+    console.log("reposn mp3 ",response)
+    return response.data
+}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CirclePlay, Download, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import type { FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -22,6 +22,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/pop
 import { Range } from "react-range";
 import { Calendar } from "../../components/ui/calendar";
 import { cn } from "../../lib/utils";
+import { useRecording } from "../../hooks/useRecording";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 
 export default function CallDetailPage() {
@@ -151,6 +154,7 @@ export default function CallDetailPage() {
         );
     };
 
+    const { users, fetchUsers, isLoading: isUserloading } = useUsers()
     const {
         calllogs,
         selectedFilters,
@@ -158,9 +162,14 @@ export default function CallDetailPage() {
         timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
-
-    const { users, fetchUsers, isLoading: isUserloading } = useUsers()
-
+    const { fetchRecording, recordingMap, loadingMap } = useRecording();
+    const userNameMapperByUserID = useMemo(() => {
+        const map: Record<string, string> = {};
+        users.forEach(user => {
+            map[user.id] = user.name;
+        });
+        return map;
+    }, [users]);
     useEffect(() => {
         const stored = localStorage.getItem("aether_call_filters");
         if (stored) {
@@ -407,6 +416,32 @@ export default function CallDetailPage() {
         });
     }
 
+    const handleexportpdf = () => {
+        const doc = new jsPDF();
+        const columns = [
+            { header: "User", dataKey: "user_id" },
+            { header: "Device ID", dataKey: "device_id" },
+            { header: "Duration (sec)", dataKey: "duration" },
+            { header: "Start Time", dataKey: "start_time" },
+        ];
+
+        const formattedCallLogs = calllogs.map((log) => ({
+            user_id: log.user_id,
+            device_id: log.device_id,
+            duration: `${Math.floor(log.duration / 60)}m ${log.duration % 60}s`,
+            start_time: new Date(log.start_time).toLocaleString(),
+        }));
+        autoTable(doc, {
+            columns,
+            body: formattedCallLogs,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [22, 160, 133] },
+            margin: { top: 20 },
+        });
+
+        doc.save("call-logs.pdf");
+    }
+
 
     return (
         <div>
@@ -472,7 +507,7 @@ export default function CallDetailPage() {
                                 <Menu className="h-4 w-4 text-black" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
-                                <span className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export as Pdf</span>
+                                <span onClick={handleexportpdf} className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export as Pdf</span>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -906,7 +941,7 @@ export default function CallDetailPage() {
                                     <TableRow key={call.id}>
                                         <TableCell className="text-left">{index + 1}</TableCell>
                                         {visibleColumns.includes("user_id") && (
-                                            <TableCell className="text-left">{call.user_id}</TableCell>
+                                            <TableCell className="text-left">{userNameMapperByUserID[call.user_id] || call.user_id}</TableCell>
                                         )}
                                         {visibleColumns.includes("agent_number") && (
                                             call.agent_number !== "" ? (
@@ -943,16 +978,44 @@ export default function CallDetailPage() {
                                         {visibleColumns.includes("recording_ids") && (
                                             <TableCell>
                                                 {call.recording_ids?.map((item, index) => (
-                                                    <div key={index} className="my-1">
-                                                        <audio
-                                                            controls
-                                                            className="w-28 h-7 text-xs rounded"
-                                                        >
-                                                            <source src={item} type="audio/mpeg" />
-                                                            Your browser does not support the audio element.
-                                                        </audio>
-                                                    </div>
+                                                    <Popover key={index}>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                onClick={() => fetchRecording(item)}
+                                                                className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                            >
+                                                                <CirclePlay className="w-4 h-4 text-black" />
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-60 mx-10">
+                                                            <div className="text-sm font-medium mb-2">Recording Info</div>
+
+                                                            {loadingMap[item] ? (
+                                                                <p className="text-xs text-gray-500">Loading...</p>
+                                                            ) : recordingMap[item] ? (
+                                                                <>
+                                                                    <audio controls className="w-full mt-2 h-8">
+                                                                        <source src={recordingMap[item]} type="audio/mpeg" />
+                                                                        Your browser does not support the audio element.
+                                                                    </audio>
+
+                                                                    <a
+                                                                        href={recordingMap[item]}
+                                                                        download={`recording-${item}.mp3`}
+                                                                        className="text-xs gap-2 text-gray-800 hover:underline mt-2 flex items-center"
+                                                                    >
+                                                                        Download Recording
+                                                                        <Download className="w-3 h-3" />
+                                                                    </a>
+                                                                </>
+                                                            ) : (
+                                                                <p className="text-xs text-gray-500">No recording found.</p>
+                                                            )}
+                                                        </PopoverContent>
+                                                    </Popover>
                                                 ))}
+
+
                                             </TableCell>
                                         )}
                                     </TableRow>
@@ -995,7 +1058,7 @@ export default function CallDetailPage() {
                             }}
                         />
                     </div>
-                              <span>
+                    <span>
                         <input
                             type="number"
                             min={1}
