@@ -33,9 +33,9 @@ export const AetherDashboard = () => {
     console.log(JSON.stringify(activeHours))
     useEffect(() => {
         const defaultFilters = {
-            time_filter: "today",
+            time_filter: "custom",
             start_date: startOfToday().toISOString(),
-            end_date: undefined,
+            end_date: new Date().toISOString(),
             user_ids: [],
         };
         fetchLeaderBoard(defaultFilters);
@@ -172,7 +172,7 @@ export const AetherDashboard = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div className="rounded-xl p-4 flex flex-col items-start my-4">
                             <h6 className="text-xs text-gray-500">All calls</h6>
-                            <ScrollArea className="max-h-56 px-4">
+                            <ScrollArea className="max-h-56 pr-2">
                                 {[...(lead || [])]
                                     .sort((a, b) => b.all_calls - a.all_calls)
                                     .map((item, index) => (
@@ -192,7 +192,7 @@ export const AetherDashboard = () => {
                         </div>
                         <div className="rounded-xl p-4 flex flex-col items-start my-4">
                             <h6 className="text-xs text-gray-500">Connected calls</h6>
-                            <ScrollArea className="max-h-56 px-4">
+                            <ScrollArea className="max-h-56 pr-2">
                                 {[...(lead || [])]
                                     .sort((a, b) => b.connected_calls - a.connected_calls)
                                     .map((item, index) => (
@@ -212,7 +212,7 @@ export const AetherDashboard = () => {
                         </div>
                         <div className="rounded-xl p-4 flex flex-col items-start my-4">
                             <h6 className="text-xs text-gray-500">Call duration</h6>
-                            <ScrollArea className="max-h-56 px-4">
+                            <ScrollArea className="max-h-56 pr-2">
                                 {[...(lead || [])]
                                     .sort((a, b) => b.total_call_duration - a.total_call_duration)
                                     .map((item, index) => (
