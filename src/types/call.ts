@@ -11,7 +11,8 @@ export interface CallLogDetails {
   other_number: string,
   other_name: string,
   agent_number: string,
-  created_at: string
+  created_at: string,
+  call_type:string
   recording_ids: string[]
 }
 export interface FilterState {

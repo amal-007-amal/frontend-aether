@@ -105,16 +105,17 @@ export default function CallDetailPage() {
     };
     const [allColumns, setAllColumns] = useState([
         { key: "user_id", label: "Username", active: true },
-        { key: "device_id", label: "Device ID", active: true },
-        { key: "direction", label: "Direction", active: true },
-        { key: "status", label: "Status", active: true },
+        { key: "device_id", label: "Device ID", active: false },
+        { key: "direction", label: "Direction", active: false },
+        { key: "status", label: "Status", active: false },
         { key: "duration", label: "Duration", active: true },
         { key: "start_time", label: "Start Time", active: true },
         { key: "other_number", label: "Other Number", active: true },
         { key: "other_name", label: "Other Name", active: true },
         { key: "agent_number", label: "Agent Number", active: true },
         { key: "recording_ids", label: "Recordings", active: true },
-        { key: "type", label: "Type", active: false }
+        { key: "type", label: "Type", active: false },
+        { key: "call_type", label: "Call Type", active: true }
     ]);
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
         allColumns.filter((col) => col.active).map((col) => col.key)
@@ -491,7 +492,7 @@ export default function CallDetailPage() {
                                 <TableHead className="text-xs font-semibold">Sl No.</TableHead>
                                 {visibleColumns.includes("user_id") && (
                                     <TableHead className="text-xs font-semibold">
-                                        <div className="flex items-center justify-between gap-1 relative">
+                                        <div className="flex items-center  gap-1 relative">
                                             <span>Agent name</span>
                                             <Funnel
                                                 ref={filterRefs.funnelRef}
@@ -517,7 +518,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("agent_number") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
-                                        <span className="flex items-center justify-between gap-1">
+                                        <span className="flex items-center  gap-1">
                                             Agent number
                                             <Funnel
                                                 ref={filterRefs.agentNumberRef}
@@ -545,6 +546,12 @@ export default function CallDetailPage() {
                                         </span>
                                     </TableHead>
                                 )}
+                                {visibleColumns.includes("call_type") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    > Call Type
+                                    </TableHead>
+                                )}
                                 {visibleColumns.includes("device_id") && (
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
@@ -555,7 +562,7 @@ export default function CallDetailPage() {
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
                                     >
-                                        <div className="flex items-center justify-between relative">
+                                        <div className="flex items-center  relative">
                                             <span>Type</span>
                                             <Funnel
                                                 ref={filterRefs.typeCallRef}
@@ -587,7 +594,7 @@ export default function CallDetailPage() {
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
                                     >
-                                        <div className="flex items-center justify-between relative">
+                                        <div className="flex items-center  relative">
                                             <span>Direction</span>
                                             <Funnel
                                                 ref={filterRefs.directionRef}
@@ -619,7 +626,7 @@ export default function CallDetailPage() {
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
                                     >
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center ">
                                             <span>Status</span>
                                             <div>
                                                 <Funnel
@@ -651,7 +658,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("start_time") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
-                                        <span className="flex items-center justify-between">
+                                        <span className="flex items-center ">
                                             <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
                                                 Start Time
                                                 {sortKey === "start_time" && (
@@ -772,7 +779,7 @@ export default function CallDetailPage() {
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
                                     >
-                                        <span className="flex items-center justify-between gap-1">
+                                        <span className="flex items-center  gap-1">
                                             <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
                                                 Duration
                                                 {sortKey === "duration" && (
@@ -841,7 +848,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("other_number") && (
                                     <TableHead
-                                        className="text-xs font-semibold flex items-center justify-between relative shadow-none"
+                                        className="text-xs font-semibold flex items-center  relative shadow-none"
                                     >
                                         Caller ID
                                         <Funnel
@@ -871,7 +878,7 @@ export default function CallDetailPage() {
                                 )}
                                 {visibleColumns.includes("other_name") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
-                                        <span className="flex items-center justify-between gap-1">
+                                        <span className="flex items-center  gap-1">
                                             Caller Name
                                             <Funnel
                                                 ref={filterRefs.otherNameRef}
@@ -922,6 +929,9 @@ export default function CallDetailPage() {
                                                 <TableCell className="text-left">{'-'}</TableCell>
                                             )
                                         )}
+                                        {visibleColumns.includes("call_type") && (
+                                            <TableCell className="text-left">{call.call_type}</TableCell>
+                                        )}
                                         {visibleColumns.includes("device_id") && (
                                             <TableCell className="text-left">{call.device_id}</TableCell>
                                         )}
@@ -963,7 +973,7 @@ export default function CallDetailPage() {
                                                                 </Button>
                                                             </PopoverTrigger>
                                                             <PopoverContent className="w-60 mx-10">
-                                                                 <div className="text-sm font-medium mb-2">Recording Info</div>
+                                                                <div className="text-sm font-medium mb-2">Recording Info</div>
                                                                 {loadingMap[item] ? (
                                                                     <p className="text-xs text-gray-500">Loading...</p>
                                                                 ) : recordingMap[item] ? (

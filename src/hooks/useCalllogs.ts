@@ -47,14 +47,29 @@ export function useCallLogs() {
       }
 
       const users = await getUsers();
-      const userMap = Object.fromEntries(users.map(u => [u.id, u.name]));
+      const userMap = Object.fromEntries(users.map(u => [String(u.id), u.name]));
       const data = await getCalls(params);
-      const enrichedCalls = data.map(call => ({
-        ...call,
-        user_id: userMap[call.user_id] || "Unknown",
-      }));
+      const enrichedCalls = data.map(call => {
+        let call_type = "Unknown";
+        const direction = call.direction?.toLowerCase();
+        const status = call.status?.toLowerCase();
+
+        if (direction === "incoming") {
+          call_type = status === "connected" ? "Incoming" : "Missed";
+        } else if (direction === "outgoing") {
+          call_type = status === "connected" ? "Outgoing" : "Not Connected";
+        }
+
+        return {
+          ...call,
+          user_id: userMap[String(call.user_id)] || "Unknown",
+          call_type,
+        };
+      });
 
       setCalllogs(enrichedCalls);
+
+
 
       // Generate unique filter sets
       const otNameSet = new Set<string>();
