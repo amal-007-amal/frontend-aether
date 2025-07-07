@@ -88,9 +88,9 @@ export const AetherDashboard = () => {
 
     const handleRefresh = () => {
         const defaultFilters = {
-            time_filter: "today",
+            time_filter: "custom",
             start_date: startOfToday().toISOString(),
-            end_date: undefined,
+            end_date: new Date().toISOString(),
             user_ids: [],
         };
 
@@ -171,8 +171,8 @@ export const AetherDashboard = () => {
                     <h2 className="text-sm font-normal text-left">Leaderboard</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div className="rounded-xl p-4 flex flex-col items-start my-4">
-                            <h6 className="text-sm">All calls</h6>
-                            <ScrollArea className="max-h-56">
+                            <h6 className="text-xs text-gray-500">All calls</h6>
+                            <ScrollArea className="max-h-56 px-4">
                                 {[...(lead || [])]
                                     .sort((a, b) => b.all_calls - a.all_calls)
                                     .map((item, index) => (
@@ -180,7 +180,7 @@ export const AetherDashboard = () => {
                                             key={item.user_id}
                                             className="flex justify-between items-center gap-5 py-2"
                                         >
-                                            <div className="w-9 h-9 bg-fuchsia-100 border border-fuchsia-500 rounded-full flex items-center justify-center text-sm text-fuchsia-600">
+                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
                                             <h6 className="text-xs flex-1">{item.user_name}</h6>
@@ -191,8 +191,8 @@ export const AetherDashboard = () => {
                             </ScrollArea>
                         </div>
                         <div className="rounded-xl p-4 flex flex-col items-start my-4">
-                            <h6 className="text-sm">Connected calls</h6>
-                            <ScrollArea className="max-h-56">
+                            <h6 className="text-xs text-gray-500">Connected calls</h6>
+                            <ScrollArea className="max-h-56 px-4">
                                 {[...(lead || [])]
                                     .sort((a, b) => b.connected_calls - a.connected_calls)
                                     .map((item, index) => (
@@ -200,7 +200,7 @@ export const AetherDashboard = () => {
                                             key={item.user_id}
                                             className="flex justify-between items-center gap-5 py-2"
                                         >
-                                            <div className="w-9 h-9 bg-fuchsia-100 border border-fuchsia-500 rounded-full flex items-center justify-center text-sm text-fuchsia-600">
+                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
                                             <h6 className="text-xs flex-1">{item.user_name}</h6>
@@ -211,8 +211,8 @@ export const AetherDashboard = () => {
                             </ScrollArea>
                         </div>
                         <div className="rounded-xl p-4 flex flex-col items-start my-4">
-                            <h6 className="text-sm">Call Duration</h6>
-                            <ScrollArea className="max-h-56">
+                            <h6 className="text-xs text-gray-500">Call duration</h6>
+                            <ScrollArea className="max-h-56 px-4">
                                 {[...(lead || [])]
                                     .sort((a, b) => b.total_call_duration - a.total_call_duration)
                                     .map((item, index) => (
@@ -220,7 +220,7 @@ export const AetherDashboard = () => {
                                             key={item.user_id}
                                             className="flex justify-between items-center gap-5 py-2"
                                         >
-                                            <div className="w-9 h-9 bg-fuchsia-100 border border-fuchsia-500 rounded-full flex items-center justify-center text-sm text-fuchsia-600">
+                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
                                             <h6 className="text-xs flex-1">{item.user_name}</h6>
