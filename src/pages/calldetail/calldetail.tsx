@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CirclePlay, Download, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
-import type { FilterState } from "../../types/call";
+import { filters, type FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import AetherLoader from "../../shared/AetherLoader";
@@ -26,6 +26,7 @@ import { useRecording } from "../../hooks/useRecording";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../components/ui/dialog";
+import { directionMap, statusConnectMap, typeMap } from "../../types/callnamemap";
 
 
 export default function CallDetailPage() {
@@ -55,20 +56,6 @@ export default function CallDetailPage() {
     const [fromMinute, setFromMinute] = useState<number>(0);
     const [toHour, setToHour] = useState<number>(23);
     const [toMinute, setToMinute] = useState<number>(59);
-    const directionMap: Record<string, string> = {
-        incoming: "Incoming",
-        outgoing: "Outgoing"
-    };
-    const typeMap: Record<string, string> = {
-        incoming: "Incoming",
-        outgoing: "Outgoing",
-        rejected: "Rejected",
-        missed: "Missed",
-        unknown: "Unknown",
-        voicemail: "Voicemail",
-        blocked: "Blocked",
-        answered_externally: "Answered Externally"
-    }
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTempUserIDs, setSelectedTempUserIDs] = useState<string[]>([]);
     const [tableFiller, setTableFiller] = useState<FilterState>({
@@ -110,17 +97,7 @@ export default function CallDetailPage() {
     const [pageSize, setPageSize] = useState(10);
     const [sortKey, setSortKey] = useState<string>('start_time');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const filters = {
-        user_id: "",
-        device_id: "",
-        direction: "",
-        status: "",
-        duration: "",
-        start_time: "",
-        other_number: "",
-        other_name: "",
-        agent_number: ""
-    };
+
     const Portal = ({ children }: { children: React.ReactNode }) => {
         if (typeof window === "undefined") return null;
         const portalRoot = document.getElementById("portal-root");
@@ -165,13 +142,6 @@ export default function CallDetailPage() {
         setTimeFilters,
         isLoading } = useCallLogs()
     const { fetchRecording, recordingMap, loadingMap } = useRecording();
-    const userNameMapperByUserID = useMemo(() => {
-        const map: Record<string, string> = {};
-        users.forEach(user => {
-            map[user.id] = user.name;
-        });
-        return map;
-    }, [users]);
     useEffect(() => {
         const stored = localStorage.getItem("aether_call_filters");
         if (stored) {
@@ -943,7 +913,7 @@ export default function CallDetailPage() {
                                     <TableRow key={call.id}>
                                         <TableCell className="text-left">{index + 1}</TableCell>
                                         {visibleColumns.includes("user_id") && (
-                                            <TableCell className="text-left">{userNameMapperByUserID[call.user_id] || call.user_id}</TableCell>
+                                            <TableCell className="text-left">{call.user_id}</TableCell>
                                         )}
                                         {visibleColumns.includes("agent_number") && (
                                             call.agent_number !== "" ? (
@@ -962,7 +932,7 @@ export default function CallDetailPage() {
                                             <TableCell className="text-left">{directionMap[call.direction] || call.direction}</TableCell>
                                         )}
                                         {visibleColumns.includes("status") && (
-                                            <TableCell className="text-left">{call.status}</TableCell>
+                                            <TableCell className="text-left">{statusConnectMap[call.status] || call.status}</TableCell>
                                         )}
                                         {visibleColumns.includes("start_time") && (
                                             <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
@@ -993,7 +963,7 @@ export default function CallDetailPage() {
                                                                 </Button>
                                                             </PopoverTrigger>
                                                             <PopoverContent className="w-60 mx-10">
-                                                                <div className="text-sm font-medium mb-2">Recording Info</div>
+                                                                 <div className="text-sm font-medium mb-2">Recording Info</div>
                                                                 {loadingMap[item] ? (
                                                                     <p className="text-xs text-gray-500">Loading...</p>
                                                                 ) : recordingMap[item] ? (

@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { getCalls } from "../api/call";
 import type { CallLogDetails, FilterState } from "../types/call";
 import { toast } from "sonner";
+import { getUsers } from "../api/login";
 
 export function useCallLogs() {
   const [calllogs, setCalllogs] = useState<CallLogDetails[]>([]);
@@ -13,7 +14,7 @@ export function useCallLogs() {
     agentNumber: [],
     direction: [],
     callstatus: [],
-    typecall:[]
+    typecall: []
   });
 
   const [timeFilters, setTimeFilters] = useState<{
@@ -45,8 +46,15 @@ export function useCallLogs() {
         filters.userIDs.forEach(userID => { params.append("filter_user_ids", userID); });
       }
 
+      const users = await getUsers();
+      const userMap = Object.fromEntries(users.map(u => [u.id, u.name]));
       const data = await getCalls(params);
-      setCalllogs(data);
+      const enrichedCalls = data.map(call => ({
+        ...call,
+        user_id: userMap[call.user_id] || "Unknown",
+      }));
+
+      setCalllogs(enrichedCalls);
 
       // Generate unique filter sets
       const otNameSet = new Set<string>();
@@ -62,7 +70,7 @@ export function useCallLogs() {
         if (item.agent_number) agNumberSet.add(item.agent_number);
         if (item.direction) directionSet.add(item.direction);
         if (item.status) callstatusSet.add(item.status);
-        if(item.type) typecallSet.add(item.type)
+        if (item.type) typecallSet.add(item.type)
       });
 
       setSelectedFilters({
