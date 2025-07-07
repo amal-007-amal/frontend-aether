@@ -125,12 +125,12 @@ export const AetherDashboard = () => {
                     <h2 className="text-sm font-normal text-left">Call Activity</h2>
                     {activity && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-4">
-                            <CircleProgress value={activity.total_calls} max={100} label="Total Calls" />
-                            <CircleProgress value={activity.incoming_calls} max={100} label="Incoming Calls"  />
-                            <CircleProgress value={activity.outgoing_calls} max={100} label="Outgoing Calls" />
-                            <CircleProgress value={activity.missed_calls} max={100} label="Missed Calls"  />
-                            <CircleProgress value={activity.not_connected_calls} max={100} label="Not Connected"  />
-                            <CircleProgress value={activity.abandoned_numbers} max={100} label="Abandoned Numbers" />
+                            <CircleProgress value={activity.total_calls} max={activity.total_calls} label="Total Calls" />
+                            <CircleProgress value={activity.incoming_calls} max={activity.total_calls} label="Incoming Calls"  />
+                            <CircleProgress value={activity.outgoing_calls} max={activity.total_calls} label="Outgoing Calls" />
+                            <CircleProgress value={activity.missed_calls} max={activity.total_calls} label="Missed Calls"  />
+                            <CircleProgress value={activity.not_connected_calls} max={activity.total_calls} label="Not Connected"  />
+                            <CircleProgress value={activity.abandoned_numbers} max={activity.abandoned_numbers} label="Abandoned Numbers" />
                         </div>
                     )}
 
