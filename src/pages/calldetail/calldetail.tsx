@@ -104,18 +104,16 @@ export default function CallDetailPage() {
         return portalRoot ? createPortal(children, portalRoot) : null;
     };
     const [allColumns, setAllColumns] = useState([
-        { key: "user_id", label: "Username", active: true },
-        { key: "device_id", label: "Device ID", active: false },
-        { key: "direction", label: "Direction", active: false },
-        { key: "status", label: "Status", active: false },
+        { key: "other_number", label: "Caller ID", active: true },
+        { key: "other_name", label: "Caller Name", active: true },
+        { key: "call_type", label: "Call Type", active: true },
+        { key: "type", label: "Android Type", active: false },
+        { key: "start_time", label: "Timestamp", active: true },
         { key: "duration", label: "Duration", active: true },
-        { key: "start_time", label: "Start Time", active: true },
-        { key: "other_number", label: "Other Number", active: true },
-        { key: "other_name", label: "Other Name", active: true },
+        { key: "user_id", label: "Agent Name", active: true },
         { key: "agent_number", label: "Agent Number", active: true },
-        { key: "recording_ids", label: "Recordings", active: true },
-        { key: "type", label: "Type", active: false },
-        { key: "call_type", label: "Call Type", active: true }
+        { key: "device_id", label: "Device ID", active: false },
+        { key: "recording_ids", label: "Recordings", active: true }
     ]);
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
         allColumns.filter((col) => col.active).map((col) => col.key)
@@ -489,8 +487,8 @@ export default function CallDetailPage() {
                         </DropdownMenu>
                     </div>
                 </div>
-                <div className="max-h-[500px] overflow-y-auto">
-                    <Table className="cursor-pointer max-h-[500px]">
+                <div className="max-h-[410px] overflow-y-auto">
+                    <Table className="cursor-pointer max-h-[400px]">
                         <TableHeader>
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold">Sl No.</TableHead>

@@ -70,13 +70,21 @@ export function AetherNameMultiSelect({
         );
     };
 
-    const handleSelectAll = () => {
-        const allLabels = data.map((item) => item.label);
-        setTempSelected(allLabels);
+    const handleToggleSelectAll = () => {
+        if (tempSelected.length === data.length) {
+            // Deselect all
+            setTempSelected([]);
+        } else {
+            // Select all
+            const allLabels = data.map((item) => item.label);
+            setTempSelected(allLabels);
+        }
     };
 
-    const handleDeselectAll = () => {
+
+    const handleCancel = () => {
         setTempSelected([]);
+        setOpen(false);
     };
 
     const handleApply = () => {
@@ -101,10 +109,10 @@ export function AetherNameMultiSelect({
                         dropdownRef.current = node;
                     }}
                     style={floatingStyles}
-className={cn(
-  "absolute z-50 w-[250px] bg-white rounded border shadow-md p-0 text-sm transition-opacity duration-150 ease-in-out",
-  open ? "opacity-100" : "opacity-0 pointer-events-none"
-)}
+                    className={cn(
+                        "absolute z-50 w-[250px] bg-white rounded border shadow-md p-0 text-sm transition-opacity duration-150 ease-in-out",
+                        open ? "opacity-100" : "opacity-0 pointer-events-none"
+                    )}
                 >
                     <Command>
                         <CommandInput
@@ -119,16 +127,16 @@ className={cn(
 
                         <div className="flex justify-between items-center px-3 py-2 text-xs border-b">
                             <div className="gap-4 flex">
-                                <button onClick={handleSelectAll} className="hover:underline font-normal">
-                                    Select All
-                                </button>
-                                <button
-                                    onClick={handleDeselectAll}
-                                    className="text-red-500 hover:underline font-normal"
-                                >
-                                    Clear All
+                                <button onClick={handleToggleSelectAll} className="hover:underline font-normal">
+                                    {tempSelected.length === data.length ? "Deselect All" : "Select All"}
                                 </button>
                             </div>
+                            <button
+                                onClick={handleCancel}
+                                className="text-gray-600 hover:underline font-normal"
+                            >
+                                Cancel
+                            </button>
                             <button
                                 onClick={handleApply}
                                 className="text-blue-600 hover:underline font-normal"
