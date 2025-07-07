@@ -24,7 +24,7 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
                 {/* Background ring */}
                 <circle
                     stroke="#F5D0FE"
-                    fill="transparent"
+                    fill={'transparent'}
                     strokeWidth={stroke}
                     r={normalizedRadius}
                     cx={radius}
@@ -32,10 +32,10 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
                 />
                 {/* Progress ring */}
                 <circle
-                    stroke={"#D946EF"}
-                    fill="transparent"
+                    stroke={`${label==="Abandoned Numbers"?'#fde6f3':'#D946EF'}`}
+                    fill={`${label==="Abandoned Numbers"?'#fde6f3':'transparent'}`}
                     strokeWidth={stroke}
-                    strokeLinecap="round"
+                    strokeLinecap="butt"
                     strokeDasharray={`${circumference} ${circumference}`}
                     strokeDashoffset={strokeDashoffset}
                     style={{ transition: "stroke-dashoffset 0.5s ease" }}
