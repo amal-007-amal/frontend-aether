@@ -33,7 +33,7 @@ export const AetherDashboard = () => {
     });
 
     const { users, isLoading, fetchUsers } = useUsers();
-    const { lead, activity } = useLeaderBoard(useFilters);
+    const { lead, activity, fetchLeaderBoard } = useLeaderBoard();
 
     const handleDateFilterChange = (value: "today" | "week" | "custom") => {
         setSelFilter(value);
@@ -69,6 +69,17 @@ export const AetherDashboard = () => {
             });
         }
     }, [range, selfilter]);
+
+    const handleFilterApply = () => {
+        const filters = {
+            time_filter: selfilter,
+            start_date: timesave.filterMinStart ?? undefined,
+            end_date: timesave.filterMaxStart ?? undefined,
+            user_ids: selectedUserIDs,
+        };
+
+        fetchLeaderBoard(filters);
+    };
 
     return (
         <div>
@@ -107,7 +118,7 @@ export const AetherDashboard = () => {
                                 </div>
                                 <div className="flex justify-end gap-4">
                                     <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500">Reset</Button>
-                                    <Button className="bg-black text-white text-xs rounded-xl">Apply</Button>
+                                    <Button onClick={handleFilterApply} className="bg-black text-white text-xs rounded-xl">Apply</Button>
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>

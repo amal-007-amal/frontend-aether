@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { getDashboard } from "../api/dashboard";
 import type { Callactivity, LeaderBoard } from "../types/dashboard";
 
@@ -10,9 +10,9 @@ interface FilterParams {
     [key: string]: any;
 }
 
-export function useLeaderBoard(initialFilters: FilterParams) {
-const [activity, setActivity] = useState<Callactivity | null>(null);
-    const [lead, setLead] = useState<LeaderBoard[]>([])
+export function useLeaderBoard() {
+    const [activity, setActivity] = useState<Callactivity | null>(null);
+    const [lead, setLead] = useState<LeaderBoard[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<any>(null);
 
@@ -21,7 +21,7 @@ const [activity, setActivity] = useState<Callactivity | null>(null);
         setError(null);
         try {
             const response = await getDashboard(params);
-            setLead(response.leaderboard)
+            setLead(response.leaderboard);
             setActivity(response.call_activity);
         } catch (err) {
             console.error("Failed to fetch leaderboard:", err);
@@ -31,17 +31,11 @@ const [activity, setActivity] = useState<Callactivity | null>(null);
         }
     }, []);
 
-    useEffect(() => {
-        if (initialFilters) {
-            fetchLeaderBoard(initialFilters);
-        }
-    }, []);
-
     return {
         lead,
         activity,
         loading,
         error,
-        fetchLeaderBoard
+        fetchLeaderBoard,
     };
 }
