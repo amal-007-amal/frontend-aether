@@ -596,7 +596,7 @@ export default function CallDetailPage() {
                                         className="text-xs font-semibold cursor-pointer"
                                     >
                                         <div className="flex items-center  relative">
-                                            <span>Type</span>
+                                            <span>Android Type</span>
                                             <Funnel
                                                 ref={filterRefs.typeCallRef}
                                                 onClick={() => setOpenFilter(prev => ({
@@ -693,7 +693,7 @@ export default function CallDetailPage() {
                                     <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center ">
                                             <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
-                                                Start Time
+                                                Timestamp
                                                 {sortKey === "start_time" && (
                                                     sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
                                                 )}
@@ -882,7 +882,7 @@ export default function CallDetailPage() {
                                 {visibleColumns.includes("user_id") && (
                                     <TableHead className="text-xs font-semibold">
                                         <div className="flex items-center  gap-1 relative">
-                                            <span>Agent name</span>
+                                            <span>Agent Name</span>
                                             <Funnel
                                                 ref={filterRefs.funnelRef}
                                                 onClick={() => setOpenFilter(prev => ({
@@ -908,7 +908,7 @@ export default function CallDetailPage() {
                                 {visibleColumns.includes("agent_number") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center  gap-1">
-                                            Agent number
+                                            Agent Number
                                             <Funnel
                                                 ref={filterRefs.agentNumberRef}
                                                 onClick={() => setOpenFilter(prev => ({
