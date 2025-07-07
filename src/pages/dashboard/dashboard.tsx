@@ -1,16 +1,17 @@
-import { FunnelPlus, RefreshCcw } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
-import { AetherDateRangePicker } from "../../components/aetherdaterangepicker"
-import { useEffect, useState } from "react"
-import type { DateRange } from "react-day-picker"
-import { ScrollArea } from "../../components/ui/scroll-area"
-import { useLeaderBoard } from "../../hooks/useLeaderBoard"
-import { AetherMultiSelect } from "../../components/aethermultiselect"
-import { useUsers } from "../../hooks/useUsers"
-import { Button } from "../../components/ui/button"
-import { CircleProgress } from "../../components/aethercircleorogress"
-import { startOfToday, startOfWeek } from "date-fns"
+import { FunnelPlus, RefreshCcw } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
+import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
+import { useEffect, useState } from "react";
+import type { DateRange } from "react-day-picker";
+import { ScrollArea } from "../../components/ui/scroll-area";
+import { useLeaderBoard } from "../../hooks/useLeaderBoard";
+import { AetherMultiSelect } from "../../components/aethermultiselect";
+import { useUsers } from "../../hooks/useUsers";
+import { Button } from "../../components/ui/button";
+import { CircleProgress } from "../../components/aethercircleorogress";
+import { startOfToday, startOfWeek } from "date-fns";
+import AetherHorizontalStackedGroupChart from "../../components/aetherstackedbarchart";
 
 export const AetherDashboard = () => {
     const [selfilter, setSelFilter] = useState<"today" | "week" | "custom">("today");
@@ -28,9 +29,8 @@ export const AetherDashboard = () => {
     });
 
     const { users } = useUsers();
-    const { lead, activity, fetchLeaderBoard } = useLeaderBoard();
-
-
+    const { lead, activity, activeHours, fetchLeaderBoard } = useLeaderBoard();
+    console.log(JSON.stringify(activeHours))
     useEffect(() => {
         const defaultFilters = {
             time_filter: "today",
@@ -78,12 +78,11 @@ export const AetherDashboard = () => {
 
     const handleFilterApply = () => {
         const filters = {
-            time_filter: selfilter,
+            time_filter: "custom",
             start_date: timesave.filterMinStart ?? undefined,
             end_date: timesave.filterMaxStart ?? undefined,
             user_ids: selectedUserIDs,
         };
-
         fetchLeaderBoard(filters);
     };
 
@@ -108,7 +107,6 @@ export const AetherDashboard = () => {
         // Re-fetch data
         fetchLeaderBoard(defaultFilters);
     };
-
 
     return (
         <div>
@@ -235,7 +233,19 @@ export const AetherDashboard = () => {
                     </div>
                 </div>
             </div>
-
+            {activeHours ? (
+                <div className="col-span-12 lg:col-span-5 border border-gray-200 rounded-xl p-4">
+                    <h2 className="text-sm font-normal text-left">Active hours</h2>
+                    <AetherHorizontalStackedGroupChart
+                        labels={activeHours.labels}
+                        datasets={activeHours.datasets}
+                    />
+                </div>
+            ) : (
+                <div className="col-span-12 lg:col-span-5 p-4 text-sm text-gray-400 italic">
+                    Loading chart...
+                </div>
+            )}
         </div>
     )
 }

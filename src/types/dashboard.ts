@@ -16,3 +16,11 @@ export interface LeaderBoard {
     total_call_duration: number,
     call_duration_rank: number
 }
+
+export interface ActiveHour {
+  hour_range: string;
+  incoming_connected: number;
+  incoming_not_connected: number;
+  outgoing_connected: number;
+  outgoing_not_connected: number;
+}
