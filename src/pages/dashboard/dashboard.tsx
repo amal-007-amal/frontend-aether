@@ -13,7 +13,7 @@ import { CircleProgress } from "../../components/aethercircleorogress"
 import { startOfToday, startOfWeek } from "date-fns"
 
 export const AetherDashboard = () => {
-    const [selfilter, setSelFilter] = useState<string>("");
+    const [selfilter, setSelFilter] = useState<"today" | "week" | "custom">("today");
     const [range, setRange] = useState<DateRange | undefined>();
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
 
@@ -24,28 +24,38 @@ export const AetherDashboard = () => {
     }>({
         filterMinStart: startOfToday().toISOString(),
         filterMaxStart: null,
-        userIDs: []
+        userIDs: [],
     });
 
     const { users } = useUsers();
     const { lead, activity, fetchLeaderBoard } = useLeaderBoard();
 
+
+    useEffect(() => {
+        const defaultFilters = {
+            time_filter: "today",
+            start_date: startOfToday().toISOString(),
+            end_date: undefined,
+            user_ids: [],
+        };
+        fetchLeaderBoard(defaultFilters);
+    }, [fetchLeaderBoard]);
+
     const handleDateFilterChange = (value: "today" | "week" | "custom") => {
         setSelFilter(value);
+
         if (value === "today") {
-            const from = startOfToday().toISOString();
             setTimeSave((prev) => ({
                 ...prev,
-                filterMinStart: from,
-                filterMaxStart: null
+                filterMinStart: startOfToday().toISOString(),
+                filterMaxStart: null,
             }));
-        }
-        else if (value === "week") {
+        } else if (value === "week") {
             const from = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
             setTimeSave((prev) => ({
                 ...prev,
                 filterMinStart: from,
-                filterMaxStart: null
+                filterMaxStart: null,
             }));
         }
     };
@@ -58,10 +68,11 @@ export const AetherDashboard = () => {
             const endOfDay = new Date(range.to);
             endOfDay.setHours(23, 59, 59, 999);
 
-            setTimeSave({
+            setTimeSave((prev) => ({
+                ...prev,
                 filterMinStart: startOfDay.toISOString(),
-                filterMaxStart: endOfDay.toISOString()
-            });
+                filterMaxStart: endOfDay.toISOString(),
+            }));
         }
     }, [range, selfilter]);
 
@@ -76,13 +87,36 @@ export const AetherDashboard = () => {
         fetchLeaderBoard(filters);
     };
 
+    const handleRefresh = () => {
+        const defaultFilters = {
+            time_filter: "today",
+            start_date: startOfToday().toISOString(),
+            end_date: undefined,
+            user_ids: [],
+        };
+
+        // Reset state
+        setSelFilter("today");
+        setRange(undefined);
+        setSelectedUserIDs([]);
+        setTimeSave({
+            filterMinStart: defaultFilters.start_date,
+            filterMaxStart: null,
+            userIDs: [],
+        });
+
+        // Re-fetch data
+        fetchLeaderBoard(defaultFilters);
+    };
+
+
     return (
         <div>
             <div className="p-2 rounded-xl border border-gray-200">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-normal flex items-center">Dashboard</h2>
                     <div className="flex items-center gap-5">
-                        <RefreshCcw className={`h-4 w-4 cursor-pointer`} />
+                        <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer`} />
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <FunnelPlus className="h-4 w-4" />
@@ -126,10 +160,10 @@ export const AetherDashboard = () => {
                     {activity && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-4">
                             <CircleProgress value={activity.total_calls} max={activity.total_calls} label="Total Calls" />
-                            <CircleProgress value={activity.incoming_calls} max={activity.total_calls} label="Incoming Calls"  />
+                            <CircleProgress value={activity.incoming_calls} max={activity.total_calls} label="Incoming Calls" />
                             <CircleProgress value={activity.outgoing_calls} max={activity.total_calls} label="Outgoing Calls" />
-                            <CircleProgress value={activity.missed_calls} max={activity.total_calls} label="Missed Calls"  />
-                            <CircleProgress value={activity.not_connected_calls} max={activity.total_calls} label="Not Connected"  />
+                            <CircleProgress value={activity.missed_calls} max={activity.total_calls} label="Missed Calls" />
+                            <CircleProgress value={activity.not_connected_calls} max={activity.total_calls} label="Not Connected" />
                             <CircleProgress value={activity.abandoned_numbers} max={activity.abandoned_numbers} label="Abandoned Numbers" />
                         </div>
                     )}
