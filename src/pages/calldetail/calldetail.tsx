@@ -27,6 +27,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../components/ui/dialog";
 import { typeMap } from "../../types/callnamemap";
+import { ScrollArea } from "../../components/ui/scroll-area";
 
 export default function CallDetailPage() {
     const filterRefs = {
@@ -397,10 +398,10 @@ export default function CallDetailPage() {
             { header: "User", dataKey: "user_id" },
             { header: "Device ID", dataKey: "device_id" },
             { header: "Duration (sec)", dataKey: "duration" },
-            { header: "Start Time", dataKey: "start_time" },
+            { header: "Timestamp", dataKey: "start_time" },
         ];
 
-        const formattedCallLogs = calllogs.map((log) => ({
+        const formattedCallLogs = currentPageData.map((log) => ({
             user_id: log.user_id,
             device_id: log.device_id,
             duration: `${Math.floor(log.duration / 60)}m ${log.duration % 60}s`,
@@ -423,7 +424,6 @@ export default function CallDetailPage() {
             <div className="p-2 rounded-xl border border-gray-200">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
-
                     <div className="flex items-center gap-5">
                         <RefreshCcw onClick={() => fetchCallLogsWith(timeFilters)} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
                         <DropdownMenu>
@@ -490,13 +490,14 @@ export default function CallDetailPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <span onClick={handleexportpdf} className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export as Pdf</span>
+                                <span onClick={handleexportpdf} className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export as csv</span>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 </div>
-                <div className="max-h-[410px] overflow-y-auto">
-                    <Table className="cursor-pointer w-full">
-                        <TableHeader>
+                <div className="">
+                    <Table className="w-full table-fixed border-collapse">
+                        <TableHeader className="sticky top-0 bg-white z-10">
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold">Sl No.</TableHead>
                                 {visibleColumns.includes("other_number") && (
@@ -623,72 +624,6 @@ export default function CallDetailPage() {
                                         </div>
                                     </TableHead>
                                 )}
-                                {/* {visibleColumns.includes("direction") && (
-                                    <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
-                                    >
-                                        <div className="flex items-center  relative">
-                                            <span>Direction</span>
-                                            <Funnel
-                                                ref={filterRefs.directionRef}
-                                                onClick={() => setOpenFilter(prev => ({
-                                                    ...prev, directionOpen: true
-                                                }))}
-                                                className={`h-3 w-4 ${tableFiller.direction.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                            />
-                                            <Portal>
-                                                <div className="relative">
-                                                    <AetherNameMultiSelect
-                                                        data={selectedFilters.direction.map((name) => ({ label: name, value: name }))}
-                                                        selected={tableFiller.direction}
-                                                        onChange={(selected) =>
-                                                            setTableFiller((prev) => ({ ...prev, direction: selected }))
-                                                        }
-                                                        open={openFilter.directionOpen}
-                                                        setOpen={(val) =>
-                                                            setOpenFilter((prev) => ({ ...prev, directionOpen: val }))
-                                                        }
-                                                        referenceRef={filterRefs.directionRef}
-                                                    />
-                                                </div>
-                                            </Portal>
-                                        </div>
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("status") && (
-                                    <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
-                                    >
-                                        <div className="flex items-center ">
-                                            <span>Status</span>
-                                            <div>
-                                                <Funnel
-                                                    ref={filterRefs.statusRef}
-                                                    onClick={() => setOpenFilter(prev => ({
-                                                        ...prev, statusOpen: true
-                                                    }))}
-                                                    className={`h-3 w-4 ${tableFiller.callstatus.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                                />
-                                            </div>
-                                            <Portal>
-                                                <div className="relative">
-                                                    <AetherNameMultiSelect
-                                                        data={selectedFilters.callstatus.map((name) => ({ label: name, value: name }))}
-                                                        selected={tableFiller.callstatus}
-                                                        onChange={(selected) =>
-                                                            setTableFiller((prev) => ({ ...prev, callstatus: selected }))
-                                                        }
-                                                        open={openFilter.statusOpen}
-                                                        setOpen={(val) =>
-                                                            setOpenFilter((prev) => ({ ...prev, statusOpen: val }))
-                                                        }
-                                                        referenceRef={filterRefs.statusRef}
-                                                    />
-                                                </div>
-                                            </Portal>
-                                        </div>
-                                    </TableHead>
-                                )} */}
                                 {visibleColumns.includes("start_time") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center ">
@@ -948,153 +883,151 @@ export default function CallDetailPage() {
                                 )}
                             </TableRow>
                         </TableHeader>
-                        <TableBody className="text-xs">
-                            {currentPageData.length !== 0 && (
-                                currentPageData.map((call, index) => (
-                                    <TableRow key={call.id}>
-                                        <TableCell className="text-left">{index + 1}</TableCell>
-                                        {visibleColumns.includes("other_number") && (
-                                            <TableCell className="text-left">{call.other_number}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("other_name") && (
-                                            <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("call_type") && (
-                                            <TableCell className="text-left">{call.call_type}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("type") && (
-                                            <TableCell className="text-left">{typeMap[call.type] || call.type}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("start_time") && (
-                                            <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("duration") && (
-                                            <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
-                                        )}
-
-                                        {visibleColumns.includes("user_id") && (
-                                            <TableCell className="text-left">{call.user_id}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("agent_number") && (
-                                            call.agent_number !== "" ? (
-                                                <TableCell className="text-left">{call.agent_number}</TableCell>
-                                            ) : (
-                                                <TableCell className="text-left">{'-'}</TableCell>
-                                            )
-                                        )}
-                                        {visibleColumns.includes("device_id") && (
-                                            <TableCell className="text-left">{call.device_id}</TableCell>
-                                        )}
-                                        {/* {visibleColumns.includes("direction") && (
-                                            <TableCell className="text-left">{directionMap[call.direction] || call.direction}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("status") && (
-                                            <TableCell className="text-left">{statusConnectMap[call.status] || call.status}</TableCell>
-                                        )} */}
-                                        {visibleColumns.includes("recording_ids") && (
-                                            <TableCell className="flex gap-1 flex-wrap items-center">
-                                                {/* Show only the first recording inline with Popover */}
-                                                {Array.isArray(call.recording_ids) &&
-                                                    call.recording_ids.length > 0 &&
-                                                    call.recording_ids.slice(0, 1).map((item) => (
-                                                        <Popover key={item}>
-                                                            <PopoverTrigger asChild>
-                                                                <Button
-                                                                    onClick={() => fetchRecording(item)}
-                                                                    className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
-                                                                >
-                                                                    <CirclePlay className="w-4 h-4 text-black" />
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-60 mx-10">
-                                                                <div className="text-sm font-medium mb-2">Recording Info</div>
-                                                                {loadingMap[item] ? (
-                                                                    <p className="text-xs text-gray-500">Loading...</p>
-                                                                ) : recordingMap[item] ? (
-                                                                    <>
-                                                                        <audio controls className="w-full mt-2 h-8">
-                                                                            <source src={recordingMap[item]} type="audio/mpeg" />
-                                                                            Your browser does not support the audio element.
-                                                                        </audio>
-                                                                        <a
-                                                                            href={recordingMap[item]}
-                                                                            download={`recording-${item}.mp3`}
-                                                                            className="text-xs gap-2 text-gray-800 hover:underline mt-2 flex items-center"
-                                                                        >
-                                                                            Download Recording
-                                                                            <Download className="w-3 h-3" />
-                                                                        </a>
-                                                                    </>
-                                                                ) : (
-                                                                    <p className="text-xs text-gray-500">No recording found.</p>
-                                                                )}
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                    ))}
-
-                                                {/* Dialog Trigger */}
-                                                {Array.isArray(call.recording_ids) && call.recording_ids.length > 1 && (
-                                                    <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                                                        <DialogTrigger asChild>
-                                                            <span
-                                                                onClick={() => setShowDialog(true)}
-                                                                className="text-xs flex items-center text-gray-600 cursor-pointer hover:underline"
-                                                            >
-                                                                +{call.recording_ids.length - 1} more
-                                                            </span>
-                                                        </DialogTrigger>
-
-                                                        <DialogContent className="max-w-md">
-                                                            <DialogHeader className="text-base font-semibold mb-2">
-                                                                All Recordings
-                                                            </DialogHeader>
-
-                                                            <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
-                                                                {call.recording_ids.map((item) => (
-                                                                    <div key={item} className="flex flex-col gap-1 border-b pb-2">
-                                                                        <Button
-                                                                            onClick={() => fetchRecording(item)}
-                                                                            className="bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
-                                                                        >
-                                                                            <CirclePlay className="w-4 h-4 text-black" />
-                                                                        </Button>
-
-                                                                        {loadingMap[item] ? (
-                                                                            <p className="text-xs text-gray-500">Loading...</p>
-                                                                        ) : recordingMap[item] ? (
-                                                                            <>
-                                                                                <audio controls className="w-full h-8">
-                                                                                    <source src={recordingMap[item]} type="audio/mpeg" />
-                                                                                    Your browser does not support the audio element.
-                                                                                </audio>
-                                                                                <a
-                                                                                    href={recordingMap[item]}
-                                                                                    download={`recording-${item}.mp3`}
-                                                                                    className="text-xs text-gray-800 hover:underline flex items-center gap-1"
-                                                                                >
-                                                                                    Download Recording
-                                                                                    <Download className="w-3 h-3" />
-                                                                                </a>
-                                                                            </>
-                                                                        ) : (
-                                                                            <p className="text-xs text-gray-500">No recording found.</p>
-                                                                        )}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </DialogContent>
-                                                    </Dialog>
-                                                )}
-                                            </TableCell>
-
-                                        )}
-                                    </TableRow>
-                                ))
-                            )
-                            }
-                        </TableBody>
                     </Table>
+                    <ScrollArea className="h-[370px]">
+                        <Table className="w-full table-fixed border-collapse">
+                            <TableBody className="text-xs">
+                                {currentPageData.length !== 0 && (
+                                    currentPageData.map((call, index) => (
+                                        <TableRow key={call.id}>
+                                            <TableCell className="text-left">{index + 1}</TableCell>
+                                            {visibleColumns.includes("other_number") && (
+                                                <TableCell className="text-left">{call.other_number}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("other_name") && (
+                                                <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("call_type") && (
+                                                <TableCell className="text-left">{call.call_type}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("type") && (
+                                                <TableCell className="text-left">{typeMap[call.type] || call.type}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("start_time") && (
+                                                <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("duration") && (
+                                                <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("user_id") && (
+                                                <TableCell className="text-left">{call.user_id}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("agent_number") && (
+                                                call.agent_number !== "" ? (
+                                                    <TableCell className="text-left">{call.agent_number}</TableCell>
+                                                ) : (
+                                                    <TableCell className="text-left">{'-'}</TableCell>
+                                                )
+                                            )}
+                                            {visibleColumns.includes("device_id") && (
+                                                <TableCell className="text-left">{call.device_id}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("recording_ids") && (
+                                                <TableCell className="flex gap-1 flex-wrap items-center">
+                                                    {/* Show only the first recording inline with Popover */}
+                                                    {Array.isArray(call.recording_ids) &&
+                                                        call.recording_ids.length > 0 &&
+                                                        call.recording_ids.slice(0, 1).map((item) => (
+                                                            <Popover key={item}>
+                                                                <PopoverTrigger asChild>
+                                                                    <Button
+                                                                        onClick={() => fetchRecording(item)}
+                                                                        className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                                    >
+                                                                        <CirclePlay className="w-4 h-4 text-black" />
+                                                                    </Button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-60 mx-10">
+                                                                    <div className="text-sm font-medium mb-2">Recording Info</div>
+                                                                    {loadingMap[item] ? (
+                                                                        <p className="text-xs text-gray-500">Loading...</p>
+                                                                    ) : recordingMap[item] ? (
+                                                                        <>
+                                                                            <audio controls className="w-full mt-2 h-8">
+                                                                                <source src={recordingMap[item]} type="audio/mpeg" />
+                                                                                Your browser does not support the audio element.
+                                                                            </audio>
+                                                                            <a
+                                                                                href={recordingMap[item]}
+                                                                                download={`recording-${item}.mp3`}
+                                                                                className="text-xs gap-2 text-gray-800 hover:underline mt-2 flex items-center"
+                                                                            >
+                                                                                Download Recording
+                                                                                <Download className="w-3 h-3" />
+                                                                            </a>
+                                                                        </>
+                                                                    ) : (
+                                                                        <p className="text-xs text-gray-500">No recording found.</p>
+                                                                    )}
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        ))}
+
+                                                    {/* Dialog Trigger */}
+                                                    {Array.isArray(call.recording_ids) && call.recording_ids.length > 1 && (
+                                                        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                                                            <DialogTrigger asChild>
+                                                                <span
+                                                                    onClick={() => setShowDialog(true)}
+                                                                    className="text-xs flex items-center text-gray-600 cursor-pointer hover:underline"
+                                                                >
+                                                                    +{call.recording_ids.length - 1} more
+                                                                </span>
+                                                            </DialogTrigger>
+
+                                                            <DialogContent className="max-w-md">
+                                                                <DialogHeader className="text-base font-semibold mb-2">
+                                                                    All Recordings
+                                                                </DialogHeader>
+
+                                                                <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
+                                                                    {call.recording_ids.map((item) => (
+                                                                        <div key={item} className="flex flex-col gap-1 border-b pb-2">
+                                                                            <Button
+                                                                                onClick={() => fetchRecording(item)}
+                                                                                className="bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                                            >
+                                                                                <CirclePlay className="w-4 h-4 text-black" />
+                                                                            </Button>
+
+                                                                            {loadingMap[item] ? (
+                                                                                <p className="text-xs text-gray-500">Loading...</p>
+                                                                            ) : recordingMap[item] ? (
+                                                                                <>
+                                                                                    <audio controls className="w-full h-8">
+                                                                                        <source src={recordingMap[item]} type="audio/mpeg" />
+                                                                                        Your browser does not support the audio element.
+                                                                                    </audio>
+                                                                                    <a
+                                                                                        href={recordingMap[item]}
+                                                                                        download={`recording-${item}.mp3`}
+                                                                                        className="text-xs text-gray-800 hover:underline flex items-center gap-1"
+                                                                                    >
+                                                                                        Download Recording
+                                                                                        <Download className="w-3 h-3" />
+                                                                                    </a>
+                                                                                </>
+                                                                            ) : (
+                                                                                <p className="text-xs text-gray-500">No recording found.</p>
+                                                                            )}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                    )}
+                                                </TableCell>
+
+                                            )}
+                                        </TableRow>
+                                    ))
+                                )
+                                }
+                            </TableBody>
+                        </Table>
+                    </ScrollArea>
                 </div>
+
                 {currentPageData.length === 0 && (
                     <div className="flex flex-col items-center py-48">
                         <FolderOpen className="text-gray-500 w-10 h-10" />
@@ -1178,7 +1111,7 @@ export default function CallDetailPage() {
                     <AetherLoader />
                 )
             }
-        </div >
+        </div>
     )
 
 }

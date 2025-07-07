@@ -82,11 +82,9 @@ export function useCallLogs() {
       const callTypesSet = new Set<string>();
 
       enrichedCalls.forEach((item) => {
-        if (item.other_name!=="null") otNameSet.add(item.other_name);
+        if (item.other_name) otNameSet.add(item.other_name.trim() || "-");
         if (item.other_number) otNumberSet.add(item.other_number);
-        if (item.agent_number !== "null" && item.agent_number !== "") {
-          agNumberSet.add(item.agent_number);
-        }
+        if (item.agent_number) agNumberSet.add(item.agent_number?.trim() || "-");
         if (item.direction) directionSet.add(item.direction);
         if (item.status) callstatusSet.add(item.status);
         if (item.type) typecallSet.add(item.type)
