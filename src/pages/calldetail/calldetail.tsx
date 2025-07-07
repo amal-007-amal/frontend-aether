@@ -26,7 +26,7 @@ import { useRecording } from "../../hooks/useRecording";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../components/ui/dialog";
-import { directionMap, statusConnectMap, typeMap } from "../../types/callnamemap";
+import { typeMap } from "../../types/callnamemap";
 
 export default function CallDetailPage() {
     const filterRefs = {
@@ -467,7 +467,7 @@ export default function CallDetailPage() {
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <p className="text-sm font-semibold mb-1">Columns</p>
-                                    <div className="grid grid-cols-2 gap-x-6">
+                                    <div className="grid grid-cols-1 gap-x-6">
                                         {allColumns.map((col) => (
                                             <div key={col.key} className="flex items-center gap-2 text-sm">
                                                 <Checkbox
@@ -499,56 +499,60 @@ export default function CallDetailPage() {
                         <TableHeader>
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold">Sl No.</TableHead>
-                                {visibleColumns.includes("user_id") && (
-                                    <TableHead className="text-xs font-semibold">
-                                        <div className="flex items-center  gap-1 relative">
-                                            <span>Agent name</span>
-                                            <Funnel
-                                                ref={filterRefs.funnelRef}
-                                                onClick={() => setOpenFilter(prev => ({
-                                                    ...prev, usernameOpen: true
-                                                }))}
-                                                className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                            />
-                                            <Portal>
-                                                <div className="relative">
-                                                    <AetherNameMultiSelect
-                                                        data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                                        selected={selectedTempUserIDs}
-                                                        onChange={setSelectedTempUserIDs}
-                                                        open={openFilter.usernameOpen}
-                                                        setOpen={(open) => { setOpenFilter(prev => ({ ...prev, usernameOpen: open })) }}
-                                                        referenceRef={filterRefs.funnelRef}
-                                                    />
-                                                </div>
-                                            </Portal>
-                                        </div>
+                                {visibleColumns.includes("other_number") && (
+                                    <TableHead
+                                        className="text-xs font-semibold flex items-center  relative shadow-none"
+                                    >
+                                        Caller ID
+                                        <Funnel
+                                            ref={filterRefs.otherNumberRef}
+                                            onClick={() => setOpenFilter(prev => ({
+                                                ...prev, otherNumberOpen: true
+                                            }))}
+                                            className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                        />
+                                        <Portal>
+                                            <div className="relative">
+                                                <AetherNameMultiSelect
+                                                    data={selectedFilters.otherNumber.map((name) => ({ label: name, value: name }))}
+                                                    selected={tableFiller.otherNumber}
+                                                    onChange={(selected) =>
+                                                        setTableFiller((prev) => ({ ...prev, otherNumber: selected }))
+                                                    }
+                                                    open={openFilter.otherNumberOpen}
+                                                    setOpen={(val) =>
+                                                        setOpenFilter((prev) => ({ ...prev, otherNumberOpen: val }))
+                                                    }
+                                                    referenceRef={filterRefs.otherNumberRef}
+                                                />
+                                            </div>
+                                        </Portal>
                                     </TableHead>
                                 )}
-                                {visibleColumns.includes("agent_number") && (
+                                {visibleColumns.includes("other_name") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center  gap-1">
-                                            Agent number
+                                            Caller Name
                                             <Funnel
-                                                ref={filterRefs.agentNumberRef}
+                                                ref={filterRefs.otherNameRef}
                                                 onClick={() => setOpenFilter(prev => ({
-                                                    ...prev, agentNumberOpen: true
+                                                    ...prev, otherNameOpen: true
                                                 }))}
-                                                className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                                className={`h-3 w-4 ${tableFiller.otherName.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                             />
                                             <Portal>
-                                                <div className="relative">
+                                                <div>
                                                     <AetherNameMultiSelect
-                                                        data={selectedFilters.agentNumber.map((name) => ({ label: name, value: name }))}
-                                                        selected={tableFiller.agentNumber}
+                                                        data={selectedFilters.otherName.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.otherName}
                                                         onChange={(selected) =>
-                                                            setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
+                                                            setTableFiller((prev) => ({ ...prev, otherName: selected }))
                                                         }
-                                                        open={openFilter.agentNumberOpen}
+                                                        open={openFilter.otherNameOpen}
                                                         setOpen={(val) =>
-                                                            setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
+                                                            setOpenFilter((prev) => ({ ...prev, otherNameOpen: val }))
                                                         }
-                                                        referenceRef={filterRefs.agentNumberRef}
+                                                        referenceRef={filterRefs.otherNameRef}
                                                     />
                                                 </div>
                                             </Portal>
@@ -587,12 +591,6 @@ export default function CallDetailPage() {
                                         </div>
                                     </TableHead>
                                 )}
-                                {visibleColumns.includes("device_id") && (
-                                    <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
-                                    > Device ID
-                                    </TableHead>
-                                )}
                                 {visibleColumns.includes("type") && (
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
@@ -625,7 +623,7 @@ export default function CallDetailPage() {
                                         </div>
                                     </TableHead>
                                 )}
-                                {visibleColumns.includes("direction") && (
+                                {/* {visibleColumns.includes("direction") && (
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
                                     >
@@ -690,7 +688,7 @@ export default function CallDetailPage() {
                                             </Portal>
                                         </div>
                                     </TableHead>
-                                )}
+                                )} */}
                                 {visibleColumns.includes("start_time") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
                                         <span className="flex items-center ">
@@ -881,68 +879,69 @@ export default function CallDetailPage() {
                                         </span>
                                     </TableHead>
                                 )}
-                                {visibleColumns.includes("other_number") && (
-                                    <TableHead
-                                        className="text-xs font-semibold flex items-center  relative shadow-none"
-                                    >
-                                        Caller ID
-                                        <Funnel
-                                            ref={filterRefs.otherNumberRef}
-                                            onClick={() => setOpenFilter(prev => ({
-                                                ...prev, otherNumberOpen: true
-                                            }))}
-                                            className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
-                                        />
-                                        <Portal>
-                                            <div className="relative">
-                                                <AetherNameMultiSelect
-                                                    data={selectedFilters.otherNumber.map((name) => ({ label: name, value: name }))}
-                                                    selected={tableFiller.otherNumber}
-                                                    onChange={(selected) =>
-                                                        setTableFiller((prev) => ({ ...prev, otherNumber: selected }))
-                                                    }
-                                                    open={openFilter.otherNumberOpen}
-                                                    setOpen={(val) =>
-                                                        setOpenFilter((prev) => ({ ...prev, otherNumberOpen: val }))
-                                                    }
-                                                    referenceRef={filterRefs.otherNumberRef}
-                                                />
-                                            </div>
-                                        </Portal>
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("other_name") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
-                                        <span className="flex items-center  gap-1">
-                                            Caller Name
+                                {visibleColumns.includes("user_id") && (
+                                    <TableHead className="text-xs font-semibold">
+                                        <div className="flex items-center  gap-1 relative">
+                                            <span>Agent name</span>
                                             <Funnel
-                                                ref={filterRefs.otherNameRef}
+                                                ref={filterRefs.funnelRef}
                                                 onClick={() => setOpenFilter(prev => ({
-                                                    ...prev, otherNameOpen: true
+                                                    ...prev, usernameOpen: true
                                                 }))}
-                                                className={`h-3 w-4 ${tableFiller.otherName.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                                className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                             />
                                             <Portal>
-                                                <div>
+                                                <div className="relative">
                                                     <AetherNameMultiSelect
-                                                        data={selectedFilters.otherName.map((name) => ({ label: name, value: name }))}
-                                                        selected={tableFiller.otherName}
+                                                        data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                                        selected={selectedTempUserIDs}
+                                                        onChange={setSelectedTempUserIDs}
+                                                        open={openFilter.usernameOpen}
+                                                        setOpen={(open) => { setOpenFilter(prev => ({ ...prev, usernameOpen: open })) }}
+                                                        referenceRef={filterRefs.funnelRef}
+                                                    />
+                                                </div>
+                                            </Portal>
+                                        </div>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("agent_number") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        <span className="flex items-center  gap-1">
+                                            Agent number
+                                            <Funnel
+                                                ref={filterRefs.agentNumberRef}
+                                                onClick={() => setOpenFilter(prev => ({
+                                                    ...prev, agentNumberOpen: true
+                                                }))}
+                                                className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            />
+                                            <Portal>
+                                                <div className="relative">
+                                                    <AetherNameMultiSelect
+                                                        data={selectedFilters.agentNumber.map((name) => ({ label: name, value: name }))}
+                                                        selected={tableFiller.agentNumber}
                                                         onChange={(selected) =>
-                                                            setTableFiller((prev) => ({ ...prev, otherName: selected }))
+                                                            setTableFiller((prev) => ({ ...prev, agentNumber: selected }))
                                                         }
-                                                        open={openFilter.otherNameOpen}
+                                                        open={openFilter.agentNumberOpen}
                                                         setOpen={(val) =>
-                                                            setOpenFilter((prev) => ({ ...prev, otherNameOpen: val }))
+                                                            setOpenFilter((prev) => ({ ...prev, agentNumberOpen: val }))
                                                         }
-                                                        referenceRef={filterRefs.otherNameRef}
+                                                        referenceRef={filterRefs.agentNumberRef}
                                                     />
                                                 </div>
                                             </Portal>
                                         </span>
                                     </TableHead>
                                 )}
-
-                                {visibleColumns.includes("agent_number") && (
+                                {visibleColumns.includes("device_id") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    > Device ID
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("recording_ids") && (
                                     <TableHead className="text-xs font-semibold cursor-pointer">
                                         Recordings
                                     </TableHead>
@@ -954,6 +953,25 @@ export default function CallDetailPage() {
                                 currentPageData.map((call, index) => (
                                     <TableRow key={call.id}>
                                         <TableCell className="text-left">{index + 1}</TableCell>
+                                        {visibleColumns.includes("other_number") && (
+                                            <TableCell className="text-left">{call.other_number}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("other_name") && (
+                                            <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("call_type") && (
+                                            <TableCell className="text-left">{call.call_type}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("type") && (
+                                            <TableCell className="text-left">{typeMap[call.type] || call.type}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("start_time") && (
+                                            <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
+                                        )}
+                                        {visibleColumns.includes("duration") && (
+                                            <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
+                                        )}
+
                                         {visibleColumns.includes("user_id") && (
                                             <TableCell className="text-left">{call.user_id}</TableCell>
                                         )}
@@ -964,34 +982,15 @@ export default function CallDetailPage() {
                                                 <TableCell className="text-left">{'-'}</TableCell>
                                             )
                                         )}
-                                        {visibleColumns.includes("call_type") && (
-                                            <TableCell className="text-left">{call.call_type}</TableCell>
-                                        )}
                                         {visibleColumns.includes("device_id") && (
                                             <TableCell className="text-left">{call.device_id}</TableCell>
                                         )}
-                                        {visibleColumns.includes("type") && (
-                                            <TableCell className="text-left">{typeMap[call.type] || call.type}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("direction") && (
+                                        {/* {visibleColumns.includes("direction") && (
                                             <TableCell className="text-left">{directionMap[call.direction] || call.direction}</TableCell>
                                         )}
                                         {visibleColumns.includes("status") && (
                                             <TableCell className="text-left">{statusConnectMap[call.status] || call.status}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("start_time") && (
-                                            <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("duration") && (
-                                            <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("other_number") && (
-                                            <TableCell className="text-left">{call.other_number}</TableCell>
-                                        )}
-                                        {visibleColumns.includes("other_name") && (
-                                            <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
-                                        )}
-
+                                        )} */}
                                         {visibleColumns.includes("recording_ids") && (
                                             <TableCell className="flex gap-1 flex-wrap items-center">
                                                 {/* Show only the first recording inline with Popover */}

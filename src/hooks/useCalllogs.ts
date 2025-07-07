@@ -15,7 +15,7 @@ export function useCallLogs() {
     direction: [],
     callstatus: [],
     typecall: [],
-    callTypes:[]
+    callTypes: []
   });
 
   const [timeFilters, setTimeFilters] = useState<{
@@ -82,9 +82,11 @@ export function useCallLogs() {
       const callTypesSet = new Set<string>();
 
       enrichedCalls.forEach((item) => {
-        if (item.other_name) otNameSet.add(item.other_name);
+        if (item.other_name!=="null") otNameSet.add(item.other_name);
         if (item.other_number) otNumberSet.add(item.other_number);
-        if (item.agent_number) agNumberSet.add(item.agent_number);
+        if (item.agent_number !== "null" && item.agent_number !== "") {
+          agNumberSet.add(item.agent_number);
+        }
         if (item.direction) directionSet.add(item.direction);
         if (item.status) callstatusSet.add(item.status);
         if (item.type) typecallSet.add(item.type)
@@ -98,7 +100,7 @@ export function useCallLogs() {
         direction: [...directionSet].sort((a, b) => a.localeCompare(b)),
         callstatus: [...callstatusSet].sort((a, b) => a.localeCompare(b)),
         typecall: [...typecallSet].sort((a, b) => a.localeCompare(b)),
-        callTypes:[...callTypesSet].sort((a,b)=>a.localeCompare(b))
+        callTypes: [...callTypesSet].sort((a, b) => a.localeCompare(b))
       });
 
     } catch (error) {
