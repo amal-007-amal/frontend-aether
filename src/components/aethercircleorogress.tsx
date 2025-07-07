@@ -4,14 +4,12 @@ interface CircleProgressProps {
     value: number;
     max: number;
     label: string;
-    color?: string; // HEX or Tailwind color (e.g., #ef4444 or "text-red-500")
 }
 
 export const CircleProgress: React.FC<CircleProgressProps> = ({
     value,
     max,
     label,
-    color = "#3b82f6", // Default blue
 }) => {
     const radius = 40;
     const stroke = 8;
