@@ -2,7 +2,7 @@ import { FunnelPlus, RefreshCcw } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
 import { AetherDateRangePicker } from "../../components/aetherdaterangepicker"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import type { DateRange } from "react-day-picker"
 import { ScrollArea } from "../../components/ui/scroll-area"
 import { useLeaderBoard } from "../../hooks/useLeaderBoard"
@@ -16,12 +16,7 @@ export const AetherDashboard = () => {
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
-    const useFilters = useMemo(() => ({
-        time_filter: "today",
-        start_date: "2025-07-07T17:47:34.820Z",
-        end_date: "2025-07-07T17:47:34.820Z",
-        user_ids: []
-    }), []);
+
     const [timesave, setTimeSave] = useState<{
         filterMinStart: string | null;
         filterMaxStart: string | null;
@@ -32,7 +27,7 @@ export const AetherDashboard = () => {
         userIDs: []
     });
 
-    const { users, isLoading, fetchUsers } = useUsers();
+    const { users } = useUsers();
     const { lead, activity, fetchLeaderBoard } = useLeaderBoard();
 
     const handleDateFilterChange = (value: "today" | "week" | "custom") => {
