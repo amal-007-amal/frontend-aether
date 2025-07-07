@@ -1,26 +1,74 @@
-import { Funnel, RefreshCcw } from "lucide-react"
+import { FunnelPlus, RefreshCcw } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
 import { AetherDateRangePicker } from "../../components/aetherdaterangepicker"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { DateRange } from "react-day-picker"
 import { ScrollArea } from "../../components/ui/scroll-area"
 import { useLeaderBoard } from "../../hooks/useLeaderBoard"
+import { AetherMultiSelect } from "../../components/aethermultiselect"
+import { useUsers } from "../../hooks/useUsers"
+import { Button } from "../../components/ui/button"
+import { CircleProgress } from "../../components/aethercircleorogress"
+import { startOfToday, startOfWeek } from "date-fns"
 
 export const AetherDashboard = () => {
     const [selfilter, setSelFilter] = useState<string>("");
     const [range, setRange] = useState<DateRange | undefined>();
+    const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
+    const useFilters = useMemo(() => ({
+        time_filter: "today",
+        start_date: "2025-07-07T17:47:34.820Z",
+        end_date: "2025-07-07T17:47:34.820Z",
+        user_ids: []
+    }), []);
+    const [timesave, setTimeSave] = useState<{
+        filterMinStart: string | null;
+        filterMaxStart: string | null;
+        userIDs?: string[];
+    }>({
+        filterMinStart: startOfToday().toISOString(),
+        filterMaxStart: null,
+        userIDs: []
+    });
+
+    const { users, isLoading, fetchUsers } = useUsers();
+    const { lead, activity } = useLeaderBoard(useFilters);
+
     const handleDateFilterChange = (value: "today" | "week" | "custom") => {
         setSelFilter(value);
-    }
-    const useFilters = {
-        "time_filter": "today",
-        "start_date": "2025-07-07T17:47:34.820Z",
-        "end_date": "2025-07-07T17:47:34.820Z",
-        "user_ids": []
-    }
+        if (value === "today") {
+            const from = startOfToday().toISOString();
+            setTimeSave((prev) => ({
+                ...prev,
+                filterMinStart: from,
+                filterMaxStart: null
+            }));
+        }
+        else if (value === "week") {
+            const from = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
+            setTimeSave((prev) => ({
+                ...prev,
+                filterMinStart: from,
+                filterMaxStart: null
+            }));
+        }
+    };
 
-    const { data } = useLeaderBoard(useFilters);
+    useEffect(() => {
+        if (selfilter === "custom" && range?.from && range?.to) {
+            const startOfDay = new Date(range.from);
+            startOfDay.setHours(0, 0, 0, 0);
+
+            const endOfDay = new Date(range.to);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            setTimeSave({
+                filterMinStart: startOfDay.toISOString(),
+                filterMaxStart: endOfDay.toISOString()
+            });
+        }
+    }, [range, selfilter]);
 
     return (
         <div>
@@ -31,7 +79,7 @@ export const AetherDashboard = () => {
                         <RefreshCcw className={`h-4 w-4 cursor-pointer`} />
                         <DropdownMenu>
                             <DropdownMenuTrigger>
-                                <Funnel className="h-4 w-4 text-black" />
+                                <FunnelPlus className="h-4 w-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()} >
@@ -49,19 +97,45 @@ export const AetherDashboard = () => {
                                         <div className="w-full mt-2"><AetherDateRangePicker date={range} onChange={setRange} /></div>
                                     )}
                                 </div>
+
+                                <div onClick={(e) => e.stopPropagation()}>
+                                    <AetherMultiSelect
+                                        data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                        selected={selectedUserIDs}
+                                        onChange={setSelectedUserIDs}
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-4">
+                                    <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500">Reset</Button>
+                                    <Button className="bg-black text-white text-xs rounded-xl">Apply</Button>
+                                </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 </div>
             </div>
             <div className="grid grid-cols-12 gap-4 my-4">
-                <div className="col-span-12 lg:col-span-8 border border-gray-200 rounded-xl p-4">
+                <div className="col-span-12 lg:col-span-5 border border-gray-200 rounded-xl p-4">
+                    <h2 className="text-sm font-normal text-left">Call Activity</h2>
+                    {activity && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-4">
+                            <CircleProgress value={activity.total_calls} max={100} label="Total Calls" color="#3b82f6" />
+                            <CircleProgress value={activity.incoming_calls} max={100} label="Incoming Calls" color="#22c55e" />
+                            <CircleProgress value={activity.outgoing_calls} max={100} label="Outgoing Calls" color="#8b5cf6" />
+                            <CircleProgress value={activity.missed_calls} max={100} label="Missed Calls" color="#ef4444" />
+                            <CircleProgress value={activity.not_connected_calls} max={100} label="Not Connected" color="#f97316" />
+                            <CircleProgress value={activity.abandoned_numbers} max={100} label="Abandoned Numbers" color="#6b7280" />
+                        </div>
+                    )}
+
+                </div>
+                <div className="col-span-12 lg:col-span-7 border border-gray-200 rounded-xl p-4">
                     <h2 className="text-sm font-normal text-left">Leaderboard</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="rounded-lg p-4 flex flex-col items-start">
+                        <div className="rounded-xl p-4 flex flex-col items-start my-4">
                             <h6 className="text-sm">All calls</h6>
                             <ScrollArea className="max-h-56">
-                                {[...(data?.leaderboard || [])]
+                                {[...(lead || [])]
                                     .sort((a, b) => b.all_calls - a.all_calls)
                                     .map((item, index) => (
                                         <div
@@ -78,10 +152,10 @@ export const AetherDashboard = () => {
 
                             </ScrollArea>
                         </div>
-                        <div className="rounded-lg p-4 flex flex-col items-start">
+                        <div className="rounded-xl p-4 flex flex-col items-start my-4">
                             <h6 className="text-sm">Connected calls</h6>
                             <ScrollArea className="max-h-56">
-                                {[...(data?.leaderboard || [])]
+                                {[...(lead || [])]
                                     .sort((a, b) => b.connected_calls - a.connected_calls)
                                     .map((item, index) => (
                                         <div
@@ -98,10 +172,10 @@ export const AetherDashboard = () => {
 
                             </ScrollArea>
                         </div>
-                        <div className="rounded-lg p-4 flex flex-col items-start">
+                        <div className="rounded-xl p-4 flex flex-col items-start my-4">
                             <h6 className="text-sm">Call Duration</h6>
                             <ScrollArea className="max-h-56">
-                                {[...(data?.leaderboard || [])]
+                                {[...(lead || [])]
                                     .sort((a, b) => b.total_call_duration - a.total_call_duration)
                                     .map((item, index) => (
                                         <div
@@ -119,9 +193,6 @@ export const AetherDashboard = () => {
                             </ScrollArea>
                         </div>
                     </div>
-                </div>
-                <div className="col-span-12 lg:col-span-4 border border-gray-200 rounded-xl p-4">
-
                 </div>
             </div>
 
