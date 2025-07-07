@@ -12,7 +12,7 @@ export interface CallLogDetails {
   other_name: string,
   agent_number: string,
   created_at: string
-  recording_ids: string[] | null
+  recording_ids: string[]
 }
 
 export interface FilterState {

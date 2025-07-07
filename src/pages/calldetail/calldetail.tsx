@@ -25,6 +25,7 @@ import { cn } from "../../lib/utils";
 import { useRecording } from "../../hooks/useRecording";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../components/ui/dialog";
 
 
 export default function CallDetailPage() {
@@ -48,6 +49,7 @@ export default function CallDetailPage() {
         durationRangeOpen: false,
         typeCallOpen: false
     });
+    const [showDialog, setShowDialog] = useState(false);
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
     const [fromHour, setFromHour] = useState<number>(0);
     const [fromMinute, setFromMinute] = useState<number>(0);
@@ -976,47 +978,101 @@ export default function CallDetailPage() {
                                         )}
 
                                         {visibleColumns.includes("recording_ids") && (
-                                            <TableCell>
-                                                {call.recording_ids?.map((item, index) => (
-                                                    <Popover key={index}>
-                                                        <PopoverTrigger asChild>
-                                                            <Button
-                                                                onClick={() => fetchRecording(item)}
-                                                                className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                            <TableCell className="flex gap-1 flex-wrap items-center">
+                                                {/* Show only the first recording inline with Popover */}
+                                                {Array.isArray(call.recording_ids) &&
+                                                    call.recording_ids.length > 0 &&
+                                                    call.recording_ids.slice(0, 1).map((item) => (
+                                                        <Popover key={item}>
+                                                            <PopoverTrigger asChild>
+                                                                <Button
+                                                                    onClick={() => fetchRecording(item)}
+                                                                    className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                                >
+                                                                    <CirclePlay className="w-4 h-4 text-black" />
+                                                                </Button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-60 mx-10">
+                                                                <div className="text-sm font-medium mb-2">Recording Info</div>
+                                                                {loadingMap[item] ? (
+                                                                    <p className="text-xs text-gray-500">Loading...</p>
+                                                                ) : recordingMap[item] ? (
+                                                                    <>
+                                                                        <audio controls className="w-full mt-2 h-8">
+                                                                            <source src={recordingMap[item]} type="audio/mpeg" />
+                                                                            Your browser does not support the audio element.
+                                                                        </audio>
+                                                                        <a
+                                                                            href={recordingMap[item]}
+                                                                            download={`recording-${item}.mp3`}
+                                                                            className="text-xs gap-2 text-gray-800 hover:underline mt-2 flex items-center"
+                                                                        >
+                                                                            Download Recording
+                                                                            <Download className="w-3 h-3" />
+                                                                        </a>
+                                                                    </>
+                                                                ) : (
+                                                                    <p className="text-xs text-gray-500">No recording found.</p>
+                                                                )}
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    ))}
+
+                                                {/* Dialog Trigger */}
+                                                {Array.isArray(call.recording_ids) && call.recording_ids.length > 1 && (
+                                                    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                                                        <DialogTrigger asChild>
+                                                            <span
+                                                                onClick={() => setShowDialog(true)}
+                                                                className="text-xs flex items-center text-gray-600 cursor-pointer hover:underline"
                                                             >
-                                                                <CirclePlay className="w-4 h-4 text-black" />
-                                                            </Button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-60 mx-10">
-                                                            <div className="text-sm font-medium mb-2">Recording Info</div>
+                                                                +{call.recording_ids.length - 1} more
+                                                            </span>
+                                                        </DialogTrigger>
 
-                                                            {loadingMap[item] ? (
-                                                                <p className="text-xs text-gray-500">Loading...</p>
-                                                            ) : recordingMap[item] ? (
-                                                                <>
-                                                                    <audio controls className="w-full mt-2 h-8">
-                                                                        <source src={recordingMap[item]} type="audio/mpeg" />
-                                                                        Your browser does not support the audio element.
-                                                                    </audio>
+                                                        <DialogContent className="max-w-md">
+                                                            <DialogHeader className="text-base font-semibold mb-2">
+                                                                All Recordings
+                                                            </DialogHeader>
 
-                                                                    <a
-                                                                        href={recordingMap[item]}
-                                                                        download={`recording-${item}.mp3`}
-                                                                        className="text-xs gap-2 text-gray-800 hover:underline mt-2 flex items-center"
-                                                                    >
-                                                                        Download Recording
-                                                                        <Download className="w-3 h-3" />
-                                                                    </a>
-                                                                </>
-                                                            ) : (
-                                                                <p className="text-xs text-gray-500">No recording found.</p>
-                                                            )}
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                ))}
+                                                            <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
+                                                                {call.recording_ids.map((item) => (
+                                                                    <div key={item} className="flex flex-col gap-1 border-b pb-2">
+                                                                        <Button
+                                                                            onClick={() => fetchRecording(item)}
+                                                                            className="bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                                        >
+                                                                            <CirclePlay className="w-4 h-4 text-black" />
+                                                                        </Button>
 
-
+                                                                        {loadingMap[item] ? (
+                                                                            <p className="text-xs text-gray-500">Loading...</p>
+                                                                        ) : recordingMap[item] ? (
+                                                                            <>
+                                                                                <audio controls className="w-full h-8">
+                                                                                    <source src={recordingMap[item]} type="audio/mpeg" />
+                                                                                    Your browser does not support the audio element.
+                                                                                </audio>
+                                                                                <a
+                                                                                    href={recordingMap[item]}
+                                                                                    download={`recording-${item}.mp3`}
+                                                                                    className="text-xs text-gray-800 hover:underline flex items-center gap-1"
+                                                                                >
+                                                                                    Download Recording
+                                                                                    <Download className="w-3 h-3" />
+                                                                                </a>
+                                                                            </>
+                                                                        ) : (
+                                                                            <p className="text-xs text-gray-500">No recording found.</p>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                )}
                                             </TableCell>
+
                                         )}
                                     </TableRow>
                                 ))
