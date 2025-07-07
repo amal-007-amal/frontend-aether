@@ -20,7 +20,7 @@ export const AetherDashboard = () => {
         "user_ids": []
     }
 
-    const { data, loading, error, fetchLeaderBoard } = useLeaderBoard(useFilters);
+    const { data } = useLeaderBoard(useFilters);
 
     return (
         <div>
