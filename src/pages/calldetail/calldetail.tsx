@@ -886,7 +886,7 @@ export default function CallDetailPage() {
                         </TableHeader>
                     </Table>
                                                     {currentPageData.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-48">
+                    <div className="flex flex-col items-center justify-center pt-48">
                         <FolderOpen className="text-gray-500 w-10 h-10" />
                         <p className="text-center text-xs text-gray-500 py-2">No data available</p>
                     </div>
