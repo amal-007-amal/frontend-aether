@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Popover,
   PopoverTrigger,
@@ -57,11 +57,20 @@ export function AetherMultiSelect({
     .map((item) => item.label)
     .join(", ");
 
+  const selectedCount = selected.length;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-[300px] justify-between text-gray-500 font-normal text-xs shadow-none">
-          {selectedLabels || placeholder}
+        <Button
+          variant="outline"
+          className="w-[300px] justify-between text-gray-500 font-normal text-xs shadow-none"
+        >
+          {selectedCount === data.length
+            ? "All Users Selected"
+            : selectedCount > 1
+              ? `${selectedCount} selected`
+              : selectedLabels || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -73,9 +82,14 @@ export function AetherMultiSelect({
             <button onClick={handleSelectAll} className="text-black hover:underline">
               Select All
             </button>
-            <button onClick={handleDeselectAll} className="text-red-600 hover:underline">
-              Clear All
-            </button>
+            <div className="flex gap-2">
+              <button onClick={handleDeselectAll} className="text-red-600 hover:underline">
+                Clear All
+              </button>
+              <button onClick={()=>{setOpen(prev=>!prev)}} className="text-blue-600 hover:underline">
+                Apply
+              </button>
+            </div>
           </div>
           <CommandList>
             {data.map((item) => (

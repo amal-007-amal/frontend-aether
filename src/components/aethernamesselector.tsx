@@ -131,18 +131,20 @@ export function AetherNameMultiSelect({
                                     {tempSelected.length === data.length ? "Deselect All" : "Select All"}
                                 </button>
                             </div>
-                            <button
-                                onClick={handleCancel}
-                                className="text-gray-600 hover:underline font-normal"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleApply}
-                                className="text-blue-600 hover:underline font-normal"
-                            >
-                                Apply
-                            </button>
+                            <div className="flex gap-2 ">
+                                <button
+                                    onClick={handleCancel}
+                                    className="text-gray-600 hover:underline font-normal"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleApply}
+                                    className="text-blue-600 hover:underline font-normal"
+                                >
+                                    Apply
+                                </button>
+                            </div>
                         </div>
 
                         <CommandList>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CirclePlay, Download, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CirclePlay, Columns3, Download, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { filters, type FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -49,7 +49,7 @@ export default function CallDetailPage() {
         timeFillOpen: false,
         durationRangeOpen: false,
         typeCallOpen: false,
-        callTypeOpen:false
+        callTypeOpen: false
     });
     const [showDialog, setShowDialog] = useState(false);
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
@@ -66,7 +66,7 @@ export default function CallDetailPage() {
         direction: [],
         callstatus: [],
         typecall: [],
-        callTypes:[]
+        callTypes: []
     });
     const [timesave, setTimeSave] = useState<{
         filterMinStart: string | null;
@@ -454,6 +454,17 @@ export default function CallDetailPage() {
                                         onChange={setSelectedUserIDs}
                                     />
                                 </div>
+                                <div className="flex justify-end gap-4">
+                                    <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500" onClick={handleResetFilters}>Reset</Button>
+                                    <Button onClick={handleFilterApply} className="bg-black text-white text-xs rounded-xl">Apply</Button>
+                                </div>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Columns3 className="h-4 w-4 text-black" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <p className="text-sm font-semibold mb-1">Columns</p>
                                     <div className="grid grid-cols-2 gap-x-6">
@@ -471,10 +482,6 @@ export default function CallDetailPage() {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="flex justify-end gap-4">
-                                    <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500" onClick={handleResetFilters}>Reset</Button>
-                                    <Button onClick={handleFilterApply} className="bg-black text-white text-xs rounded-xl">Apply</Button>
-                                </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <DropdownMenu>
@@ -488,7 +495,7 @@ export default function CallDetailPage() {
                     </div>
                 </div>
                 <div className="max-h-[410px] overflow-y-auto">
-                    <Table className="cursor-pointer max-h-[400px]">
+                    <Table className="cursor-pointer w-full">
                         <TableHeader>
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold">Sl No.</TableHead>
@@ -552,7 +559,7 @@ export default function CallDetailPage() {
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
                                     >
-                                    <div className="flex items-center  relative">
+                                        <div className="flex items-center  relative">
                                             <span> Call Type</span>
                                             <Funnel
                                                 ref={filterRefs.callTypeRef}
@@ -1090,7 +1097,7 @@ export default function CallDetailPage() {
                     </Table>
                 </div>
                 {currentPageData.length === 0 && (
-                    <div className="flex flex-col items-center mt-10">
+                    <div className="flex flex-col items-center py-48">
                         <FolderOpen className="text-gray-500 w-10 h-10" />
                         <p className="text-center text-xs text-gray-500 py-2">No data available</p>
                     </div>
