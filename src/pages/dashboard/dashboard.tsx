@@ -1,4 +1,4 @@
-import { FunnelPlus, RefreshCcw } from "lucide-react";
+import { Activity, ChartLine, Dice5, FunnelPlus, RefreshCcw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
@@ -12,12 +12,13 @@ import { Button } from "../../components/ui/button";
 import { CircleProgress } from "../../components/aethercircleorogress";
 import { startOfToday, startOfWeek } from "date-fns";
 import AetherHorizontalStackedGroupChart from "../../components/aetherstackedbarchart";
+import { useFormattedDuration } from "../../hooks/useDurationFormat";
 
 export const AetherDashboard = () => {
     const [selfilter, setSelFilter] = useState<"today" | "week" | "custom">("today");
     const [range, setRange] = useState<DateRange | undefined>();
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
-
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [timesave, setTimeSave] = useState<{
         filterMinStart: string | null;
         filterMaxStart: string | null;
@@ -30,7 +31,28 @@ export const AetherDashboard = () => {
 
     const { users } = useUsers();
     const { lead, activity, activeHours, fetchLeaderBoard } = useLeaderBoard();
-    console.log(JSON.stringify(activeHours))
+    useEffect(() => {
+        const savedFilters = localStorage.getItem("aether_leaderboard_filters");
+
+        if (savedFilters) {
+            const parsedFilters = JSON.parse(savedFilters);
+
+            if (parsedFilters.start_date || parsedFilters.end_date) {
+                setTimeSave(prev => ({
+                    ...prev,
+                    filterMinStart: parsedFilters.start_date,
+                    filterMaxStart: parsedFilters.end_date,
+                }));
+            }
+
+            if (parsedFilters.user_ids) {
+                setSelectedUserIDs(parsedFilters.user_ids);
+            }
+
+            fetchLeaderBoard(parsedFilters);
+        }
+    }, []);
+
     useEffect(() => {
         const defaultFilters = {
             time_filter: "custom",
@@ -83,39 +105,49 @@ export const AetherDashboard = () => {
             end_date: timesave.filterMaxStart ?? new Date().toISOString(),
             user_ids: selectedUserIDs,
         };
+        localStorage.setItem("aether_leaderboard_filters", JSON.stringify(filters));
         fetchLeaderBoard(filters);
+        setIsDropdownOpen(false);
     };
 
     const handleRefresh = () => {
-        const defaultFilters = {
-            time_filter: "custom",
-            start_date: startOfToday().toISOString(),
-            end_date: new Date().toISOString(),
-            user_ids: [],
-        };
+        const savedFilters = localStorage.getItem("leaderboard_filters");
 
-        // Reset state
-        setSelFilter("today");
+        let filters;
+        if (savedFilters) {
+            // Try using saved values from localStorage
+            filters = JSON.parse(savedFilters);
+        } else {
+            // Fallback to default today filter
+            filters = {
+                time_filter: "custom",
+                start_date: startOfToday().toISOString(),
+                end_date: new Date().toISOString(),
+                user_ids: [],
+            };
+        }
+
+        // Update filter UI state
+        setSelFilter(savedFilters ? "custom" : "today");
         setRange(undefined);
-        setSelectedUserIDs([]);
+        setSelectedUserIDs(filters.user_ids ?? []);
         setTimeSave({
-            filterMinStart: defaultFilters.start_date,
-            filterMaxStart: null,
-            userIDs: [],
+            filterMinStart: filters.start_date,
+            filterMaxStart: filters.end_date,
+            userIDs: filters.user_ids ?? [],
         });
 
-        // Re-fetch data
-        fetchLeaderBoard(defaultFilters);
+        // Fetch with appropriate filters
+        fetchLeaderBoard(filters);
     };
-
     return (
         <div>
             <div className="p-2 rounded-xl border border-gray-200">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
-                    <h2 className="text-sm font-normal flex items-center">Dashboard</h2>
+                    <h2 className="text-sm font-normal flex items-center gap-2"><ChartLine className="h-5 text-fuchsia-500" /> Dashboard</h2>
                     <div className="flex items-center gap-5">
                         <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer`} />
-                        <DropdownMenu>
+                        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                             <DropdownMenuTrigger>
                                 <FunnelPlus className="h-4 w-4" />
                             </DropdownMenuTrigger>
@@ -145,7 +177,7 @@ export const AetherDashboard = () => {
                                 </div>
                                 <div className="flex justify-end gap-4">
                                     <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500">Reset</Button>
-                                    <Button onClick={handleFilterApply} className="bg-black text-white text-xs rounded-xl">Apply</Button>
+                                    <Button onClick={handleFilterApply} className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300">Apply</Button>
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -154,7 +186,7 @@ export const AetherDashboard = () => {
             </div>
             <div className="grid grid-cols-12 gap-4 my-4">
                 <div className="col-span-12 lg:col-span-5 border border-gray-200 rounded-xl p-4">
-                    <h2 className="text-sm font-normal text-left">Call Activity</h2>
+                    <h2 className="text-sm font-normal text-left flex gap-2 underline"><Activity className="text-fuchsia-500 h-5" /> Call Activity</h2>
                     {activity && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-4">
                             <CircleProgress value={activity.total_calls} max={activity.total_calls} label="Total Calls" />
@@ -168,7 +200,7 @@ export const AetherDashboard = () => {
 
                 </div>
                 <div className="col-span-12 lg:col-span-7 border border-gray-200 rounded-xl p-4">
-                    <h2 className="text-sm font-normal text-left">Leaderboard</h2>
+                    <h2 className="text-sm font-normal text-left flex gap-2 underline"><Dice5 className="text-fuchsia-500 h-5" /> Leaderboard</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div className="rounded-xl p-4 flex flex-col items-start my-4">
                             <h6 className="text-xs text-gray-500">All calls</h6>
@@ -224,7 +256,7 @@ export const AetherDashboard = () => {
                                                 {index + 1}
                                             </div>
                                             <h6 className="text-xs flex-1">{item.user_name}</h6>
-                                            <h6 className="text-xs font-semibold">{item.total_call_duration}</h6>
+                                            <h6 className="text-xs font-semibold">{useFormattedDuration(item.total_call_duration)}</h6>
                                         </div>
                                     ))}
 
