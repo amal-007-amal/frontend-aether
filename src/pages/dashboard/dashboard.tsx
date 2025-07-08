@@ -13,6 +13,7 @@ import { CircleProgress } from "../../components/aethercircleorogress";
 import { startOfToday, startOfWeek } from "date-fns";
 import AetherHorizontalStackedGroupChart from "../../components/aetherstackedbarchart";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
+import AetherLoader from "../../shared/AetherLoader";
 
 export const AetherDashboard = () => {
     const [selfilter, setSelFilter] = useState<"today" | "week" | "custom">("today");
@@ -29,74 +30,83 @@ export const AetherDashboard = () => {
         userIDs: [],
     });
 
-    const { users } = useUsers();
+    const { users, isLoading, fetchUsers } = useUsers();
     const { lead, activity, activeHours, fetchLeaderBoard } = useLeaderBoard();
     useEffect(() => {
-        const savedFilters = localStorage.getItem("aether_leaderboard_filters");
-
-        if (savedFilters) {
-            const parsedFilters = JSON.parse(savedFilters);
-
-            if (parsedFilters.start_date || parsedFilters.end_date) {
-                setTimeSave(prev => ({
-                    ...prev,
-                    filterMinStart: parsedFilters.start_date,
-                    filterMaxStart: parsedFilters.end_date,
-                }));
-            }
-
-            if (parsedFilters.user_ids) {
-                setSelectedUserIDs(parsedFilters.user_ids);
-            }
-
-            fetchLeaderBoard(parsedFilters);
-        }
-    }, []);
-
+        fetchUsers();
+    }, [fetchUsers]);
+    // Initialize from localStorage or fallback to today
     useEffect(() => {
+        const saved = localStorage.getItem("aether_leaderboard_filters");
+        let filters;
+
+        try {
+            filters = saved ? JSON.parse(saved) : null;
+        } catch (e) {
+            console.error("Invalid filters in localStorage:", e);
+            filters = null;
+        }
+
         const defaultFilters = {
             time_filter: "custom",
             start_date: startOfToday().toISOString(),
             end_date: new Date().toISOString(),
             user_ids: [],
         };
-        fetchLeaderBoard(defaultFilters);
-    }, [fetchLeaderBoard]);
+
+        const finalFilters = (!filters || !filters.start_date || !filters.end_date)
+            ? defaultFilters
+            : filters;
+
+        // Set filter type if available from stored value
+        setSelFilter(filters?.tempfillvalue ?? "today");
+
+        setRange(undefined);
+        setSelectedUserIDs(finalFilters.user_ids ?? []);
+        setTimeSave({
+            filterMinStart: finalFilters.start_date,
+            filterMaxStart: finalFilters.end_date,
+            userIDs: finalFilters.user_ids ?? [],
+        });
+
+        fetchLeaderBoard(finalFilters);
+    }, []);
+
+    // Update timesave when date range changes for custom filter
+    useEffect(() => {
+        if (selfilter === "custom" && range?.from && range?.to) {
+            const start = new Date(range.from);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date(range.to);
+            end.setHours(23, 59, 59, 999);
+
+            setTimeSave(prev => ({
+                ...prev,
+                filterMinStart: start.toISOString(),
+                filterMaxStart: end.toISOString(),
+            }));
+        }
+    }, [range, selfilter]);
 
     const handleDateFilterChange = (value: "today" | "week" | "custom") => {
         setSelFilter(value);
 
         if (value === "today") {
-            setTimeSave((prev) => ({
+            setTimeSave(prev => ({
                 ...prev,
                 filterMinStart: startOfToday().toISOString(),
                 filterMaxStart: null,
             }));
         } else if (value === "week") {
-            const from = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
-            setTimeSave((prev) => ({
+            const weekStart = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
+            setTimeSave(prev => ({
                 ...prev,
-                filterMinStart: from,
+                filterMinStart: weekStart,
                 filterMaxStart: null,
             }));
         }
     };
-
-    useEffect(() => {
-        if (selfilter === "custom" && range?.from && range?.to) {
-            const startOfDay = new Date(range.from);
-            startOfDay.setHours(0, 0, 0, 0);
-
-            const endOfDay = new Date(range.to);
-            endOfDay.setHours(23, 59, 59, 999);
-
-            setTimeSave((prev) => ({
-                ...prev,
-                filterMinStart: startOfDay.toISOString(),
-                filterMaxStart: endOfDay.toISOString(),
-            }));
-        }
-    }, [range, selfilter]);
 
     const handleFilterApply = () => {
         const filters = {
@@ -104,42 +114,71 @@ export const AetherDashboard = () => {
             start_date: timesave.filterMinStart ?? undefined,
             end_date: timesave.filterMaxStart ?? new Date().toISOString(),
             user_ids: selectedUserIDs,
+            tempfillvalue: selfilter,
         };
+
         localStorage.setItem("aether_leaderboard_filters", JSON.stringify(filters));
         fetchLeaderBoard(filters);
         setIsDropdownOpen(false);
     };
 
     const handleRefresh = () => {
-        const savedFilters = localStorage.getItem("leaderboard_filters");
-
+        const saved = localStorage.getItem("aether_leaderboard_filters");
         let filters;
-        if (savedFilters) {
-            // Try using saved values from localStorage
-            filters = JSON.parse(savedFilters);
-        } else {
-            // Fallback to default today filter
-            filters = {
-                time_filter: "custom",
-                start_date: startOfToday().toISOString(),
-                end_date: new Date().toISOString(),
-                user_ids: [],
-            };
+
+        try {
+            filters = saved ? JSON.parse(saved) : null;
+        } catch (e) {
+            console.error("Invalid filters in localStorage:", e);
+            filters = null;
         }
 
-        // Update filter UI state
-        setSelFilter(savedFilters ? "custom" : "today");
+        const fallback = {
+            time_filter: "custom",
+            start_date: startOfToday().toISOString(),
+            end_date: new Date().toISOString(),
+            user_ids: [],
+        };
+
+        const finalFilters = (!filters || !filters.start_date || !filters.end_date)
+            ? fallback
+            : filters;
+
+        setSelFilter(filters?.tempfillvalue ?? "today");
         setRange(undefined);
-        setSelectedUserIDs(filters.user_ids ?? []);
+        setSelectedUserIDs(finalFilters.user_ids ?? []);
         setTimeSave({
-            filterMinStart: filters.start_date,
-            filterMaxStart: filters.end_date,
-            userIDs: filters.user_ids ?? [],
+            filterMinStart: finalFilters.start_date,
+            filterMaxStart: finalFilters.end_date,
+            userIDs: finalFilters.user_ids ?? [],
         });
 
-        // Fetch with appropriate filters
-        fetchLeaderBoard(filters);
+        fetchLeaderBoard(finalFilters);
     };
+
+    const handleReset = () => {
+        const defaultFilters = {
+            time_filter: "today",
+            start_date: startOfToday().toISOString(),
+            end_date: new Date().toISOString(),
+            user_ids: [],
+        };
+
+        localStorage.removeItem("aether_leaderboard_filters");
+
+        setSelFilter("today");
+        setRange(undefined);
+        setSelectedUserIDs([]);
+        setTimeSave({
+            filterMinStart: defaultFilters.start_date,
+            filterMaxStart: null,
+            userIDs: [],
+        });
+
+        fetchLeaderBoard(defaultFilters);
+        setIsDropdownOpen(false);
+    };
+
     return (
         <div>
             <div className="p-2 rounded-xl border border-gray-200">
@@ -149,7 +188,7 @@ export const AetherDashboard = () => {
                         <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer`} />
                         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                             <DropdownMenuTrigger>
-                                <FunnelPlus className="h-4 w-4" />
+                                <FunnelPlus className={'h-4 w-4 cursor-pointer'} />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()} >
@@ -176,7 +215,7 @@ export const AetherDashboard = () => {
                                     />
                                 </div>
                                 <div className="flex justify-end gap-4">
-                                    <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500">Reset</Button>
+                                    <Button onClick={handleReset} className="bg-white text-black text-xs rounded-xl hover:bg-gray-500">Reset</Button>
                                     <Button onClick={handleFilterApply} className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300">Apply</Button>
                                 </div>
                             </DropdownMenuContent>
@@ -210,13 +249,13 @@ export const AetherDashboard = () => {
                                     .map((item, index) => (
                                         <div
                                             key={item.user_id}
-                                            className="flex items-center gap-5 py-2 border-b border-fuchsia-200"
+                                            className="flex items-center justify-between gap-5 py-2 border-b border-fuchsia-200"
                                         >
-                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-start text-sm text-fuchsia-600">
+                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
                                             <h6 className="text-xs flex-1 text-justify">{item.user_name}</h6>
-                                            <h6 className="text-xs font-semibold">{item.all_calls}</h6>
+                                            <h6 className="text-[0.8rem] font-noraml text-gray-600">{item.all_calls}</h6>
                                         </div>
                                     ))}
 
@@ -236,7 +275,7 @@ export const AetherDashboard = () => {
                                                 {index + 1}
                                             </div>
                                             <h6 className="text-xs text-justify flex-1">{item.user_name}</h6>
-                                            <h6 className="text-xs font-semibold">{item.connected_calls}</h6>
+                                            <h6 className="text-[0.8rem] font-noraml text-gray-600">{item.connected_calls}</h6>
                                         </div>
                                     ))}
 
@@ -256,7 +295,7 @@ export const AetherDashboard = () => {
                                                 {index + 1}
                                             </div>
                                             <h6 className="text-xs text-justify flex-1">{item.user_name}</h6>
-                                            <h6 className="text-xs font-semibold">{useFormattedDuration(item.total_call_duration)}</h6>
+                                            <h6 className="text-[0.8rem] font-noraml text-gray-600">{useFormattedDuration(item.total_call_duration)}</h6>
                                         </div>
                                     ))}
 
@@ -277,6 +316,9 @@ export const AetherDashboard = () => {
                 <div className="col-span-12 lg:col-span-5 p-4 text-sm text-gray-400 italic">
                     Loading chart...
                 </div>
+            )}
+            {isLoading && (
+                <AetherLoader/>
             )}
         </div>
     )
