@@ -401,7 +401,7 @@ export default function CallDetailPage() {
             { header: "Timestamp", dataKey: "start_time" },
         ];
 
-        const formattedCallLogs = currentPageData.map((log) => ({
+        const formattedCallLogs = filteredData.map((log) => ({
             user_id: log.user_id,
             device_id: log.device_id,
             duration: `${Math.floor(log.duration / 60)}m ${log.duration % 60}s`,
