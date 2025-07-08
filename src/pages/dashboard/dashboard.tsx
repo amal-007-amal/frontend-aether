@@ -1,4 +1,4 @@
-import { Activity, ChartLine, Dice5, FunnelPlus, RefreshCcw } from "lucide-react";
+import { Activity, ChartLine, Dice5, FunnelPlus, RefreshCcw, TrendingUp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { AetherDateRangePicker } from "../../components/aetherdaterangepicker";
@@ -32,10 +32,11 @@ export const AetherDashboard = () => {
 
     const { users, isLoading, fetchUsers } = useUsers();
     const { lead, activity, activeHours, fetchLeaderBoard,loading } = useLeaderBoard();
+
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
-    // Initialize from localStorage or fallback to today
+
     useEffect(() => {
         const saved = localStorage.getItem("aether_leaderboard_filters");
         let filters;
@@ -58,7 +59,6 @@ export const AetherDashboard = () => {
             ? defaultFilters
             : filters;
 
-        // Set filter type if available from stored value
         setSelFilter(filters?.tempfillvalue ?? "today");
 
         setRange(undefined);
@@ -185,7 +185,7 @@ export const AetherDashboard = () => {
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-normal flex items-center gap-2"><ChartLine className="h-5 text-fuchsia-500" /> Dashboard</h2>
                     <div className="flex items-center gap-5">
-                        <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer`} />
+                        <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer ${loading?'animate-spin':''}`} />
                         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                             <DropdownMenuTrigger>
                                 <FunnelPlus className={'h-4 w-4 cursor-pointer'} />
@@ -306,7 +306,7 @@ export const AetherDashboard = () => {
             </div>
             {activeHours ? (
                 <div className="col-span-12 lg:col-span-5 border border-gray-200 rounded-xl p-4">
-                    <h2 className="text-sm font-normal text-left">Active hours</h2>
+                    <h2 className="text-sm font-normal text-left flex gap-3 underline"><TrendingUp className="text-fuchsia-500"/> Active hours</h2>
                     <AetherHorizontalStackedGroupChart
                         labels={activeHours.labels}
                         datasets={activeHours.datasets}
@@ -314,7 +314,7 @@ export const AetherDashboard = () => {
                 </div>
             ) : (
                 <div className="col-span-12 lg:col-span-5 p-4 text-sm text-gray-400 italic">
-                    Loading chart...
+                    Loading Active hours...
                 </div>
             )}
             {isLoading || loading && (
