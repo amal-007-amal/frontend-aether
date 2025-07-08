@@ -12,16 +12,15 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
     label,
 }) => {
     const radius = 40;
-    const stroke = 8;
+    const stroke = 10;
     const normalizedRadius = radius - stroke / 2;
     const circumference = 2 * Math.PI * normalizedRadius;
-    const progress = Math.min(value / max, 1); // Clamp to 1
+    const progress = Math.min(value / max, 1);
     const strokeDashoffset = circumference - progress * circumference;
 
     return (
         <div className="flex flex-col items-center relative">
             <svg height={radius * 2} width={radius * 2}>
-                {/* Background ring */}
                 <circle
                     stroke="#F5D0FE"
                     fill={'transparent'}
@@ -30,7 +29,6 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
                     cx={radius}
                     cy={radius}
                 />
-                {/* Progress ring */}
                 <circle
                     stroke={`${label==="Abandoned Numbers"?'#fde6f3':'#D946EF'}`}
                     fill={`${label==="Abandoned Numbers"?'#fde6f3':'transparent'}`}
@@ -44,11 +42,9 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
                     cy={radius}
                 />
             </svg>
-            {/* Center value */}
             <div className="absolute top-[30%] text-sm font-semibold text-gray-800">
                 {value}
             </div>
-            {/* Label */}
             <p className="text-xs text-gray-500 mt-2 text-center">{label}</p>
         </div>
     );

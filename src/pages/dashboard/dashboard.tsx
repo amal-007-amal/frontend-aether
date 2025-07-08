@@ -31,7 +31,7 @@ export const AetherDashboard = () => {
     });
 
     const { users, isLoading, fetchUsers } = useUsers();
-    const { lead, activity, activeHours, fetchLeaderBoard } = useLeaderBoard();
+    const { lead, activity, activeHours, fetchLeaderBoard,loading } = useLeaderBoard();
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
@@ -227,7 +227,7 @@ export const AetherDashboard = () => {
                 <div className="col-span-12 lg:col-span-5 border border-gray-200 rounded-xl p-4">
                     <h2 className="text-sm font-normal text-left flex gap-2 underline"><Activity className="text-fuchsia-500 h-5" /> Call Activity</h2>
                     {activity && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-5">
                             <CircleProgress value={activity.total_calls} max={activity.total_calls} label="Total Calls" />
                             <CircleProgress value={activity.incoming_calls} max={activity.total_calls} label="Incoming Calls" />
                             <CircleProgress value={activity.outgoing_calls} max={activity.total_calls} label="Outgoing Calls" />
@@ -240,8 +240,8 @@ export const AetherDashboard = () => {
                 </div>
                 <div className="col-span-12 lg:col-span-7 border border-gray-200 rounded-xl p-4">
                     <h2 className="text-sm font-normal text-left flex gap-2 underline"><Dice5 className="text-fuchsia-500 h-5" /> Leaderboard</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="rounded-xl p-4 flex flex-col items-start my-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="rounded-xl p-4 flex flex-col items-start">
                             <h6 className="text-xs text-gray-500">All calls</h6>
                             <ScrollArea className="max-h-56 pr-4">
                                 {[...(lead || [])]
@@ -249,19 +249,19 @@ export const AetherDashboard = () => {
                                     .map((item, index) => (
                                         <div
                                             key={item.user_id}
-                                            className="flex items-center justify-between gap-5 py-2 border-b border-fuchsia-200"
+                                            className="flex items-center justify-between gap-5 py-2 border p-3 my-2 rounded-full border-fuchsia-200"
                                         >
-                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
+                                            <div className="w-8 h-8 bg-fuchsia-50 border border-fuchsia-100 rounded-full font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
-                                            <h6 className="text-xs flex-1 text-justify">{item.user_name}</h6>
+                                            <h6 className="text-[0.7rem]  flex-1 text-justify">{item.user_name}</h6>
                                             <h6 className="text-[0.8rem] font-noraml text-gray-600">{item.all_calls}</h6>
                                         </div>
                                     ))}
 
                             </ScrollArea>
                         </div>
-                        <div className="rounded-xl p-4 flex flex-col items-start my-4">
+                        <div className="rounded-xl p-4 flex flex-col items-start">
                             <h6 className="text-xs text-gray-500">Connected calls</h6>
                             <ScrollArea className="max-h-56 pr-4">
                                 {[...(lead || [])]
@@ -269,19 +269,19 @@ export const AetherDashboard = () => {
                                     .map((item, index) => (
                                         <div
                                             key={item.user_id}
-                                            className="flex justify-between items-center gap-5 py-2 border-b border-fuchsia-200"
+                                            className="flex justify-between items-center gap-5 py-2  border p-3 my-2 rounded-full border-fuchsia-200"
                                         >
-                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
+                                            <div className="w-8 h-8 bg-fuchsia-50 border border-fuchsia-100 rounded-full font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
-                                            <h6 className="text-xs text-justify flex-1">{item.user_name}</h6>
+                                            <h6 className="text-[0.7rem] text-justify flex-1">{item.user_name}</h6>
                                             <h6 className="text-[0.8rem] font-noraml text-gray-600">{item.connected_calls}</h6>
                                         </div>
                                     ))}
 
                             </ScrollArea>
                         </div>
-                        <div className="rounded-xl p-4 flex flex-col items-start my-4">
+                        <div className="rounded-xl p-4 flex flex-col items-start">
                             <h6 className="text-xs text-gray-500">Call duration</h6>
                             <ScrollArea className="max-h-56 pr-4">
                                 {[...(lead || [])]
@@ -289,12 +289,12 @@ export const AetherDashboard = () => {
                                     .map((item, index) => (
                                         <div
                                             key={item.user_id}
-                                            className="flex justify-between items-center gap-5 py-2 border-b border-fuchsia-200"
+                                            className="flex justify-between items-center gap-5 py-2 p-3 my-2 rounded-full border border-fuchsia-200"
                                         >
-                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
+                                            <div className="w-8 h-8 bg-fuchsia-50 border border-fuchsia-100 rounded-full font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
-                                            <h6 className="text-xs text-justify flex-1">{item.user_name}</h6>
+                                            <h6 className="text-[0.7rem] text-justify flex-1">{item.user_name}</h6>
                                             <h6 className="text-[0.8rem] font-noraml text-gray-600">{useFormattedDuration(item.total_call_duration)}</h6>
                                         </div>
                                     ))}
@@ -317,7 +317,7 @@ export const AetherDashboard = () => {
                     Loading chart...
                 </div>
             )}
-            {isLoading && (
+            {isLoading || loading && (
                 <AetherLoader/>
             )}
         </div>
