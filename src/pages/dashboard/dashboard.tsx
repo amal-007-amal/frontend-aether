@@ -210,12 +210,12 @@ export const AetherDashboard = () => {
                                     .map((item, index) => (
                                         <div
                                             key={item.user_id}
-                                            className="flex justify-between items-center gap-5 py-2"
+                                            className="flex items-center gap-5 py-2 border-b border-fuchsia-200"
                                         >
-                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
+                                            <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-start text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
-                                            <h6 className="text-xs flex-1">{item.user_name}</h6>
+                                            <h6 className="text-xs flex-1 text-justify">{item.user_name}</h6>
                                             <h6 className="text-xs font-semibold">{item.all_calls}</h6>
                                         </div>
                                     ))}
@@ -230,12 +230,12 @@ export const AetherDashboard = () => {
                                     .map((item, index) => (
                                         <div
                                             key={item.user_id}
-                                            className="flex justify-between items-center gap-5 py-2"
+                                            className="flex justify-between items-center gap-5 py-2 border-b border-fuchsia-200"
                                         >
                                             <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
-                                            <h6 className="text-xs flex-1">{item.user_name}</h6>
+                                            <h6 className="text-xs text-justify flex-1">{item.user_name}</h6>
                                             <h6 className="text-xs font-semibold">{item.connected_calls}</h6>
                                         </div>
                                     ))}
@@ -250,12 +250,12 @@ export const AetherDashboard = () => {
                                     .map((item, index) => (
                                         <div
                                             key={item.user_id}
-                                            className="flex justify-between items-center gap-5 py-2"
+                                            className="flex justify-between items-center gap-5 py-2 border-b border-fuchsia-200"
                                         >
                                             <div className="w-7 h-7 bg-fuchsia-50 border border-fuchsia-100 rounded font-semibold flex items-center justify-center text-sm text-fuchsia-600">
                                                 {index + 1}
                                             </div>
-                                            <h6 className="text-xs flex-1">{item.user_name}</h6>
+                                            <h6 className="text-xs text-justify flex-1">{item.user_name}</h6>
                                             <h6 className="text-xs font-semibold">{useFormattedDuration(item.total_call_duration)}</h6>
                                         </div>
                                     ))}
