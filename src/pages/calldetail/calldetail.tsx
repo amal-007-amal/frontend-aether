@@ -148,6 +148,7 @@ export default function CallDetailPage() {
         timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
+    console.log(abandoned.length)
     const { fetchRecording, recordingMap, loadingMap } = useRecording();
     useEffect(() => {
         const stored = localStorage.getItem("aether_call_filters");
