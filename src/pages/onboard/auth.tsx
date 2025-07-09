@@ -2,8 +2,9 @@ import { AudioLines, CheckCircle, ChevronLeft, ChevronRight, Eye, EyeClosed, Loa
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getServerUrl, postLogin, postSetPasswordLogin } from "../../api/login";
+import { getServerUrl, postSetPasswordLogin } from "../../api/login";
 import AetherLoader from "../../shared/AetherLoader";
+import { useLogin } from "../../hooks/useLogin";
 
 declare global {
     interface Window {
@@ -23,6 +24,7 @@ declare global {
 }
 
 export default function OTPComponent() {
+    const {fetchLogin} = useLogin()
     const aetherNaviagte = useNavigate()
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
@@ -36,19 +38,6 @@ export default function OTPComponent() {
     const [step, setStep] = useState(0)
     const [showPopup, setShowPopup] = useState(false);
     const [isPass, setIsPass] = useState(false);
-
-    useEffect(() => {
-        const serverUrl = localStorage.getItem("aether_server_url");
-        const accessToken = localStorage.getItem("aether_access_token");
-
-        console.log("server_url:", serverUrl);
-        console.log("access_token:", accessToken);
-
-        if (serverUrl && accessToken) {
-            console.log("Redirecting to /dashboard...");
-            aetherNaviagte("/dashboard");
-        }
-    }, []);
 
     useEffect(() => {
         setVerified(false)
@@ -219,20 +208,17 @@ export default function OTPComponent() {
                 password: password,
             });
 
-            const loginResponse = await postLogin(payload);
-
-            if (loginResponse) {
-                localStorage.setItem('aether_access_token', loginResponse.access_token);
-                localStorage.setItem('aether_refresh_token', loginResponse.refresh_token);
-                setTimeout(() => {
-                    setIsPass(false);
-                    aetherNaviagte("/dashboard");
-                }, 500);
+            const loginResponse =  await fetchLogin(payload)
+            if(loginResponse){
+                aetherNaviagte("/dashboard")
+            }else{
+                toast.error("Invalid credentials,please try again!")
             }
         } catch (error: any) {
             console.error("Login error:", error);
             toast.error("Login failed. Please try again later.");
-            setIsPass(false);
+        }finally{
+            setIsPass(false)
         }
     };
 

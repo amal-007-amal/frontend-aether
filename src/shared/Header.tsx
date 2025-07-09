@@ -8,6 +8,8 @@ export default function Header() {
     const handleLogout = () => {
         localStorage.removeItem('aether_access_token')
         localStorage.removeItem('aether_refresh_token')
+        localStorage.removeItem('aether_leaderboard_filters')
+        localStorage.removeItem('aether_call_filters')
         aetherNaviagte('/')
     }
     return (

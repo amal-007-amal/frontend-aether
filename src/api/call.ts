@@ -1,9 +1,10 @@
 import type { CallLogDetails } from "../types/call"
 import { getApiClient } from "./axios";
 
+//get call details 
 export const getCalls = async (params:any): Promise<CallLogDetails[]> => {
     const apiClient = getApiClient();
-    const token = localStorage.getItem('aether_access_token')
+    const token = localStorage.getItem('aether_access_token') 
     const { data } = await apiClient.get('/api/v1/calls', {
         headers: {
             "Authorization": `Bearer ${token}`
@@ -13,7 +14,7 @@ export const getCalls = async (params:any): Promise<CallLogDetails[]> => {
     return data.calls
 }
 
-
+//get recordings
 export const getRecording = async(recordingid:any):Promise<Blob>=>{
     const apiClient = getApiClient();
     const token = localStorage.getItem('aether_access_token')

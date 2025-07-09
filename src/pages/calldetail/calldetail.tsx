@@ -379,6 +379,7 @@ export default function CallDetailPage() {
 
     const handleStartTimeApply = () => {
         setStarttimeFill(tempStarttimeFill)
+        setOpenFilter((prev) => ({ ...prev, timeFillOpen: false }))
     }
 
     const handleStartimeReset = () => {

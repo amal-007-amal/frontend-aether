@@ -8,10 +8,16 @@ import Auth from "../pages/onboard/auth";
 import SettingPage from "../pages/settings/settings";
 import UserManagmentPage from "../pages/usermanagement/usermanagment";
 import CallDetailPage from "../pages/calldetail/calldetail";
+import RedirectRoot from "../pages/redirect/redirect";
+import AetherAuthGuard from "../guard/authguard";
 
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <RedirectRoot />,
+  },
+  {
+    path: "/onboard",
     element: <AehterOnBoardLayout><Auth /></AehterOnBoardLayout>,
   },
   {
@@ -20,7 +26,7 @@ const router = createBrowserRouter([
   },
   {
     // Wrap all internal routes in the dashboard layout
-    element: <AetherDashboardLayout />,
+    element:<AetherAuthGuard><AetherDashboardLayout /></AetherAuthGuard>,
     children: [
       {
         path: "/dashboard",
