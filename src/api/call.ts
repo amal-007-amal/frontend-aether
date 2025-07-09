@@ -1,5 +1,6 @@
-import type { CallLogDetails } from "../types/call"
-import { apiClient } from "./axios"
+import type { CallLogDetails } from "../types/call";
+import { getApiClient } from "./axios";
+const apiClient = getApiClient();
 
 export const getCalls = async (params:any): Promise<CallLogDetails[]> => {
     const token = localStorage.getItem('aether_access_token')

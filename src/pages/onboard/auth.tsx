@@ -174,7 +174,6 @@ export default function OTPComponent() {
 
     const handleServerUrl = async () => {
         setIsPass(true);
-
         try {
             const trimmedUrl = surl.trim();
 

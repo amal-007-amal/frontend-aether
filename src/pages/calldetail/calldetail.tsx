@@ -52,6 +52,7 @@ export default function CallDetailPage() {
         typeCallOpen: false,
         callTypeOpen: false
     });
+    const [isFilterOpen,setISDilterOpen]=useState(false)
     const [showDialog, setShowDialog] = useState(false);
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
     const [fromHour, setFromHour] = useState<number>(0);
@@ -353,6 +354,7 @@ export default function CallDetailPage() {
 
         setTimeFilters(filters);
         fetchCallLogsWith(filters);
+        setISDilterOpen(false)
     };
 
 
@@ -423,10 +425,10 @@ export default function CallDetailPage() {
         <div>
             <div className="p-2 rounded-xl border border-gray-200">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
-                    <h2 className="text-sm font-normal flex items-center">Call Logs</h2>
+                    <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <RefreshCcw onClick={() => fetchCallLogsWith(timeFilters)} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
-                        <DropdownMenu>
+                        <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
                                 <FunnelPlus className="h-4 w-4" />
                             </DropdownMenuTrigger>
@@ -499,7 +501,7 @@ export default function CallDetailPage() {
                     <Table className="w-full table-fixed border-collapse">
                         <TableHeader className="sticky top-0 bg-white z-10">
                             <TableRow className="text-sm font-light">
-                                <TableHead className="text-xs font-semibold">Sl No.</TableHead>
+                                <TableHead className="text-xs font-semibold w-14">Sl No.</TableHead>
                                 {visibleColumns.includes("other_number") && (
                                     <TableHead
                                         className="text-xs font-semibold flex items-center  relative shadow-none"
@@ -510,7 +512,7 @@ export default function CallDetailPage() {
                                             onClick={() => setOpenFilter(prev => ({
                                                 ...prev, otherNumberOpen: true
                                             }))}
-                                            className={`h-3 w-4 ${tableFiller.otherNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                            className={`h-3 w-4 cursor-pointer ${tableFiller.otherNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                         />
                                         <Portal>
                                             <div className="relative">
@@ -823,7 +825,7 @@ export default function CallDetailPage() {
                                                 onClick={() => setOpenFilter(prev => ({
                                                     ...prev, usernameOpen: true
                                                 }))}
-                                                className={`h-3 w-4 ${selectedTempUserIDs.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                                className={`h-3 w-4 cursor-pointer ${selectedTempUserIDs.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                             />
                                             <Portal>
                                                 <div className="relative">
@@ -849,7 +851,7 @@ export default function CallDetailPage() {
                                                 onClick={() => setOpenFilter(prev => ({
                                                     ...prev, agentNumberOpen: true
                                                 }))}
-                                                className={`h-3 w-4 ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
+                                                className={`h-3 w-4 cursor-pointer ${tableFiller.agentNumber.length > 0 ? 'text-fuchsia-500' : 'text-gray-400'}`}
                                             />
                                             <Portal>
                                                 <div className="relative">
@@ -896,7 +898,7 @@ export default function CallDetailPage() {
                                 {currentPageData.length !== 0 && (
                                     currentPageData.map((call, index) => (
                                         <TableRow key={call.id}>
-                                            <TableCell className="text-left">{index + 1}</TableCell>
+                                            <TableCell className="text-left w-14">{index + 1}</TableCell>
                                             {visibleColumns.includes("other_number") && (
                                                 <TableCell className="text-left">{call.other_number}</TableCell>
                                             )}

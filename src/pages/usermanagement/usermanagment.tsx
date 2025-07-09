@@ -103,7 +103,7 @@ export default function UserManagmentPage() {
         <div>
             <div className="p-2 rounded-xl border border-gray-200">
                 <div className="flex justify-between mb-2 items-center px-1">
-                    <h2 className="text-sm font-normal flex items-center"><Users className="h-4" />User List</h2>
+                    <h2 className="text-sm font-medium flex items-center"><Users className="h-4" />User List</h2>
                     <div className="flex justify-between items-center gap-3">
                         <UserRoundPlus onClick={() => {
                             setUserData({

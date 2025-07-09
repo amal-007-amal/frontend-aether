@@ -1,7 +1,7 @@
 import type { CreateUser, User, UserLoginResponse } from "../types/login"
-import { apiClient } from "./axios"
+import { getApiClient } from "./axios"
 import axios from "axios";
-
+const apiClient = getApiClient();
 
 export const getAccessToken = async (): Promise<string | null> => {
     try {  
