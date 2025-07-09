@@ -1,9 +1,11 @@
-import axios from "axios";
+import axios, { type AxiosInstance } from "axios";
 import { toast } from "sonner";
 
-export function getApiClient() {
+export const getApiClient = (): AxiosInstance => {
   const baseUrl = localStorage.getItem("aether_server_url")?.trim();
+
   if (!baseUrl) {
+    toast.error("Missing server URL. Please log in again.");
     throw new Error("Missing aether_server_url in localStorage");
   }
 
@@ -14,7 +16,6 @@ export function getApiClient() {
     },
   });
 
-  // Request Interceptor
   instance.interceptors.request.use((config: any) => {
     const accessToken = localStorage.getItem("aether_access_token");
     if (accessToken) {
@@ -23,7 +24,7 @@ export function getApiClient() {
     return config;
   });
 
-  // Response Interceptor for Refresh Token
+  // ✅ Response interceptor for token refresh
   instance.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -44,7 +45,6 @@ export function getApiClient() {
           );
 
           const newAccessToken = refreshResponse.data.access_token;
-
           localStorage.setItem("aether_access_token", newAccessToken);
 
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -62,4 +62,4 @@ export function getApiClient() {
   );
 
   return instance;
-}
+};

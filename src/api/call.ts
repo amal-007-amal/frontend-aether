@@ -1,8 +1,8 @@
-import type { CallLogDetails } from "../types/call";
+import type { CallLogDetails } from "../types/call"
 import { getApiClient } from "./axios";
-const apiClient = getApiClient();
 
 export const getCalls = async (params:any): Promise<CallLogDetails[]> => {
+    const apiClient = getApiClient();
     const token = localStorage.getItem('aether_access_token')
     const { data } = await apiClient.get('/api/v1/calls', {
         headers: {
@@ -15,6 +15,7 @@ export const getCalls = async (params:any): Promise<CallLogDetails[]> => {
 
 
 export const getRecording = async(recordingid:any):Promise<Blob>=>{
+    const apiClient = getApiClient();
     const token = localStorage.getItem('aether_access_token')
         const response = await apiClient.get(`/api/v1/calls/recordings/${recordingid}`, {
         headers: {

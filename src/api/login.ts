@@ -1,7 +1,6 @@
 import type { CreateUser, User, UserLoginResponse } from "../types/login"
-import { getApiClient } from "./axios"
 import axios from "axios";
-const apiClient = getApiClient();
+import { getApiClient } from "./axios";
 
 export const getAccessToken = async (): Promise<string | null> => {
     try {  
@@ -33,6 +32,9 @@ export const getServerUrl = async (customBaseUrl?: string) => {
 };
 
 export const postLogin = async (payload: any): Promise<UserLoginResponse> => {
+    const apiClient = getApiClient();
+    const baseUrlFromStorage = localStorage.getItem("aether_server_url")?.trim();
+    console.log("server url before login",baseUrlFromStorage)
     const { data } = await apiClient.post('/api/v1/auth/login', payload, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -44,6 +46,7 @@ export const postLogin = async (payload: any): Promise<UserLoginResponse> => {
 
 
 export const postSetPasswordLogin = async (payload: any): Promise<UserLoginResponse> => {
+    const apiClient = getApiClient();
     const { data } = await apiClient.post('/api/v1/auth/password', payload, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -55,6 +58,7 @@ export const postSetPasswordLogin = async (payload: any): Promise<UserLoginRespo
 
 
 export const getUsers = async (): Promise<User[]> => {
+    const apiClient = getApiClient();
     const token = localStorage.getItem('aether_access_token')
     const { data } = await apiClient.get('/api/v1/users', {
         headers: {
@@ -66,6 +70,7 @@ export const getUsers = async (): Promise<User[]> => {
 }
 
 export const createUser = async (payload: CreateUser): Promise<CreateUser> => {
+    const apiClient = getApiClient();
     const token = localStorage.getItem('aether_access_token')
     const { data } = await apiClient.post('/api/v1/users', payload, {
         headers: {
@@ -77,6 +82,7 @@ export const createUser = async (payload: CreateUser): Promise<CreateUser> => {
 }
 
 export const updateUser = async (payload: any): Promise<any> => {
+    const apiClient = getApiClient();
     const token = localStorage.getItem('aether_access_token')
     const { data } = await apiClient.put('/api/v1/users', payload, {
         headers: {
@@ -89,6 +95,7 @@ export const updateUser = async (payload: any): Promise<any> => {
 
 
 export const deleteUser = async (userid: any): Promise<any> => {
+    const apiClient = getApiClient();
     const token = localStorage.getItem('aether_access_token')
     const { data } = await apiClient.delete(`/api/v1/users?user_id=${userid}`, {
         headers: {
