@@ -142,6 +142,7 @@ export default function CallDetailPage() {
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
     const {
         calllogs,
+        abandoned,
         selectedFilters,
         fetchCallLogsWith,
         timeFilters,
@@ -435,6 +436,7 @@ export default function CallDetailPage() {
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <RefreshCcw onClick={() => fetchCallLogsWith(timeFilters)} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
+                        
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
                                 <FunnelPlus className="h-4 w-4" />

@@ -6,6 +6,7 @@ import { getUsers } from "../api/login";
 
 export function useCallLogs() {
   const [calllogs, setCalllogs] = useState<CallLogDetails[]>([]);
+  const [abandoned,setAbandoned] = useState<[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedFilters, setSelectedFilters] = useState<FilterState>({
@@ -50,7 +51,8 @@ export function useCallLogs() {
       const users = await getUsers();
       const userMap = Object.fromEntries(users.map(u => [String(u.id), u.name]));
       const data = await getCalls(params);
-      const enrichedCalls = data.map(call => {
+      setAbandoned(data.abandoned_other_numbers)
+      const enrichedCalls = data!.calls.map((call:CallLogDetails) => {
         let call_type = "Unknown";
         const direction = call.direction?.toLowerCase();
         const status = call.status?.toLowerCase();
@@ -81,7 +83,7 @@ export function useCallLogs() {
       const typecallSet = new Set<string>();
       const callTypesSet = new Set<string>();
 
-      enrichedCalls.forEach((item) => {
+      enrichedCalls.forEach((item:CallLogDetails) => {
         if (item.other_name) otNameSet.add(item.other_name.trim() || "-");
         if (item.other_number) otNumberSet.add(item.other_number);
         if (item.agent_number) agNumberSet.add(item.agent_number?.trim() || "-");
@@ -110,6 +112,7 @@ export function useCallLogs() {
 
   return {
     calllogs,
+    abandoned,
     setCalllogs,
     selectedFilters,
     setSelectedFilters,

@@ -20,6 +20,7 @@ export const AetherDashboard = () => {
     const [range, setRange] = useState<DateRange | undefined>();
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [filterStatus,setFilterStatus] = useState(false)
     const [timesave, setTimeSave] = useState<{
         filterMinStart: string | null;
         filterMaxStart: string | null;
@@ -115,7 +116,9 @@ export const AetherDashboard = () => {
             end_date: timesave.filterMaxStart ?? new Date().toISOString(),
             user_ids: selectedUserIDs,
             tempfillvalue: selfilter,
+            filterStatus:true
         };
+        setFilterStatus(true)
 
         localStorage.setItem("aether_leaderboard_filters", JSON.stringify(filters));
         fetchLeaderBoard(filters);
@@ -152,7 +155,7 @@ export const AetherDashboard = () => {
             filterMaxStart: finalFilters.end_date,
             userIDs: finalFilters.user_ids ?? [],
         });
-
+        setFilterStatus(filters.filterStatus)
         fetchLeaderBoard(finalFilters);
     };
 
@@ -162,10 +165,12 @@ export const AetherDashboard = () => {
             start_date: startOfToday().toISOString(),
             end_date: new Date().toISOString(),
             user_ids: [],
+            filterStatus:false
         };
 
         localStorage.removeItem("aether_leaderboard_filters");
 
+        setFilterStatus(false)
         setSelFilter("today");
         setRange(undefined);
         setSelectedUserIDs([]);
@@ -188,7 +193,7 @@ export const AetherDashboard = () => {
                         <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer ${loading?'animate-spin':''}`} />
                         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                             <DropdownMenuTrigger>
-                                <FunnelPlus className={'h-4 w-4 cursor-pointer'} />
+                                <FunnelPlus className={`h-4 w-4 cursor-pointer ${filterStatus?'text-fuchsia-600':''}`} />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()} >

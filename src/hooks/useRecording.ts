@@ -9,10 +9,8 @@ export function useRecording() {
   const fetchRecording = useCallback(async (id: string) => {
     setLoadingMap((prev) => ({ ...prev, [id]: true }));
     try {
-      const rawBlob = await getRecording(id);
-      const url = URL.createObjectURL(rawBlob);
-
-      setRecordingMap((prev) => ({ ...prev, [id]: url }));
+      const record = await getRecording(id);
+      setRecordingMap((prev) => ({ ...prev, [id]:record.download_url }));
     } catch (err) {
       toast.error("Unable to connect with server!");
     } finally {
