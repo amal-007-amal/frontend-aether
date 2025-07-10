@@ -225,7 +225,7 @@ export default function OTPComponent() {
 
     return (
         <div className="p-4 max-w-md mx-auto">
-            <h2 className="text-5xl font-light mb-4 flex justify-center items-center">A<span className="text-fuchsia-500">ether</span>&nbsp;Hub&nbsp;<AudioLines className="h-10 w-10" /></h2>
+            <h2 className="text-5xl font-light mb-4 flex justify-center items-center text-black">A<span className="text-fuchsia-500">ether</span>&nbsp;Hub&nbsp;<AudioLines className="h-10 w-10" /></h2>
             {
                 step === 0 ? (
                     <div className="flex flex-col">

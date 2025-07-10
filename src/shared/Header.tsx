@@ -8,11 +8,11 @@ export default function Header() {
     const aetherNaviagte = useNavigate()
 
     const [isDark, setIsDark] = useState<boolean>(() => {
-        if (typeof window === "undefined") return false; // SSR safety
+        if (typeof window === "undefined") return false;
         const stored = localStorage.getItem("aether_theme");
         if (stored === "dark") return true;
         if (stored === "light") return false;
-        return window.matchMedia("(prefers-color-scheme: dark)").matches;
+        return window.matchMedia("(prefers-color-scheme: light)").matches;
     });
 
     useEffect(() => {
