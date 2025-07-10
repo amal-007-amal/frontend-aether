@@ -151,7 +151,6 @@ export default function CallDetailPage() {
         timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
-    console.log(abandoned.length)
     const { fetchRecording, recordingMap, loadingMap } = useRecording();
     useEffect(() => {
         const fetchInitialData = () => {
@@ -264,7 +263,6 @@ export default function CallDetailPage() {
                 const field = String((call as any)[key] ?? "").toLowerCase();
                 return field.includes(value.toLowerCase());
             });
-
             return (
                 userFilterPass &&
                 otherNumberFilterPass &&

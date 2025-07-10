@@ -20,7 +20,23 @@ export const AetherDashboard = () => {
     const [range, setRange] = useState<DateRange | undefined>();
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [filterStatus,setFilterStatus] = useState(false)
+    const [filterStatus, setFilterStatus] = useState(false)
+    const [isDark, setIsDark] = useState(() => {
+        const stored = localStorage.getItem("aether_theme");
+        return stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: light)").matches);
+    });
+    console.log(setIsDark)
+    useEffect(() => {
+        const root = window.document.documentElement;
+
+        if (isDark) {
+            root.classList.add("dark");
+            localStorage.setItem("aether_theme", "dark");
+        } else {
+            root.classList.remove("dark");
+            localStorage.setItem("aether_theme", "light");
+        }
+    }, [isDark]);
     const [timesave, setTimeSave] = useState<{
         filterMinStart: string | null;
         filterMaxStart: string | null;
@@ -32,7 +48,7 @@ export const AetherDashboard = () => {
     });
 
     const { users, isLoading, fetchUsers } = useUsers();
-    const { lead, activity, activeHours, fetchLeaderBoard,loading } = useLeaderBoard();
+    const { lead, activity, activeHours, fetchLeaderBoard, loading } = useLeaderBoard();
 
     useEffect(() => {
         fetchUsers();
@@ -116,7 +132,7 @@ export const AetherDashboard = () => {
             end_date: timesave.filterMaxStart ?? new Date().toISOString(),
             user_ids: selectedUserIDs,
             tempfillvalue: selfilter,
-            filterStatus:true
+            filterStatus: true
         };
         setFilterStatus(true)
 
@@ -165,7 +181,7 @@ export const AetherDashboard = () => {
             start_date: startOfToday().toISOString(),
             end_date: new Date().toISOString(),
             user_ids: [],
-            filterStatus:false
+            filterStatus: false
         };
 
         localStorage.removeItem("aether_leaderboard_filters");
@@ -190,10 +206,10 @@ export const AetherDashboard = () => {
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-normal flex items-center gap-2"><ChartLine className="h-5 text-fuchsia-500" /> Dashboard</h2>
                     <div className="flex items-center gap-5">
-                        <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer ${loading?'animate-spin':''}`} />
+                        <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer ${loading ? 'animate-spin' : ''}`} />
                         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                             <DropdownMenuTrigger>
-                                <FunnelPlus className={`h-4 w-4 cursor-pointer ${filterStatus?'text-fuchsia-600':''}`} />
+                                <FunnelPlus className={`h-4 w-4 cursor-pointer ${filterStatus ? 'text-fuchsia-600' : ''}`} />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()} >
@@ -233,12 +249,12 @@ export const AetherDashboard = () => {
                     <h2 className="text-sm font-normal text-left flex gap-2"><Activity className="text-fuchsia-500 h-5" /> Call Activity</h2>
                     {activity && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-5">
-                            <CircleProgress value={activity.total_calls} max={activity.total_calls} label="Total Calls" />
-                            <CircleProgress value={activity.incoming_calls} max={activity.total_calls} label="Incoming Calls" />
-                            <CircleProgress value={activity.outgoing_calls} max={activity.total_calls} label="Outgoing Calls" />
-                            <CircleProgress value={activity.missed_calls} max={activity.total_calls} label="Missed Calls" />
-                            <CircleProgress value={activity.not_connected_calls} max={activity.total_calls} label="Not Connected" />
-                            <CircleProgress value={activity.abandoned_numbers} max={activity.abandoned_numbers} label="Abandoned Numbers" />
+                            <CircleProgress value={activity.total_calls} max={activity.total_calls} isDark={isDark} label="Total Calls" />
+                            <CircleProgress value={activity.incoming_calls} max={activity.total_calls} isDark={isDark} label="Incoming Calls" />
+                            <CircleProgress value={activity.outgoing_calls} max={activity.total_calls} isDark={isDark} label="Outgoing Calls" />
+                            <CircleProgress value={activity.missed_calls} max={activity.total_calls} isDark={isDark} label="Missed Calls" />
+                            <CircleProgress value={activity.not_connected_calls} max={activity.total_calls} isDark={isDark} label="Not Connected" />
+                            <CircleProgress value={activity.abandoned_numbers} max={activity.abandoned_numbers} isDark={isDark} label="Abandoned Numbers" />
                         </div>
                     )}
 
@@ -311,7 +327,7 @@ export const AetherDashboard = () => {
             </div>
             {activeHours ? (
                 <div className="col-span-12 lg:col-span-5 border border-gray-200 dark:border-stone-700 dark:bg-stone-900 rounded-xl p-4">
-                    <h2 className="text-sm font-normal text-left flex gap-3"><TrendingUp className="text-fuchsia-500"/> Active hours</h2>
+                    <h2 className="text-sm font-normal text-left flex gap-3"><TrendingUp className="text-fuchsia-500" /> Active hours</h2>
                     <AetherHorizontalStackedGroupChart
                         labels={activeHours.labels}
                         datasets={activeHours.datasets}
@@ -323,7 +339,7 @@ export const AetherDashboard = () => {
                 </div>
             )}
             {isLoading || loading && (
-                <AetherLoader/>
+                <AetherLoader />
             )}
         </div>
     )

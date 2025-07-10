@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 interface CircleProgressProps {
   value: number;
   max: number;
   label: string;
+  isDark: boolean;
 }
 
 export const CircleProgress: React.FC<CircleProgressProps> = ({
   value,
   max,
   label,
+  isDark,
 }) => {
   const radius = 40;
   const stroke = 10;
@@ -18,38 +20,31 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
   const progress = Math.min(value / max, 1);
   const strokeDashoffset = circumference - progress * circumference;
 
-  // Read theme from localStorage
-  const theme = localStorage.getItem("aether_theme");
-  const darkTheme = theme === "dark";
-
-  // Final stroke/fill color decision based on label and theme
-  const { strokeColor, fillColor } = React.useMemo(() => {
+  const { strokeColor, fillColor } = useMemo(() => {
     if (label === "Abandoned Numbers") {
-      return darkTheme
+      return isDark
         ? {
-            strokeColor: "#3a332e",   // dark brown for dark mode
+            strokeColor: "#3a332e",
             fillColor: "#3a332e",
           }
         : {
-            strokeColor: "#F5D0FE",   // light purple stroke
-            fillColor: "#d396dc",     // lighter purple fill
+            strokeColor: "#F5D0FE",
+            fillColor: "#d396dc",
           };
     }
 
     return {
-      strokeColor: "#D946EF", // default stroke
-      fillColor: "transparent", // default fill
+      strokeColor: "#D946EF",
+      fillColor: "transparent",
     };
-  }, [label, darkTheme]);
+  }, [label, isDark]);
 
-  // Safety fallback (optional but recommended)
   const safeStroke = strokeColor || "#cccccc";
   const safeFill = fillColor || "transparent";
 
   return (
     <div className="flex flex-col items-center relative">
       <svg height={radius * 2} width={radius * 2}>
-        {/* Background ring */}
         <circle
           stroke="#F5D0FE"
           fill="transparent"
@@ -58,8 +53,6 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
           cx={radius}
           cy={radius}
         />
-
-        {/* Progress ring */}
         <circle
           stroke={safeStroke}
           fill={safeFill}
@@ -73,11 +66,9 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
           cy={radius}
         />
       </svg>
-
       <div className="absolute top-[30%] text-sm font-semibold text-gray-800 dark:text-white">
         {value}
       </div>
-
       <p className="text-xs text-gray-500 mt-2 text-center dark:text-white">
         {label}
       </p>
