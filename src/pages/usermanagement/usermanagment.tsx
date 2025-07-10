@@ -119,7 +119,7 @@ export default function UserManagmentPage() {
                         <RefreshCcw onClick={fetchUsers} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
                         <DropdownMenu>
                             <DropdownMenuTrigger>
-                                <Menu className="h-4 w-4 text-black" />
+                                <Menu className="h-4 w-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <span className="text-xs flex gap-3 cursor-pointer"><DownloadCloud className="w-4 h-4" /> Import from CSV</span>
@@ -150,7 +150,7 @@ export default function UserManagmentPage() {
                                 <TableCell className="text-left">{user.has_agent_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left flex items-center gap-2">
                                     <Button className="rounded-full shadow-none h-3 w-3 border-none" onClick={() => handleEdit(user)} variant="outline" size="sm">
-                                        <Pencil className="w-3 h-3 text-black" />
+                                        <Pencil className="w-3 h-3" />
                                     </Button>
                                     <Button className="rounded-full border-none shadow-none h-3 w-3" onClick={() => handleRemoveUser(user.id)} variant="outline" size="sm">
                                         <Trash className="w-3 h-3 text-red-400" />
