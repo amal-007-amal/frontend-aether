@@ -973,7 +973,7 @@ export default function CallDetailPage() {
                                                                         <CirclePlay className="w-4 h-4 text-black" />
                                                                     </Button>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-60 mx-10">
+                                                                <PopoverContent className="w-80 mx-10">
                                                                     <div className="text-sm font-medium mb-2">Recording Info</div>
                                                                     {loadingMap[item] ? (
                                                                         <p className="text-xs text-gray-500">Loading...</p>
@@ -983,14 +983,6 @@ export default function CallDetailPage() {
                                                                                 <source src={recordingMap[item]} type="audio/mpeg" />
                                                                                 Your browser does not support the audio element.
                                                                             </audio>
-                                                                            <a
-                                                                                href={recordingMap[item]}
-                                                                                download={`recording-${item}.mp3`}
-                                                                                className="text-xs gap-2 text-gray-800 hover:underline mt-2 flex items-center"
-                                                                            >
-                                                                                Download Recording
-                                                                                <Download className="w-3 h-3" />
-                                                                            </a>
                                                                         </>
                                                                     ) : (
                                                                         <p className="text-xs text-gray-500">No recording found.</p>
