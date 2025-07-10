@@ -489,7 +489,7 @@ export default function CallDetailPage() {
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <AetherTooltip label="Columns">
-                                  <Columns3 className="h-4 w-4 text-black" />
+                                  <Columns3 className="h-4 w-4" />
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
@@ -515,7 +515,7 @@ export default function CallDetailPage() {
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <AetherTooltip label="Export option">
-                                    <Menu className="h-4 w-4 text-black" />
+                                    <Menu className="h-4 w-4" />
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
@@ -1094,7 +1094,7 @@ export default function CallDetailPage() {
                                     setCurrentPage(Math.min(Math.max(1, page), totalPages)); // Clamp between 1 and totalPages
                                 }
                             }}
-                            className="w-20 h-8 text-center shadow-none rounded-xl border border-gray-200 px-2"
+                            className="w-20 h-8 text-center shadow-none rounded-xl border border-gray-200 px-2 dark:bg-transparent"
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                     const page = parseInt((e.target as HTMLInputElement).value);
@@ -1105,7 +1105,7 @@ export default function CallDetailPage() {
                             }}
                         />&nbsp;&nbsp;&nbsp;of&nbsp;&nbsp;{totalPages}</span>
                     <Button
-                        className="bg-white shadow-none text-xs text-black hover:bg-gray-100"
+                        className="shadow-none text-xs text-black hover:bg-gray-100  dark:bg-transparent dark:text-white"
                         onClick={() => {
                             const newPage = Math.max(currentPage - 1, 1);
                             setCurrentPage(newPage);
@@ -1115,7 +1115,7 @@ export default function CallDetailPage() {
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <Button
-                        className="bg-white shadow-none text-black hover:bg-gray-100 text-xs"
+                        className="shadow-none text-black hover:bg-gray-100 text-xs dark:bg-transparent dark:text-white"
                         onClick={() => {
                             const newPage = Math.min(currentPage + 1, totalPages);
                             setCurrentPage(newPage);
