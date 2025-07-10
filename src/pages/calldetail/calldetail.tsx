@@ -443,7 +443,7 @@ export default function CallDetailPage() {
                         <AetherTooltip label="Abandon Number">
                             <ChartPie className={`h-4 w-4 cursor-pointer ${openFilter.showAbandonedOnly?'text-fuchsia-500':''}`} onClick={() => {
                                 setOpenFilter(prev => ({
-                                    ...prev, showAbandonedOnly: true
+                                    ...prev, showAbandonedOnly: !prev.showAbandonedOnly
                                 }))
                             }} />
                         </AetherTooltip>
