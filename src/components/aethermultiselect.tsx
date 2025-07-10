@@ -79,7 +79,7 @@ export function AetherMultiSelect({
           <CommandInput placeholder="Search..." />
           <CommandEmpty>No results found.</CommandEmpty>
           <div className="flex justify-between items-center px-3 py-2 text-xs border-b">
-            <button onClick={handleSelectAll} className="text-black hover:underline">
+            <button onClick={handleSelectAll} className="hover:underline">
               Select All
             </button>
             <div className="flex gap-2">
