@@ -441,7 +441,7 @@ export default function CallDetailPage() {
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <AetherTooltip label="Abandon Number">
-                            <ChartPie className="h-4 w-4 cursor-pointer" onClick={() => {
+                            <ChartPie className={`h-4 w-4 cursor-pointer ${openFilter.showAbandonedOnly?'text-fuchsia-500':''}`} onClick={() => {
                                 setOpenFilter(prev => ({
                                     ...prev, showAbandonedOnly: true
                                 }))

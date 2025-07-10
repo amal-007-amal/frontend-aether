@@ -36,7 +36,7 @@ export default function SideBar() {
   const baseClasses = "text-fuchsia-500 flex items-center gap-3 text-xs p-2 rounded-xl";
 
   return (
-    <aside className={`transition-all duration-300 w-18 py-4 px-3 dark:bg-gray-900 bg-gray-100/60 rounded-xl p-2 shadow`}>
+    <aside className={`transition-all duration-300 w-18 py-4 px-3 dark:bg-stone-900 bg-gray-100/60 rounded-xl p-2 shadow`}>
       <nav className="space-y-3 flex flex-col">
         {navMenuItem.map(({ path, label, icon: Icon, tooltip }) => {
           const active = isActive(path);

@@ -6,13 +6,22 @@ import { Switch } from "../components/ui/switch";
 
 export default function Header() {
     const aetherNaviagte = useNavigate()
-    const [isDark, setIsDark] = useState(false)
+    const [isDark, setIsDark] = useState(() => {
+        const stored = localStorage.getItem("aether_theme");
+        return stored === "dark" || (
+            stored === null &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+        );
+    });
     useEffect(() => {
         const root = window.document.documentElement;
+
         if (isDark) {
             root.classList.add("dark");
+            localStorage.setItem("aether_theme", "dark");
         } else {
             root.classList.remove("dark");
+            localStorage.setItem("aether_theme", "light");
         }
     }, [isDark]);
     const handleLogout = () => {
@@ -23,7 +32,7 @@ export default function Header() {
         aetherNaviagte('/')
     }
     return (
-        <header className="text-white p-3 rounded-xl border border-gray-200 flex justify-between items-center dark:bg-gray-900">
+        <header className="text-white p-3 rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-stone-900 flex justify-between items-center">
             <h2 className="font-light flex text-black dark:text-white text-xl items-center">
                 A<span className="text-fuchsia-500 font-normal">ether</span>&nbsp;Hub&nbsp;
                 <AudioLines className="h-5 w-5" />
