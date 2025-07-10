@@ -55,6 +55,7 @@ export default function CallDetailPage() {
         showAbandonedOnly: false
     });
     const [isFilterOpen, setISDilterOpen] = useState(false)
+    const [filterStatus,setFilterStatus] =  useState(false)
     const [showDialog, setShowDialog] = useState(false);
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
     const [fromHour, setFromHour] = useState<number>(0);
@@ -153,42 +154,50 @@ export default function CallDetailPage() {
     console.log(abandoned.length)
     const { fetchRecording, recordingMap, loadingMap } = useRecording();
     useEffect(() => {
-        const stored = localStorage.getItem("aether_call_filters");
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                const { filterMinStart, filterMaxStart, userIDs, filterType } = parsed;
+        const fetchInitialData = () => {
+            const stored = localStorage.getItem("aether_call_filters");
 
-                setTimeSave({
-                    filterMinStart: filterMinStart || null,
-                    filterMaxStart: filterMaxStart || null,
-                });
-                setSelFilter(filterType)
-                setSelectedUserIDs(userIDs || []);
-                setTimeFilters(parsed);
-                fetchCallLogsWith(parsed);
-            } catch (err) {
-                console.error("Invalid filters in localStorage", err);
-                const defaultFilters = {
-                    filterMinStart: null,
-                    filterMaxStart: null,
-                    userIDs: []
-                };
-                setTimeFilters(defaultFilters);
-                fetchCallLogsWith(defaultFilters);
-            }
-        } else {
             const defaultFilters = {
                 filterMinStart: null,
                 filterMaxStart: null,
-                userIDs: []
+                userIDs: [],
             };
-            setTimeFilters(defaultFilters);
-            fetchCallLogsWith(defaultFilters);
-        }
 
-        fetchUsers();
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    const {
+                        filterMinStart = null,
+                        filterMaxStart = null,
+                        userIDs = [],
+                        filterType,
+                        filterStatus
+                    } = parsed;
+
+                    const filters = { filterMinStart, filterMaxStart, userIDs };
+
+                    setTimeSave({ filterMinStart, filterMaxStart });
+                    setSelFilter(filterType);
+                    setSelectedUserIDs(userIDs);
+                    setTimeFilters(filters);
+                    fetchCallLogsWith(filters);
+                    setFilterStatus(filterStatus)
+                } catch (err) {
+                    console.error("Invalid filters in localStorage", err);
+                    setTimeFilters(defaultFilters);
+                    fetchCallLogsWith(defaultFilters);
+                }
+            } else {
+                setTimeFilters(defaultFilters);
+                fetchCallLogsWith(defaultFilters);
+            }
+
+            fetchUsers();
+        };
+
+        fetchInitialData();
     }, []);
+
     const [currentPage, setCurrentPage] = useState(1);
     const filteredData = useMemo(() => {
         const [minMinutes, maxMinutes] = values;
@@ -359,11 +368,12 @@ export default function CallDetailPage() {
             filterMinStart: timesave.filterMinStart,
             filterMaxStart: timesave.filterMaxStart,
             userIDs: selectedUserIDs,
-            filterType: selfilter
+            filterType: selfilter,
+            filterStatus:true
         };
 
         localStorage.setItem("aether_call_filters", JSON.stringify(filters));
-
+        setFilterStatus(true)
         setTimeFilters(filters);
         fetchCallLogsWith(filters);
         setISDilterOpen(false)
@@ -381,10 +391,16 @@ export default function CallDetailPage() {
             filterType: "today",
             filterMinStart: startOfToday().toISOString(),
             filterMaxStart: null,
-            userIDs: []
+            userIDs: [],
+            filterStatus:false
         };
         localStorage.setItem("aether_call_filters", JSON.stringify(defaultFilters));
         setRange({ from: undefined, to: undefined });
+        setFilterStatus(false)
+        setSelFilter("today");
+        setSelectedUserIDs([]);
+        setTimeSave({ filterMinStart: defaultFilters.filterMinStart, filterMaxStart: null });
+
         setTimeFilters(defaultFilters);
         fetchCallLogsWith(defaultFilters);
     };
@@ -441,7 +457,7 @@ export default function CallDetailPage() {
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <AetherTooltip label="Abandon Number">
-                            <ChartPie className={`h-4 w-4 cursor-pointer ${openFilter.showAbandonedOnly?'text-fuchsia-500':''}`} onClick={() => {
+                            <ChartPie className={`h-4 w-4 cursor-pointer ${openFilter.showAbandonedOnly ? 'text-fuchsia-500' : ''}`} onClick={() => {
                                 setOpenFilter(prev => ({
                                     ...prev, showAbandonedOnly: !prev.showAbandonedOnly
                                 }))
@@ -453,7 +469,7 @@ export default function CallDetailPage() {
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
                                 <AetherTooltip label="call Filter">
-                                <FunnelPlus className="h-4 w-4" />
+                                    <FunnelPlus className={`h-4 w-4 ${filterStatus?'text-fuchsia-500':''}`} />
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
@@ -482,14 +498,14 @@ export default function CallDetailPage() {
                                 </div>
                                 <div className="flex justify-end gap-4">
                                     <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500" onClick={handleResetFilters}>Reset</Button>
-                                    <Button onClick={handleFilterApply} className="bg-black text-white text-xs rounded-xl">Apply</Button>
+                                    <Button onClick={handleFilterApply} className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300">Apply</Button>
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <AetherTooltip label="Columns">
-                                  <Columns3 className="h-4 w-4" />
+                                    <Columns3 className="h-4 w-4" />
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
