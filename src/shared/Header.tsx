@@ -6,16 +6,17 @@ import { Switch } from "../components/ui/switch";
 
 export default function Header() {
     const aetherNaviagte = useNavigate()
-    const [isDark, setIsDark] = useState(() => {
+
+    const [isDark, setIsDark] = useState<boolean>(() => {
+        if (typeof window === "undefined") return false; // SSR safety
         const stored = localStorage.getItem("aether_theme");
-        return stored === "dark" || (
-            stored === null &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches
-        );
+        if (stored === "dark") return true;
+        if (stored === "light") return false;
+        return window.matchMedia("(prefers-color-scheme: dark)").matches;
     });
+
     useEffect(() => {
         const root = window.document.documentElement;
-
         if (isDark) {
             root.classList.add("dark");
             localStorage.setItem("aether_theme", "dark");
@@ -24,11 +25,15 @@ export default function Header() {
             localStorage.setItem("aether_theme", "light");
         }
     }, [isDark]);
+
+
+
     const handleLogout = () => {
         localStorage.removeItem('aether_access_token')
         localStorage.removeItem('aether_refresh_token')
         localStorage.removeItem('aether_leaderboard_filters')
         localStorage.removeItem('aether_call_filters')
+        localStorage.removeItem('aether_theme')
         aetherNaviagte('/')
     }
     return (

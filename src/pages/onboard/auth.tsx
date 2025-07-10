@@ -234,7 +234,7 @@ export default function OTPComponent() {
                             placeholder="Enter the server url"
                             value={surl}
                             onChange={(e) => setSurl(e.target.value)}
-                            className="border rounded-full p-2 w-full mb-2 placeholder:text-sm"
+                            className="border rounded-full p-2 w-full mb-2 placeholder:text-sm text-black"
                         />
                         <button
                             onClick={() => {
