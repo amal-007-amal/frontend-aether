@@ -9,7 +9,7 @@ export default function RedirectRoot() {
     const token = localStorage.getItem("aether_access_token");
 
     if (!serverUrl) {
-      navigate("/");
+      navigate("/onboard");
     } else if (!token) {
       navigate("/onboard");
     } else {
