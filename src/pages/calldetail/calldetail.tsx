@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CirclePlay, Columns3, Download, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
+import { ChartPie, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CirclePlay, Columns3, Download, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { filters, type FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -28,6 +28,7 @@ import autoTable from "jspdf-autotable";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../components/ui/dialog";
 import { typeMap } from "../../types/callnamemap";
 import { ScrollArea } from "../../components/ui/scroll-area";
+import { AetherTooltip } from "../../components/aethertooltip";
 
 export default function CallDetailPage() {
     const filterRefs = {
@@ -50,9 +51,10 @@ export default function CallDetailPage() {
         timeFillOpen: false,
         durationRangeOpen: false,
         typeCallOpen: false,
-        callTypeOpen: false
+        callTypeOpen: false,
+        showAbandonedOnly: false
     });
-    const [isFilterOpen,setISDilterOpen]=useState(false)
+    const [isFilterOpen, setISDilterOpen] = useState(false)
     const [showDialog, setShowDialog] = useState(false);
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
     const [fromHour, setFromHour] = useState<number>(0);
@@ -117,9 +119,9 @@ export default function CallDetailPage() {
         { key: "device_id", label: "Device ID", active: false },
         { key: "recording_ids", label: "Recordings", active: true }
     ]);
-    const getColHeaderLabel = (key:string)=>{
-        const getlabel = allColumns.find(item=>item.key===key)
-        if(getlabel!==undefined){
+    const getColHeaderLabel = (key: string) => {
+        const getlabel = allColumns.find(item => item.key === key)
+        if (getlabel !== undefined) {
             return getlabel
         }
     }
@@ -245,6 +247,9 @@ export default function CallDetailPage() {
                 (!filterMinTime || callStartTime >= filterMinTime) &&
                 (!filterMaxTime || callStartTime <= filterMaxTime);
 
+            const abandonFilterPass =
+                !openFilter.showAbandonedOnly || (abandoned as string[]).includes(call.other_number);
+
             const otherFiltersPass = Object.entries(filters).every(([key, value]) => {
                 if (!value) return true;
                 const field = String((call as any)[key] ?? "").toLowerCase();
@@ -262,6 +267,7 @@ export default function CallDetailPage() {
                 startTimeFilterPass &&
                 typeCallFilterPass &&
                 callTypesFilterPass &&
+                abandonFilterPass &&
                 otherFiltersPass
             );
         });
@@ -277,11 +283,9 @@ export default function CallDetailPage() {
         tableFiller.callTypes,
         tableFiller.typecall,
         values,
-        starttimeFill
+        starttimeFill,
+        openFilter.showAbandonedOnly
     ]);
-
-
-
     const sortedData = useMemo(() => {
         if (!sortKey) return filteredData;
 
@@ -436,11 +440,21 @@ export default function CallDetailPage() {
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
-                        <RefreshCcw onClick={() => fetchCallLogsWith(timeFilters)} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
-                        
+                        <AetherTooltip label="Abandon Number">
+                            <ChartPie className="h-4 w-4 cursor-pointer" onClick={() => {
+                                setOpenFilter(prev => ({
+                                    ...prev, showAbandonedOnly: true
+                                }))
+                            }} />
+                        </AetherTooltip>
+                        <AetherTooltip label="Refresh">
+                            <RefreshCcw onClick={() => fetchCallLogsWith(timeFilters)} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
+                        </AetherTooltip>
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
+                                <AetherTooltip label="call Filter">
                                 <FunnelPlus className="h-4 w-4" />
+                                </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()} >
@@ -474,7 +488,9 @@ export default function CallDetailPage() {
                         </DropdownMenu>
                         <DropdownMenu>
                             <DropdownMenuTrigger>
-                                <Columns3 className="h-4 w-4 text-black" />
+                                <AetherTooltip label="Columns">
+                                  <Columns3 className="h-4 w-4 text-black" />
+                                </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <div onClick={(e) => e.stopPropagation()}>
@@ -498,7 +514,9 @@ export default function CallDetailPage() {
                         </DropdownMenu>
                         <DropdownMenu>
                             <DropdownMenuTrigger>
-                                <Menu className="h-4 w-4 text-black" />
+                                <AetherTooltip label="Export option">
+                                    <Menu className="h-4 w-4 text-black" />
+                                </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <span onClick={handleexportpdf} className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export as Pdf</span>
