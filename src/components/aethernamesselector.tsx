@@ -110,7 +110,7 @@ export function AetherNameMultiSelect({
                     }}
                     style={floatingStyles}
                     className={cn(
-                        "absolute z-50 w-[250px] bg-white rounded border shadow-md p-0 text-sm transition-opacity duration-150 ease-in-out",
+                        "absolute z-50 w-[250px] rounded border shadow-md p-0 text-sm transition-opacity duration-150 ease-in-out",
                         open ? "opacity-100" : "opacity-0 pointer-events-none"
                     )}
                 >
@@ -156,7 +156,7 @@ export function AetherNameMultiSelect({
                             {filteredData.sort((a, b) => a.label.localeCompare(b.label)).map((item) => (
                                 <div
                                     key={item.value}
-                                    className="px-2 py-1.5 cursor-pointer hover:bg-gray-100 flex items-center gap-2"
+                                    className="px-2 py-1.5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 flex items-center gap-2"
                                     onClick={() => toggle(item.label)}
                                 >
                                     <Checkbox
