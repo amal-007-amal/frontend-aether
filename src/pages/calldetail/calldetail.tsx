@@ -1105,7 +1105,7 @@ export default function CallDetailPage() {
                             }}
                         />&nbsp;&nbsp;&nbsp;of&nbsp;&nbsp;{totalPages}</span>
                     <Button
-                        className="shadow-none text-xs text-black hover:bg-gray-100  dark:bg-transparent dark:text-white"
+                        className="shadow-none text-xs bg-white text-black hover:bg-gray-100  dark:bg-transparent dark:text-white"
                         onClick={() => {
                             const newPage = Math.max(currentPage - 1, 1);
                             setCurrentPage(newPage);
@@ -1115,7 +1115,7 @@ export default function CallDetailPage() {
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <Button
-                        className="shadow-none text-black hover:bg-gray-100 text-xs dark:bg-transparent dark:text-white"
+                        className="shadow-none bg-white text-black hover:bg-gray-100 text-xs dark:bg-transparent dark:text-white"
                         onClick={() => {
                             const newPage = Math.min(currentPage + 1, totalPages);
                             setCurrentPage(newPage);
