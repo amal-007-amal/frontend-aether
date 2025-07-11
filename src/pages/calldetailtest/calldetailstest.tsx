@@ -14,7 +14,6 @@ import { ScrollArea } from "../../components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { aetherFormatDate } from "../../hooks/useFormattedDate";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
-import { typeMap } from "../../types/callnamemap";
 
 export default function CallDetailTestPage() {
     const [isFilterOpen, setISDilterOpen] = useState(false)
@@ -29,13 +28,11 @@ export default function CallDetailTestPage() {
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
         { key: "other_name", label: "Caller Name", active: true },
-        { key: "call_type", label: "Call Type", active: true },
-        { key: "type", label: "Android Type", active: false },
+        { key: "type", label: "Call Type", active: true },
         { key: "start_time", label: "Timestamp", active: true },
         { key: "duration", label: "Duration", active: true },
         { key: "user_id", label: "Agent Name", active: true },
         { key: "agent_number", label: "Agent Number", active: true },
-        { key: "device_id", label: "Device ID", active: false },
         { key: "recording_ids", label: "Recordings", active: true }
     ]);
     const getColHeaderLabel = (key: string) => {
@@ -223,7 +220,7 @@ export default function CallDetailTestPage() {
                                 <TableHead className="text-xs font-semibold w-14">Sl No.</TableHead>
                                 {visibleColumns.includes("other_number") && (
                                     <TableHead
-                                        className="text-xs font-semibold flex items-center"
+                                        className="text-xs font-semibold"
                                     >
                                         {getColHeaderLabel('other_number')?.label}
                                     </TableHead>
@@ -233,18 +230,10 @@ export default function CallDetailTestPage() {
                                         {getColHeaderLabel('other_name')?.label}
                                     </TableHead>
                                 )}
-                                {visibleColumns.includes("call_type") && (
-                                    <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
-                                    >
-                                        {getColHeaderLabel('call_type')?.label}
-                                    </TableHead>
-                                )}
                                 {visibleColumns.includes("type") && (
                                     <TableHead
                                         className="text-xs font-semibold cursor-pointer"
                                     >
-
                                         {getColHeaderLabel('type')?.label}
                                     </TableHead>
                                 )}
@@ -303,11 +292,8 @@ export default function CallDetailTestPage() {
                                             {visibleColumns.includes("other_name") && (
                                                 <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
                                             )}
-                                            {visibleColumns.includes("call_type") && (
-                                                <TableCell className="text-left">{call.type}</TableCell>
-                                            )}
                                             {visibleColumns.includes("type") && (
-                                                <TableCell className="text-left">{typeMap[call.type] || call.type}</TableCell>
+                                                <TableCell className="text-left">{call.type}</TableCell>
                                             )}
                                             {visibleColumns.includes("start_time") && (
                                                 <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
