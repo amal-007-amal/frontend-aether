@@ -1,5 +1,4 @@
 import axios, { type AxiosInstance } from "axios";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { navigateTo } from "../utils/navigation";
 
