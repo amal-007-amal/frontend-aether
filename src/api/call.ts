@@ -25,3 +25,16 @@ export const getRecording = async(recordingid:any):Promise<any>=>{
     console.log("reposn mp3 ",response)
     return response.data
 }
+
+//get call optmized 
+export const getCallsOptimized = async (params?:any): Promise<any> => {
+    const apiClient = getApiClient();
+    const token = localStorage.getItem('aether_access_token') 
+    const { data } = await apiClient.get('/api/v1/calls', {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        },
+        params:params
+    })
+    return data
+}

@@ -9,15 +9,23 @@ import type { AetherFilterApiVal } from "../../types/common";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import AetherLoader from "../../shared/AetherLoader";
+import { useCallLogOptimized } from "../../hooks/useCalllogOptimized";
+import { ScrollArea } from "../../components/ui/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
+import { aetherFormatDate } from "../../hooks/useFormattedDate";
+import { useFormattedDuration } from "../../hooks/useDurationFormat";
+import { typeMap } from "../../types/callnamemap";
 
 export default function CallDetailTestPage() {
     const [isFilterOpen, setISDilterOpen] = useState(false)
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [filter, setfilter] = useState<string>("today")
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
+    const { calllogs, fetchCallLogs } = useCallLogOptimized()
     useEffect(() => {
         fetchUsers();
-    }, [fetchUsers]);
+        fetchCallLogs()
+    }, [fetchUsers, fetchCallLogs]);
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
         { key: "other_name", label: "Caller Name", active: true },
@@ -30,12 +38,12 @@ export default function CallDetailTestPage() {
         { key: "device_id", label: "Device ID", active: false },
         { key: "recording_ids", label: "Recordings", active: true }
     ]);
-    // const getColHeaderLabel = (key: string) => {
-    //     const getlabel = allColumns.find(item => item.key === key)
-    //     if (getlabel !== undefined) {
-    //         return getlabel
-    //     }
-    // }
+    const getColHeaderLabel = (key: string) => {
+        const getlabel = allColumns.find(item => item.key === key)
+        if (getlabel !== undefined) {
+            return getlabel
+        }
+    }
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
         allColumns.filter((col) => col.active).map((col) => col.key)
     );
@@ -56,6 +64,71 @@ export default function CallDetailTestPage() {
     const handleexportpdf = () => { }
     const handleFilterChange = (value: AetherFilterApiVal) => {
         setfilter(value)
+        const now = new Date();
+        const end = now.toISOString();
+        let start: string;
+
+        switch (value) {
+            case 'today': {
+                const startOfToday = new Date(now);
+                startOfToday.setHours(0, 0, 0, 0);
+                start = startOfToday.toISOString();
+                break;
+            }
+            case 'past_24_hours': {
+                const past24 = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                start = past24.toISOString();
+                break;
+            }
+            case 'yesterday': {
+                const yesterdayStart = new Date(now);
+                yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+                yesterdayStart.setHours(0, 0, 0, 0);
+
+                const yesterdayEnd = new Date(yesterdayStart);
+                yesterdayEnd.setHours(23, 59, 59, 999);
+
+                return {
+                    start_date: yesterdayStart.toISOString(),
+                    end_date: yesterdayEnd.toISOString(),
+                };
+            }
+            case 'this_week': {
+                const day = now.getDay();
+                const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+                const monday = new Date(now.setDate(diff));
+                monday.setHours(0, 0, 0, 0);
+                start = monday.toISOString();
+                break;
+            }
+            case 'past_7_days': {
+                const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                start = past7.toISOString();
+                break;
+            }
+            case 'this_month': {
+                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                start = monthStart.toISOString();
+                break;
+            }
+            case 'last_30_days': {
+                const past30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                start = past30.toISOString();
+                break;
+            }
+            case 'custom': {
+                return {
+                    start_date: null,
+                    end_date: null,
+                };
+            }
+        }
+
+        return {
+            start_date: start,
+            end_date: end,
+        };
+
     }
     return (
         <div>
@@ -142,6 +215,131 @@ export default function CallDetailTestPage() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
+                </div>
+                <div>
+                    <Table className="w-full table-fixed border-collapse">
+                        <TableHeader className="sticky top-0 z-10">
+                            <TableRow className="text-sm font-light">
+                                <TableHead className="text-xs font-semibold w-14">Sl No.</TableHead>
+                                {visibleColumns.includes("other_number") && (
+                                    <TableHead
+                                        className="text-xs font-semibold flex items-center"
+                                    >
+                                        {getColHeaderLabel('other_number')?.label}
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("other_name") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        {getColHeaderLabel('other_name')?.label}
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("call_type") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    >
+                                        {getColHeaderLabel('call_type')?.label}
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("type") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    >
+
+                                        {getColHeaderLabel('type')?.label}
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("start_time") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        {getColHeaderLabel('start_time')?.label}
+                                    </TableHead>
+
+                                )}
+                                {visibleColumns.includes("duration") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    >
+                                        {getColHeaderLabel('duration')?.label}
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("user_id") && (
+                                    <TableHead className="text-xs font-semibold">
+                                        <div className="flex items-center  gap-1 relative">
+                                            {getColHeaderLabel('user_id')?.label}
+                                        </div>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("agent_number") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        <span className="flex items-center  gap-1">
+                                            {getColHeaderLabel('agent_number')?.label}
+                                        </span>
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("device_id") && (
+                                    <TableHead
+                                        className="text-xs font-semibold cursor-pointer"
+                                    >{getColHeaderLabel('device_id')?.label}
+                                    </TableHead>
+                                )}
+                                {visibleColumns.includes("recording_ids") && (
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                        {getColHeaderLabel('recording_ids')?.label}
+                                    </TableHead>
+                                )}
+                            </TableRow>
+                        </TableHeader>
+                    </Table>
+
+                    <ScrollArea className="h-[370px]">
+                        <Table className="w-full table-fixed border-collapse">
+                            <TableBody className="text-xs">
+                                {calllogs.length !== 0 && (
+                                    calllogs.map((call, index) => (
+                                        <TableRow key={call.id}>
+                                            <TableCell className="text-left w-14">{index + 1}</TableCell>
+                                            {visibleColumns.includes("other_number") && (
+                                                <TableCell className="text-left">{call.other_number}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("other_name") && (
+                                                <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("call_type") && (
+                                                <TableCell className="text-left">{call.type}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("type") && (
+                                                <TableCell className="text-left">{typeMap[call.type] || call.type}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("start_time") && (
+                                                <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("duration") && (
+                                                <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("user_id") && (
+                                                <TableCell className="text-left">{call.user_id}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("agent_number") && (
+                                                call.agent_number !== "" ? (
+                                                    <TableCell className="text-left">{call.agent_number}</TableCell>
+                                                ) : (
+                                                    <TableCell className="text-left">{'-'}</TableCell>
+                                                )
+                                            )}
+                                            {visibleColumns.includes("device_id") && (
+                                                <TableCell className="text-left">{call.device_id}</TableCell>
+                                            )}
+                                            {visibleColumns.includes("recording_ids") && (
+                                                <TableCell className="flex gap-1 flex-wrap items-center">
+
+                                                </TableCell>
+                                            )}
+                                        </TableRow>
+                                    ))
+                                )
+                                }
+                            </TableBody>
+                        </Table>
+                    </ScrollArea>
                 </div>
             </div>
             {isUserloading && (<AetherLoader />)}
