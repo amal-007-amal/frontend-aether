@@ -183,6 +183,7 @@ export default function UserManagmentPage() {
                             <Label htmlFor="phone">Phone Number</Label>
                             <Input
                                 disabled={isEditMode}
+                                type="number"
                                 id="phone"
                                 className={`${isEditMode ? 'opactiy-50' : ''}`}
                                 value={userData.phone_number}

@@ -151,6 +151,8 @@ export default function OTPComponent() {
             toast.error("Invalid Credentails.Please Contact administrator.", {
                 icon: <X className="w-4 h-4 text-red-400"></X>
             });
+        } finally{
+            setIsPass(false)
         }
     }
 
@@ -323,8 +325,6 @@ export default function OTPComponent() {
                             onClick={() => {
                                 if (password !== "" && verified) {
                                     handleSetNewPassword();
-                                } else {
-                                    toast.warning('Kindly Verify your phonnumber')
                                 }
                             }}
                             className={`${password === "" || !verified

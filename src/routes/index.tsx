@@ -26,7 +26,6 @@ const router = createBrowserRouter([
     element: <AetherLoginLayout><AetherLogin /></AetherLoginLayout>,
   },
   {
-    // Wrap all internal routes in the dashboard layout
     element:<AetherAuthGuard><AetherDashboardLayout /></AetherAuthGuard>,
     children: [
       {

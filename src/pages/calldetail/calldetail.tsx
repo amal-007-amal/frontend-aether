@@ -175,7 +175,7 @@ export default function CallDetailPage() {
 
                     const filters = { filterMinStart, filterMaxStart, userIDs };
 
-                    setTimeSave({ filterMinStart, filterMaxStart });
+                    setTimeSave({ filterMinStart: startOfToday().toISOString(), filterMaxStart });
                     setSelFilter(filterType);
                     setSelectedUserIDs(userIDs);
                     setTimeFilters(filters);
