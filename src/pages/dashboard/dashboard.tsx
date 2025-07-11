@@ -81,7 +81,7 @@ export const AetherDashboard = () => {
         setRange(undefined);
         setSelectedUserIDs(finalFilters.user_ids ?? []);
         setTimeSave({
-            filterMinStart: finalFilters.start_date,
+            filterMinStart: startOfToday().toISOString(),
             filterMaxStart: finalFilters.end_date,
             userIDs: finalFilters.user_ids ?? [],
         });

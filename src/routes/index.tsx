@@ -11,6 +11,7 @@ import CallDetailPage from "../pages/calldetail/calldetail";
 import RedirectRoot from "../pages/redirect/redirect";
 import AetherAuthGuard from "../guard/authguard";
 import { setRouter } from "../utils/navigation";
+import CallDetailTestPage from "../pages/calldetailtest/calldetailstest";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
       {
         path: "/calldetails",
         element: <CallDetailPage />,
+      },
+      {
+        path: "/calldetailstest",
+        element: <CallDetailTestPage />,
       },
     ],
   },

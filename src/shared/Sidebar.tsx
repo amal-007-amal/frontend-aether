@@ -1,4 +1,4 @@
-import { AlignLeft, Cog, Home, UserCog } from "lucide-react";
+import { AlignLeft, Cog, Home, PhoneCall, UserCog } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../components/ui/tooltip";
 
@@ -28,6 +28,12 @@ export default function SideBar() {
       path: "/settings",
       label: "Settings",
       icon: Cog,
+      tooltip: true,
+    },
+    {
+      path: "/calldetailstest",
+      label: "Call Details Test",
+      icon: PhoneCall,
       tooltip: true,
     },
   ]

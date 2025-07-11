@@ -151,7 +151,7 @@ export default function CallDetailPage() {
         timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
-    const { fetchRecording, recordingMap, loadingMap } = useRecording();
+    const { fetchRecording, recordingMap, loadingMap,resetRecording } = useRecording();
     useEffect(() => {
         const fetchInitialData = () => {
             const stored = localStorage.getItem("aether_call_filters");
@@ -981,7 +981,7 @@ export default function CallDetailPage() {
                                                             <Popover key={item}>
                                                                 <PopoverTrigger asChild>
                                                                     <Button
-                                                                        onClick={() => fetchRecording(item)}
+                                                                        onClick={() =>{ fetchRecording(item);resetRecording()}}
                                                                         className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
                                                                     >
                                                                         <CirclePlay className="w-4 h-4 text-black" />

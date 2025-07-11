@@ -9,7 +9,6 @@ export function useUsers() {
 
     const fetchUsers = useCallback(async () => {
         setIsLoading(true);
-
         try {
             const data = await getUsers();
             setUsers([...data]);
