@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChartPie, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CirclePlay, Columns3, Download, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, ChartPie, ChevronLeft, ChevronRight, CirclePlay, Columns3, FileDown, FolderOpen, Funnel, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { filters, type FilterState } from "../../types/call";
 import { Button } from "../../components/ui/button";
@@ -136,7 +136,6 @@ export default function CallDetailPage() {
                 ? prev.filter((col) => col !== key)
                 : [...prev, key]
         );
-
         setAllColumns((prev) =>
             prev.map((col) =>
                 col.key === key ? { ...col, active: !col.active } : col
@@ -677,7 +676,7 @@ export default function CallDetailPage() {
                                             <span onClick={() => handleSort("start_time")} className="flex items-center gap-1">
                                                 {getColHeaderLabel('start_time')?.label}
                                                 {sortKey === "start_time" && (
-                                                    sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                                    sortOrder === "asc" ? <ArrowUpNarrowWide className="w-3 h-3" /> : <ArrowDownWideNarrow className="w-3 h-3" />
                                                 )}
                                             </span>
                                             <Popover
@@ -798,7 +797,7 @@ export default function CallDetailPage() {
                                             <span onClick={() => handleSort("duration")} className="flex items-center gap-1">
                                                 {getColHeaderLabel('duration')?.label}
                                                 {sortKey === "duration" && (
-                                                    sortOrder === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                                                    sortOrder === "asc" ? <ArrowUpNarrowWide className="w-3 h-3" /> : <ArrowDownWideNarrow className="w-3 h-3" />
                                                 )}
                                             </span>
 
