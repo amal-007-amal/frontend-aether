@@ -30,12 +30,12 @@ export default function CallDetailTestPage() {
         { key: "device_id", label: "Device ID", active: false },
         { key: "recording_ids", label: "Recordings", active: true }
     ]);
-    const getColHeaderLabel = (key: string) => {
-        const getlabel = allColumns.find(item => item.key === key)
-        if (getlabel !== undefined) {
-            return getlabel
-        }
-    }
+    // const getColHeaderLabel = (key: string) => {
+    //     const getlabel = allColumns.find(item => item.key === key)
+    //     if (getlabel !== undefined) {
+    //         return getlabel
+    //     }
+    // }
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
         allColumns.filter((col) => col.active).map((col) => col.key)
     );
@@ -80,7 +80,12 @@ export default function CallDetailTestPage() {
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="today">Today</SelectItem>
-                                            <SelectItem value="week">This Week</SelectItem>
+                                            <SelectItem value="past_24_hours">Past 24 hrs</SelectItem>
+                                            <SelectItem value="yesterday">Yesterday</SelectItem>
+                                            <SelectItem value="this_week">This Week</SelectItem>
+                                            <SelectItem value="past_7_days">Past 7 days</SelectItem>
+                                            <SelectItem value="this_month">This Month</SelectItem>
+                                            <SelectItem value="last_30_days">Last 30 days</SelectItem>
                                             <SelectItem value="custom">Custom</SelectItem>
                                         </SelectContent>
                                     </Select>
