@@ -5,6 +5,10 @@ import { getRecording } from "../api/call";
 export function useRecording() {
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
   const [recordingMap, setRecordingMap] = useState<Record<string, string>>({});
+  const resetRecording = () => {
+    setLoadingMap({});
+    setRecordingMap({});
+  };
 
   const fetchRecording = useCallback(async (id: string) => {
     setLoadingMap({ [id]: true });
@@ -23,6 +27,7 @@ export function useRecording() {
   return {
     fetchRecording,
     recordingMap,
-    loadingMap
+    loadingMap,
+    resetRecording
   };
 }

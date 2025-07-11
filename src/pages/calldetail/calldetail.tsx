@@ -151,7 +151,7 @@ export default function CallDetailPage() {
         timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
-    const { fetchRecording, recordingMap, loadingMap } = useRecording();
+    const { fetchRecording, recordingMap, loadingMap,resetRecording } = useRecording();
     useEffect(() => {
         const fetchInitialData = () => {
             const stored = localStorage.getItem("aether_call_filters");
@@ -1012,7 +1012,7 @@ export default function CallDetailPage() {
                                                         <Dialog open={showDialog} onOpenChange={setShowDialog}>
                                                             <DialogTrigger asChild>
                                                                 <span
-                                                                    onClick={() => setShowDialog(true)}
+                                                                    onClick={() => {setShowDialog(true);resetRecording()}}
                                                                     className="text-xs flex items-center text-gray-600 cursor-pointer hover:underline"
                                                                 >
                                                                     +{call.recording_ids.length - 1} more
