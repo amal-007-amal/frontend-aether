@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 
 export const AetherDashboardLayout = () => {
     return (
-        <div className="min-h-screen flex flex-col p-4 bg-fuchsia-50 dark:bg-transparent">
+        <div className="min-h-screen flex flex-col p-4 dark:bg-transparent">
             <div className="flex flex-1 p-1">
                 <SideBar></SideBar>
                 <main className="flex-1 px-4">

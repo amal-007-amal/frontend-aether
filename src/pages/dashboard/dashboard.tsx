@@ -202,7 +202,7 @@ export const AetherDashboard = () => {
 
     return (
         <div>
-            <div className="p-2 rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-stone-900">
+            <div className="p-2 rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-stone-900 ">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-normal flex items-center gap-2"><ChartLine className="h-5 text-fuchsia-500" /> Dashboard</h2>
                     <div className="flex items-center gap-5">
