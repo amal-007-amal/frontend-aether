@@ -57,6 +57,7 @@ export default function CallDetailPage() {
     const [isFilterOpen, setISDilterOpen] = useState(false)
     const [filterStatus, setFilterStatus] = useState(false)
     const [showDialog, setShowDialog] = useState(false);
+    const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
     const [fromHour, setFromHour] = useState<number>(0);
     const [fromMinute, setFromMinute] = useState<number>(0);
@@ -1012,7 +1013,11 @@ export default function CallDetailPage() {
                                                         <Dialog open={showDialog} onOpenChange={setShowDialog}>
                                                             <DialogTrigger asChild>
                                                                 <span
-                                                                    onClick={() => {setShowDialog(true);resetRecording()}}
+                                                                    onClick={() => {
+                                                                        setActiveRecordingIds(call.recording_ids);
+                                                                        setShowDialog(true);
+                                                                        resetRecording();
+                                                                    }}
                                                                     className="text-xs flex items-center text-gray-600 cursor-pointer hover:underline"
                                                                 >
                                                                     +{call.recording_ids.length - 1} more
@@ -1025,7 +1030,7 @@ export default function CallDetailPage() {
                                                                 </DialogHeader>
 
                                                                 <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
-                                                                    {call.recording_ids.map((item) => (
+                                                                    {activeRecordingIds.map((item) => (
                                                                         <div key={item} className="flex flex-col gap-1 border-b pb-2">
                                                                             <Button
                                                                                 onClick={() =>{handleNextRecording(item)}}
