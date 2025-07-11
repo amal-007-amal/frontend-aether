@@ -39,15 +39,15 @@ export default function SideBar() {
   ]
   const isActive = (path: string) => location.pathname === path;
 
-  const baseClasses = "text-fuchsia-500 flex items-center gap-3 text-xs p-2 rounded-xl";
+  const baseClasses = "text-fuchsia-500 flex items-center gap-3 text-xs p-2 rounded-full";
 
   return (
-    <aside className={`transition-all duration-300 w-18 py-4 px-3 dark:bg-stone-900 bg-gray-100/60 rounded-xl p-2 shadow`}>
+    <aside className={`transition-all duration-300 w-18 py-4 px-3 dark:bg-stone-900 rounded-xl p-2 shadow`}>
       <nav className="space-y-3 flex flex-col">
         {navMenuItem.map(({ path, label, icon: Icon, tooltip }) => {
           const active = isActive(path);
-          const iconClasses = `w-5 h-5 hover:rotate-[360deg] transition-transform duration-1000 ease-in-out ${active ? 'text-white' : 'text-gray-400'}`;
-          const linkClasses = `${baseClasses} ${active ? "bg-fuchsia-500 shadow" : ""}`;
+          const iconClasses = `w-5 h-5 hover:rotate-[360deg] transition-transform duration-1000 ease-in-out ${active ? 'text-fuchsia-500' : 'text-gray-400'}`;
+          const linkClasses = `${baseClasses} ${active ? "border border-fuchsia-500 bg-fuchsia-50 dark:bg-transparent" : ""}`;
 
           const link = (
             <Link key={path} to={path} className={linkClasses}>

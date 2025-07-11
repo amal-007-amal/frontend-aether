@@ -16,7 +16,7 @@ const AetherServerStats = ({ token }: any) => {
     useServerSocket(token, handleSocketData);
 
     return (
-        <div className="p-4 border rounded-xl bg-muted/20 w-full max-w-md">
+        <div className="p-4 border rounded-xl w-full max-w-md">
             <h2 className="text-sm font-normal flex items-center">Server Stats</h2>
             <Table>
                 <TableHeader>

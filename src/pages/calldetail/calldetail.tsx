@@ -152,7 +152,7 @@ export default function CallDetailPage() {
         timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
-    const { fetchRecording, recordingMap, loadingMap,resetRecording } = useRecording();
+    const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
     useEffect(() => {
         const fetchInitialData = () => {
             const stored = localStorage.getItem("aether_call_filters");
@@ -544,7 +544,7 @@ export default function CallDetailPage() {
                 </div>
                 <div>
                     <Table className="w-full table-fixed border-collapse">
-                        <TableHeader className="sticky top-0 bg-white z-10">
+                        <TableHeader className="sticky top-0 z-10">
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold w-14">Sl No.</TableHead>
                                 {visibleColumns.includes("other_number") && (
@@ -977,7 +977,6 @@ export default function CallDetailPage() {
                                             )}
                                             {visibleColumns.includes("recording_ids") && (
                                                 <TableCell className="flex gap-1 flex-wrap items-center">
-                                                    {/* Show only the first recording inline with Popover */}
                                                     {Array.isArray(call.recording_ids) &&
                                                         call.recording_ids.length > 0 &&
                                                         call.recording_ids.slice(0, 1).map((item) => (
@@ -997,6 +996,7 @@ export default function CallDetailPage() {
                                                                     ) : recordingMap[item] ? (
                                                                         <>
                                                                             <audio controls className="w-full mt-2 h-8">
+                                                                                <source src={recordingMap[item]?.replace(/\.mp3$/, ".m4a")} type="audio/mp4" />
                                                                                 <source src={recordingMap[item]} type="audio/mpeg" />
                                                                                 Your browser does not support the audio element.
                                                                             </audio>
@@ -1007,8 +1007,6 @@ export default function CallDetailPage() {
                                                                 </PopoverContent>
                                                             </Popover>
                                                         ))}
-
-                                                    {/* Dialog Trigger */}
                                                     {Array.isArray(call.recording_ids) && call.recording_ids.length > 1 && (
                                                         <Dialog open={showDialog} onOpenChange={setShowDialog}>
                                                             <DialogTrigger asChild>
@@ -1028,36 +1026,27 @@ export default function CallDetailPage() {
                                                                 <DialogHeader className="text-base font-semibold mb-2">
                                                                     All Recordings
                                                                 </DialogHeader>
-
                                                                 <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
                                                                     {activeRecordingIds.map((item) => (
-                                                                        <div key={item} className="flex flex-col gap-1 border-b pb-2">
+                                                                        <div key={item} className="flex flex gap-1 border-b pb-2 p-2">
                                                                             <Button
-                                                                                onClick={() =>{handleNextRecording(item)}}
-                                                                                className="bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
-                                                                            >
+                                                                                onClick={() => { handleNextRecording(item) }}
+                                                                                className="bg-gray-100 hover:bg-gray-200 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                                            > 
                                                                                 <CirclePlay className="w-4 h-4 text-black" />
                                                                             </Button>
-
                                                                             {loadingMap[item] ? (
                                                                                 <p className="text-xs text-gray-500">Loading...</p>
                                                                             ) : recordingMap[item] ? (
                                                                                 <>
                                                                                     <audio controls className="w-full h-8">
+                                                                                        <source src={recordingMap[item]?.replace(/\.mp3$/, ".m4a")} type="audio/mp4" />
                                                                                         <source src={recordingMap[item]} type="audio/mpeg" />
                                                                                         Your browser does not support the audio element.
                                                                                     </audio>
-                                                                                    <a
-                                                                                        href={recordingMap[item]}
-                                                                                        download={`recording-${item}.mp3`}
-                                                                                        className="text-xs text-gray-800 hover:underline flex items-center gap-1"
-                                                                                    >
-                                                                                        Download Recording
-                                                                                        <Download className="w-3 h-3" />
-                                                                                    </a>
                                                                                 </>
                                                                             ) : (
-                                                                                <p className="text-xs text-gray-500">No recording found.</p>
+                                                                                <p className="text-xs text-gray-500"></p>
                                                                             )}
                                                                         </div>
                                                                     ))}
@@ -1066,7 +1055,6 @@ export default function CallDetailPage() {
                                                         </Dialog>
                                                     )}
                                                 </TableCell>
-
                                             )}
                                         </TableRow>
                                     ))
@@ -1112,7 +1100,7 @@ export default function CallDetailPage() {
                             onChange={(e) => {
                                 const page = parseInt(e.target.value);
                                 if (!isNaN(page)) {
-                                    setCurrentPage(Math.min(Math.max(1, page), totalPages)); // Clamp between 1 and totalPages
+                                    setCurrentPage(Math.min(Math.max(1, page), totalPages));
                                 }
                             }}
                             className="w-20 h-8 text-center shadow-none rounded-xl border border-gray-200 px-2 dark:bg-transparent"
