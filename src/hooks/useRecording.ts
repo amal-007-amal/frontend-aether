@@ -5,26 +5,24 @@ import { getRecording } from "../api/call";
 export function useRecording() {
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
   const [recordingMap, setRecordingMap] = useState<Record<string, string>>({});
-  const resetRecording = () => {
-    setLoadingMap({});
-    setRecordingMap({});
-  };
+
   const fetchRecording = useCallback(async (id: string) => {
-    setLoadingMap((prev) => ({ ...prev, [id]: true }));
+    setLoadingMap({ [id]: true });
+    setRecordingMap({});
+
     try {
       const record = await getRecording(id);
-      setRecordingMap((prev) => ({ ...prev, [id]:record.download_url }));
+      setRecordingMap({ [id]: record.download_url });
     } catch (err) {
       toast.error("Unable to connect with server!");
     } finally {
-      setLoadingMap((prev) => ({ ...prev, [id]: false }));
+      setLoadingMap({ [id]: false });
     }
   }, []);
 
   return {
     fetchRecording,
     recordingMap,
-    loadingMap,
-    resetRecording
+    loadingMap
   };
 }

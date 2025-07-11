@@ -151,7 +151,7 @@ export default function CallDetailPage() {
         timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
-    const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
+    const { fetchRecording, recordingMap, loadingMap } = useRecording();
     useEffect(() => {
         const fetchInitialData = () => {
             const stored = localStorage.getItem("aether_call_filters");
@@ -421,12 +421,7 @@ export default function CallDetailPage() {
         });
     }
     const handleNextRecording = (newId: string) => {
-        resetRecording();
-
-        // Wait for one tick to let state reset before fetching
-        setTimeout(() => {
-            fetchRecording(newId);
-        }, 0);
+        fetchRecording(newId);
     };
     const handleexportpdf = () => {
         const doc = new jsPDF();
@@ -988,7 +983,7 @@ export default function CallDetailPage() {
                                                             <Popover key={item}>
                                                                 <PopoverTrigger asChild>
                                                                     <Button
-                                                                        onClick={() => { handleNextRecording(item)}}
+                                                                        onClick={() => { handleNextRecording(item) }}
                                                                         className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
                                                                     >
                                                                         <CirclePlay className="w-4 h-4 text-black" />
@@ -1033,7 +1028,7 @@ export default function CallDetailPage() {
                                                                     {call.recording_ids.map((item) => (
                                                                         <div key={item} className="flex flex-col gap-1 border-b pb-2">
                                                                             <Button
-                                                                                onClick={() => fetchRecording(item)}
+                                                                                onClick={() =>{handleNextRecording(item)}}
                                                                                 className="bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
                                                                             >
                                                                                 <CirclePlay className="w-4 h-4 text-black" />
