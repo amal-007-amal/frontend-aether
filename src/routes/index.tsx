@@ -10,6 +10,7 @@ import UserManagmentPage from "../pages/usermanagement/usermanagment";
 import CallDetailPage from "../pages/calldetail/calldetail";
 import RedirectRoot from "../pages/redirect/redirect";
 import AetherAuthGuard from "../guard/authguard";
+import { setRouter } from "../utils/navigation";
 
 const router = createBrowserRouter([
   {
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
+setRouter(router)
 export default function AetherAppRouter() {
   return <RouterProvider router={router} />;
 }

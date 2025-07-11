@@ -1,5 +1,7 @@
 import axios, { type AxiosInstance } from "axios";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { navigateTo } from "../utils/navigation";
 
 export const getApiClient = (): AxiosInstance => {
   const baseUrl = localStorage.getItem("aether_server_url")?.trim();
@@ -24,7 +26,6 @@ export const getApiClient = (): AxiosInstance => {
     return config;
   });
 
-  // ✅ Response interceptor for token refresh
   instance.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -52,7 +53,12 @@ export const getApiClient = (): AxiosInstance => {
         } catch (refreshError) {
           console.error("Refresh token failed:", refreshError);
           toast.error("Session expired. Please log in again.");
-          window.location.href = "/";
+          localStorage.removeItem('aether_access_token')
+          localStorage.removeItem('aether_refresh_token')
+          localStorage.removeItem('aether_leaderboard_filters')
+          localStorage.removeItem('aether_call_filters')
+          localStorage.removeItem('aether_theme')
+          navigateTo('/')
           return Promise.reject(refreshError);
         }
       }
