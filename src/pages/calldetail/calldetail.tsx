@@ -55,7 +55,7 @@ export default function CallDetailPage() {
         showAbandonedOnly: false
     });
     const [isFilterOpen, setISDilterOpen] = useState(false)
-    const [filterStatus,setFilterStatus] =  useState(false)
+    const [filterStatus, setFilterStatus] = useState(false)
     const [showDialog, setShowDialog] = useState(false);
     const timeOptions = Array.from({ length: 60 }, (_, i) => i);
     const [fromHour, setFromHour] = useState<number>(0);
@@ -151,7 +151,7 @@ export default function CallDetailPage() {
         timeFilters,
         setTimeFilters,
         isLoading } = useCallLogs()
-    const { fetchRecording, recordingMap, loadingMap,resetRecording } = useRecording();
+    const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
     useEffect(() => {
         const fetchInitialData = () => {
             const stored = localStorage.getItem("aether_call_filters");
@@ -367,7 +367,7 @@ export default function CallDetailPage() {
             filterMaxStart: timesave.filterMaxStart,
             userIDs: selectedUserIDs,
             filterType: selfilter,
-            filterStatus:true
+            filterStatus: true
         };
 
         localStorage.setItem("aether_call_filters", JSON.stringify(filters));
@@ -390,7 +390,7 @@ export default function CallDetailPage() {
             filterMinStart: startOfToday().toISOString(),
             filterMaxStart: null,
             userIDs: [],
-            filterStatus:false
+            filterStatus: false
         };
         localStorage.setItem("aether_call_filters", JSON.stringify(defaultFilters));
         setRange({ from: undefined, to: undefined });
@@ -420,7 +420,14 @@ export default function CallDetailPage() {
             startToTime: undefined,
         });
     }
+    const handleNextRecording = (newId: string) => {
+        resetRecording();
 
+        // Wait for one tick to let state reset before fetching
+        setTimeout(() => {
+            fetchRecording(newId);
+        }, 0);
+    };
     const handleexportpdf = () => {
         const doc = new jsPDF();
         const columns = [
@@ -467,7 +474,7 @@ export default function CallDetailPage() {
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
                                 <AetherTooltip label="call Filter">
-                                    <FunnelPlus className={`h-4 w-4 ${filterStatus?'text-fuchsia-500':''}`} />
+                                    <FunnelPlus className={`h-4 w-4 ${filterStatus ? 'text-fuchsia-500' : ''}`} />
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
@@ -981,7 +988,7 @@ export default function CallDetailPage() {
                                                             <Popover key={item}>
                                                                 <PopoverTrigger asChild>
                                                                     <Button
-                                                                        onClick={() =>{ fetchRecording(item);resetRecording()}}
+                                                                        onClick={() => { handleNextRecording(item)}}
                                                                         className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
                                                                     >
                                                                         <CirclePlay className="w-4 h-4 text-black" />
