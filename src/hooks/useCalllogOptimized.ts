@@ -8,14 +8,31 @@ export function useCallLogOptimized() {
   const [calllogs, setCalllogs] = useState<CallLogDetails[]>([]);
   const [abandoned, setAbandoned] = useState<[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const buildQueryParams = (params: Record<string, any>): string => {
+    const searchParams = new URLSearchParams();
 
-  const fetchCallLogs = useCallback(async () => {
+    Object.entries(params).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          if (v !== undefined && v !== null && v !== "") {
+            searchParams.append(key, v.toString());
+          }
+        });
+      } else if (value !== undefined && value !== null && value !== "") {
+        searchParams.append(key, value.toString());
+      }
+    });
+
+    return searchParams.toString();
+  };
+  const fetchCallLogs = useCallback(async (params: any) => {
     setIsLoading(true);
     try {
+      const queryString = buildQueryParams(params);
       const users = await getUsers();
       const userMap = Object.fromEntries(users.map(u => [String(u.id), u.name]));
 
-      const data = await getCallsOptimized();
+      const data = await getCallsOptimized(queryString);
 
       setAbandoned(data.abandoned_other_numbers);
 

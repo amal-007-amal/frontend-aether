@@ -30,11 +30,10 @@ export const getRecording = async(recordingid:any):Promise<any>=>{
 export const getCallsOptimized = async (params?:any): Promise<any> => {
     const apiClient = getApiClient();
     const token = localStorage.getItem('aether_access_token') 
-    const { data } = await apiClient.get('/api/v1/calls', {
+    const { data } = await apiClient.get(`/api/v1/calls/optimized?${params}`, {
         headers: {
             "Authorization": `Bearer ${token}`
         },
-        params:params
     })
     return data
 }
