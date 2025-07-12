@@ -66,6 +66,7 @@ export default function CallDetailTestPage() {
             isInitialOffsetSet.current = true;
         }
     }, [offset, limit]);
+
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
         { key: "other_name", label: "Caller Name", active: true },
@@ -111,7 +112,10 @@ export default function CallDetailTestPage() {
     const handleFilterApply = () => {
         setISDilterOpen(false);
         setCurrentOffset(1);
-        setFilterParams({ ...draftFilterParams, filter_user_ids: selectedUserIDs }); // triggers useEffect
+        setFilterParams({ ...draftFilterParams, 
+            created_till:new Date().toISOString(),
+            filter_user_ids: selectedUserIDs 
+        });
     };
 
     const handleResetFilters = () => {
@@ -392,7 +396,7 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
                                             )}
                                             {visibleColumns.includes("type") && (
-                                                <TableCell className="text-left">{typeCompressMap[call.type]||call.type}</TableCell>
+                                                <TableCell className="text-left">{typeCompressMap[call.type] || call.type}</TableCell>
                                             )}
                                             {visibleColumns.includes("start_time") && (
                                                 <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
