@@ -74,15 +74,18 @@ export default function CallDetailTestPage() {
         { key: "agent_number", label: "Agent Number", active: true },
         { key: "recording_ids", label: "Recordings", active: true }
     ]);
+
     const getColHeaderLabel = (key: string) => {
         const getlabel = allColumns.find(item => item.key === key)
         if (getlabel !== undefined) {
             return getlabel
         }
     }
+
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
         allColumns.filter((col) => col.active).map((col) => col.key)
     );
+
     const toggleColumn = (key: string) => {
         setVisibleColumns((prev) =>
             prev.includes(key)
@@ -102,6 +105,7 @@ export default function CallDetailTestPage() {
     //         [key]: value,
     //     }));
     // };
+
     const handleFilterApply = () => {
         setISDilterOpen(false)
     }
@@ -345,7 +349,7 @@ export default function CallDetailTestPage() {
                                 {calllogs.length !== 0 && (
                                     calllogs.map((call, index) => (
                                         <TableRow key={call.id}>
-                                            <TableCell className="text-left w-14">{index + 1}</TableCell>
+                                            <TableCell className="text-left w-14">{(index +1)+offset}</TableCell>
                                             {visibleColumns.includes("other_number") && (
                                                 <TableCell className="text-left">{call.other_number}</TableCell>
                                             )}
