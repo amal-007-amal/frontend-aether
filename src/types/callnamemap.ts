@@ -16,3 +16,12 @@ export const statusConnectMap: Record<string, string> = {
     not_connected: 'Not Connected',
     connected: 'Connected'
 }
+
+
+export const typeCompressMap: Record<string, string> = {
+    incoming: "Incoming",
+    outgoing: "Outgoing",
+    missed: "Missed",
+    not_connected: 'Not Connected',
+    connected: 'Connected'
+}
