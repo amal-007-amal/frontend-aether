@@ -64,7 +64,7 @@ export const AetherPagination = ({
                         <SelectValue placeholder="Limit" />
                     </SelectTrigger>
                     <SelectContent>
-                        {[5, 10, 20, 50, 100].map((num) => (
+                        {[10, 20, 50, 100].map((num) => (
                             <SelectItem key={num} value={String(num)}>
                                 {num}
                             </SelectItem>
