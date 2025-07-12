@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { useUsers } from "../../hooks/useUsers";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AetherFilterApiVal } from "../../types/common";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
@@ -20,6 +20,7 @@ import { AetherPagination } from "../../components/aetherpagination";
 
 
 export default function CallDetailTestPage() {
+    const isInitialOffsetSet = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false)
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [filter, setfilter] = useState<string>("today")
@@ -46,7 +47,7 @@ export default function CallDetailTestPage() {
     });
     console.log(setFilterParams)
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
-    const { calllogs, fetchCallLogs, total } = useCallLogOptimized()
+    const { calllogs, fetchCallLogs, total, offset } = useCallLogOptimized()
     useEffect(() => {
         fetchUsers();
 
@@ -56,6 +57,13 @@ export default function CallDetailTestPage() {
             limit,
         });
     }, [fetchUsers, fetchCallLogs, filterParams, currentOffset, limit]);
+    useEffect(() => {
+        if (!isInitialOffsetSet.current && offset >= 0) {
+            const newPage = Math.floor(offset / limit) + 1;
+            setCurrentOffset(newPage);
+            isInitialOffsetSet.current = true;
+        }
+    }, [offset, limit]);
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
         { key: "other_name", label: "Caller Name", active: true },

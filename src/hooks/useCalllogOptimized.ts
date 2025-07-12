@@ -9,6 +9,7 @@ export function useCallLogOptimized() {
   const [abandoned, setAbandoned] = useState<[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [total, setTotal] = useState(0);
+  const [offset, setOffset] = useState(0);
 
   const buildQueryParams = (params: Record<string, any>): string => {
     const searchParams = new URLSearchParams();
@@ -38,6 +39,7 @@ export function useCallLogOptimized() {
       const data = await getCallsOptimized(queryString);
 
       setAbandoned(data.abandoned_other_numbers || []);
+      setOffset(data.offset || 0);
       setTotal(data.total || 0);
 
       const enrichedCalls = data.calls.map((call: CallLogDetails) => ({
@@ -57,7 +59,8 @@ export function useCallLogOptimized() {
   return {
     calllogs,
     abandoned,
-    total,            
+    total,        
+    offset,    
     isLoading,
     fetchCallLogs,
     setCalllogs,
