@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Columns3, FileDown, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
+import { Columns3, FileDown, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -14,9 +14,9 @@ import { ScrollArea } from "../../components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { aetherFormatDate } from "../../hooks/useFormattedDate";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
-import { Input } from "../../components/ui/input";
 import { Calendar } from "../../components/ui/calendar";
 import type { DateRange } from "react-day-picker";
+import { AetherPagination } from "../../components/aetherpagination";
 
 
 export default function CallDetailTestPage() {
@@ -24,7 +24,7 @@ export default function CallDetailTestPage() {
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [filter, setfilter] = useState<string>("today")
     const [currentOffset, setCurrentOffset] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(1000)
+    const [limit, setLimit] = useState<number>(10)
     const [rangepick, setRangePick] = useState<DateRange | undefined>(undefined);
     const [filterParams, setFilterParams] = useState({
         created_till: new Date().toISOString(),
@@ -44,13 +44,18 @@ export default function CallDetailTestPage() {
         only_last: false,
         response_format: "default",
     });
-
+    console.log(setFilterParams)
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
-    const { calllogs, fetchCallLogs } = useCallLogOptimized()
+    const { calllogs, fetchCallLogs, total } = useCallLogOptimized()
     useEffect(() => {
         fetchUsers();
-        fetchCallLogs(filterParams)
-    }, [fetchUsers, fetchCallLogs]);
+
+        fetchCallLogs({
+            ...filterParams,
+            offset: (currentOffset - 1) * limit,
+            limit,
+        });
+    }, [fetchUsers, fetchCallLogs, filterParams, currentOffset, limit]);
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
         { key: "other_name", label: "Caller Name", active: true },
@@ -83,12 +88,12 @@ export default function CallDetailTestPage() {
         );
     };
 
-    const updateDraftFilter = (key: string, value: any) => {
-        setFilterParams((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
-    };
+    // const updateDraftFilter = (key: string, value: any) => {
+    //     setFilterParams((prev) => ({
+    //         ...prev,
+    //         [key]: value,
+    //     }));
+    // };
     const handleFilterApply = () => {
         setISDilterOpen(false)
     }
@@ -162,7 +167,7 @@ export default function CallDetailTestPage() {
         };
 
     }
-    const totalPages = Math.max(1, Math.ceil(calllogs.length / limit));
+
     return (
         <div>
             <div className="p-2 rounded-xl border border-gray-200 dark:border-stone-700">
@@ -196,16 +201,16 @@ export default function CallDetailTestPage() {
                                         </SelectContent>
                                     </Select>
                                     {filter === "custom" && (
-                                    <div className="flex items-center justify-center my-3 w-full">
-                                         <Calendar
-                                            mode="range"
-                                            selected={rangepick}
-                                            onSelect={(range) => {
-                                                setRangePick(range);
-                                            }}
-                                            numberOfMonths={1}
-                                        />
-                                    </div>
+                                        <div className="flex items-center justify-center my-3 w-full">
+                                            <Calendar
+                                                mode="range"
+                                                selected={rangepick}
+                                                onSelect={(range) => {
+                                                    setRangePick(range);
+                                                }}
+                                                numberOfMonths={1}
+                                            />
+                                        </div>
                                     )}
                                 </div>
 
@@ -374,75 +379,13 @@ export default function CallDetailTestPage() {
                         </Table>
                     </ScrollArea>
                 </div>
-                <div className="flex items-center justify-end mt-4 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs">Rows per Page</span>
-                        <Input
-                            type="number"
-                            className="w-20 text-center shadow-none rounded-xl border border-gray-200"
-                            min={1}
-                            value={limit}
-                            onChange={(e) => {
-                                const value = parseInt(e.target.value);
-                                if (!isNaN(value) && value > 0) {
-                                    setLimit(value);
-                                    setCurrentOffset(1);
-                                }
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    const value = parseInt(e.currentTarget.value);
-                                    if (!isNaN(value) && value > 0) {
-                                        setLimit(value);
-                                        setCurrentOffset(1);
-                                    }
-                                }
-                            }}
-                        />
-                    </div>
-                    <span>
-                        <input
-                            type="number"
-                            min={1}
-                            max={totalPages}
-                            value={currentOffset}
-                            onChange={(e) => {
-                                const page = parseInt(e.target.value);
-                                if (!isNaN(page)) {
-                                    setCurrentOffset(Math.min(Math.max(1, page), totalPages));
-                                }
-                            }}
-                            className="w-20 h-8 text-center shadow-none rounded-xl border border-gray-200 px-2 dark:bg-transparent"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    const page = parseInt((e.target as HTMLInputElement).value);
-                                    if (!isNaN(page)) {
-                                        setCurrentOffset(Math.min(Math.max(1, page), totalPages));
-                                    }
-                                }
-                            }}
-                        />&nbsp;&nbsp;&nbsp;of&nbsp;&nbsp;{totalPages}</span>
-                    <Button
-                        className="shadow-none text-xs bg-white text-black hover:bg-gray-100  dark:bg-transparent dark:text-white"
-                        onClick={() => {
-                            const newPage = Math.max(currentOffset - 1, 1);
-                            setCurrentOffset(newPage);
-                        }}
-                        disabled={currentOffset === 1}
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        className="shadow-none bg-white text-black hover:bg-gray-100 text-xs dark:bg-transparent dark:text-white"
-                        onClick={() => {
-                            const newPage = Math.min(currentOffset + 1, totalPages);
-                            setCurrentOffset(newPage);
-                        }}
-                        disabled={currentOffset === totalPages}
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
+                <AetherPagination
+                    currentOffset={currentOffset}
+                    total={total}
+                    limit={limit}
+                    setLimit={setLimit}
+                    setCurrentOffset={setCurrentOffset}
+                />
             </div>
             {isUserloading && (<AetherLoader />)}
         </div>
