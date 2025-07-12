@@ -17,6 +17,7 @@ import { useFormattedDuration } from "../../hooks/useDurationFormat";
 import { Calendar } from "../../components/ui/calendar";
 import type { DateRange } from "react-day-picker";
 import { AetherPagination } from "../../components/aetherpagination";
+import { typeCompressMap } from "../../types/callnamemap";
 
 
 export default function CallDetailTestPage() {
@@ -31,7 +32,7 @@ export default function CallDetailTestPage() {
         created_till: new Date().toISOString(),
         offset: 0,
         limit: 10,
-        filter_user_ids: []as string[],
+        filter_user_ids: [] as string[],
         filter_min_start_datetime: "",
         filter_max_start_datetime: "",
         filter_other_numbers: [],
@@ -110,7 +111,7 @@ export default function CallDetailTestPage() {
     const handleFilterApply = () => {
         setISDilterOpen(false);
         setCurrentOffset(1);
-        setFilterParams({ ...draftFilterParams,filter_user_ids:selectedUserIDs }); // triggers useEffect
+        setFilterParams({ ...draftFilterParams, filter_user_ids: selectedUserIDs }); // triggers useEffect
     };
 
     const handleResetFilters = () => {
@@ -138,9 +139,15 @@ export default function CallDetailTestPage() {
         });
     };
 
-    const handleexportpdforcsv = (type:string) => { 
-        console.log(type)
+    const handleexportpdforcsv = (type: string) => {
+        setDraftFilterParams((prev) => ({
+            ...prev,
+            limit: -1,
+            offset: 0,
+            response_format: type
+        }));
     }
+
     const handleFilterChange = (value: AetherFilterApiVal) => {
         setfilter(value);
         const now = new Date();
@@ -299,10 +306,10 @@ export default function CallDetailTestPage() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <AetherTooltip label="Export as Pdf">
-                            <FileDown onClick={()=>{handleexportpdforcsv('pdf')}} className={`h-4 w-4 cursor-pointer`} />
+                            <FileDown onClick={() => { handleexportpdforcsv('pdf') }} className={`h-4 w-4 cursor-pointer`} />
                         </AetherTooltip>
                         <AetherTooltip label="Export as Csv">
-                            <FileText onClick={()=>{handleexportpdforcsv('csv')}} className={`h-4 w-4 cursor-pointer`} />
+                            <FileText onClick={() => { handleexportpdforcsv('csv') }} className={`h-4 w-4 cursor-pointer`} />
                         </AetherTooltip>
                     </div>
                 </div>
@@ -385,7 +392,7 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
                                             )}
                                             {visibleColumns.includes("type") && (
-                                                <TableCell className="text-left">{call.type}</TableCell>
+                                                <TableCell className="text-left">{typeCompressMap[call.type]||call.type}</TableCell>
                                             )}
                                             {visibleColumns.includes("start_time") && (
                                                 <TableCell className="text-left">{aetherFormatDate(call.start_time)}</TableCell>
