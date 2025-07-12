@@ -1,4 +1,4 @@
-import { Columns3, FileDown, FileText, FunnelPlus, RefreshCcw } from "lucide-react";
+import { CirclePlay, Columns3, FileDown, FileText, FunnelPlus, RefreshCcw } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -18,11 +18,16 @@ import { Calendar } from "../../components/ui/calendar";
 import type { DateRange } from "react-day-picker";
 import { AetherPagination } from "../../components/aetherpagination";
 import { typeCompressMap } from "../../types/callnamemap";
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../components/ui/dialog";
+import { useRecording } from "../../hooks/useRecording";
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false)
+    const [showDialog, setShowDialog] = useState(false);
+    const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [filter, setfilter] = useState<string>("today")
     const [currentOffset, setCurrentOffset] = useState<number>(1);
@@ -48,8 +53,8 @@ export default function CallDetailTestPage() {
     });
     const [filterParams, setFilterParams] = useState(draftFilterParams);
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
-    const { calllogs, fetchCallLogs, total, offset } = useCallLogOptimized()
-
+    const { calllogs, fetchCallLogs, total, offset, exportCallLogsFile } = useCallLogOptimized()
+    const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
     useEffect(() => {
         fetchUsers();
         fetchCallLogs({
@@ -102,19 +107,17 @@ export default function CallDetailTestPage() {
         );
     };
 
-    // const updateDraftFilter = (key: string, value: any) => {
-    //     setFilterParams((prev) => ({
-    //         ...prev,
-    //         [key]: value,
-    //     }));
-    // };
+    const handleNextRecording = (newId: string) => {
+        fetchRecording(newId);
+    };
 
     const handleFilterApply = () => {
         setISDilterOpen(false);
         setCurrentOffset(1);
-        setFilterParams({ ...draftFilterParams, 
-            created_till:new Date().toISOString(),
-            filter_user_ids: selectedUserIDs 
+        setFilterParams({
+            ...draftFilterParams,
+            created_till: new Date().toISOString(),
+            filter_user_ids: selectedUserIDs
         });
     };
 
@@ -143,14 +146,10 @@ export default function CallDetailTestPage() {
         });
     };
 
-    const handleexportpdforcsv = (type: string) => {
-        setDraftFilterParams((prev) => ({
-            ...prev,
-            limit: -1,
-            offset: 0,
-            response_format: type
-        }));
-    }
+    const handleExportClick = (type: "pdf" | "csv") => {
+        exportCallLogsFile(draftFilterParams, type);
+    };
+
 
     const handleFilterChange = (value: AetherFilterApiVal) => {
         setfilter(value);
@@ -184,11 +183,12 @@ export default function CallDetailTestPage() {
                 return;
             }
             case 'this_week': {
-                const day = now.getDay();
-                const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-                const monday = new Date(now.setDate(diff));
-                monday.setHours(0, 0, 0, 0);
-                start = monday.toISOString();
+                const today = new Date();
+                const day = today.getDay();
+                const sunday = new Date(today);
+                sunday.setDate(today.getDate() - day);
+                sunday.setHours(0, 0, 0, 0);
+                start = sunday.toISOString();
                 break;
             }
             case 'past_7_days': {
@@ -310,10 +310,10 @@ export default function CallDetailTestPage() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <AetherTooltip label="Export as Pdf">
-                            <FileDown onClick={() => { handleexportpdforcsv('pdf') }} className={`h-4 w-4 cursor-pointer`} />
+                            <FileDown onClick={() => { handleExportClick('pdf') }} className={`h-4 w-4 cursor-pointer`} />
                         </AetherTooltip>
                         <AetherTooltip label="Export as Csv">
-                            <FileText onClick={() => { handleexportpdforcsv('csv') }} className={`h-4 w-4 cursor-pointer`} />
+                            <FileText onClick={() => { handleExportClick('csv') }} className={`h-4 w-4 cursor-pointer`} />
                         </AetherTooltip>
                     </div>
                 </div>
@@ -419,7 +419,83 @@ export default function CallDetailTestPage() {
                                             )}
                                             {visibleColumns.includes("recording_ids") && (
                                                 <TableCell className="flex gap-1 flex-wrap items-center">
+                                                    {Array.isArray(call.recording_ids) &&
+                                                        call.recording_ids.length > 0 &&
+                                                        call.recording_ids.slice(0, 1).map((item) => (
+                                                            <Popover key={item}>
+                                                                <PopoverTrigger asChild>
+                                                                    <Button
+                                                                        onClick={() => { handleNextRecording(item) }}
+                                                                        className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                                    >
+                                                                        <CirclePlay className="w-4 h-4 text-black" />
+                                                                    </Button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-80 mx-10">
+                                                                    <div className="text-sm font-medium mb-2">Recording Info</div>
+                                                                    {loadingMap[item] ? (
+                                                                        <p className="text-xs text-gray-500">Loading...</p>
+                                                                    ) : recordingMap[item] ? (
+                                                                        <>
+                                                                            <audio controls className="w-full mt-2 h-8">
+                                                                                <source src={recordingMap[item]?.replace(/\.mp3$/, ".m4a")} type="audio/mp4" />
+                                                                                <source src={recordingMap[item]} type="audio/mpeg" />
+                                                                                Your browser does not support the audio element.
+                                                                            </audio>
+                                                                        </>
+                                                                    ) : (
+                                                                        <p className="text-xs text-gray-500">No recording found.</p>
+                                                                    )}
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        ))}
+                                                    {Array.isArray(call.recording_ids) && call.recording_ids.length > 1 && (
+                                                        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                                                            <DialogTrigger asChild>
+                                                                <span
+                                                                    onClick={() => {
+                                                                        setActiveRecordingIds(call.recording_ids);
+                                                                        setShowDialog(true);
+                                                                        resetRecording();
+                                                                    }}
+                                                                    className="text-xs flex items-center text-gray-600 cursor-pointer hover:underline"
+                                                                >
+                                                                    +{call.recording_ids.length - 1} more
+                                                                </span>
+                                                            </DialogTrigger>
 
+                                                            <DialogContent className="max-w-md">
+                                                                <DialogHeader className="text-base font-semibold mb-2">
+                                                                    All Recordings
+                                                                </DialogHeader>
+                                                                <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
+                                                                    {activeRecordingIds.map((item) => (
+                                                                        <div key={item} className="flex flex gap-1 border-b pb-2 p-2">
+                                                                            <Button
+                                                                                onClick={() => { handleNextRecording(item) }}
+                                                                                className="bg-gray-100 hover:bg-gray-200 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                                            >
+                                                                                <CirclePlay className="w-4 h-4 text-black" />
+                                                                            </Button>
+                                                                            {loadingMap[item] ? (
+                                                                                <p className="text-xs text-gray-500">Loading...</p>
+                                                                            ) : recordingMap[item] ? (
+                                                                                <>
+                                                                                    <audio controls className="w-full h-8">
+                                                                                        <source src={recordingMap[item]?.replace(/\.mp3$/, ".m4a")} type="audio/mp4" />
+                                                                                        <source src={recordingMap[item]} type="audio/mpeg" />
+                                                                                        Your browser does not support the audio element.
+                                                                                    </audio>
+                                                                                </>
+                                                                            ) : (
+                                                                                <p className="text-xs text-gray-500"></p>
+                                                                            )}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                    )}
                                                 </TableCell>
                                             )}
                                         </TableRow>

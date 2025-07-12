@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { getCallsOptimized } from "../api/call";
+import { getCallsOptimized, getCallsOptimizedFile } from "../api/call";
 import { getUsers } from "../api/login";
 import { toast } from "sonner";
 import type { CallLogDetails } from "../types/call";
@@ -10,7 +10,28 @@ export function useCallLogOptimized() {
   const [isLoading, setIsLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
+const exportCallLogsFile = async (params: any, type: "csv" | "pdf") => {
+  try {
+    const queryString = buildQueryParams({
+      ...params,
+      limit: -1,
+      offset: 0,
+      response_format: type,
+    });
 
+    const blob = await getCallsOptimizedFile(queryString); 
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `call-logs-export.${type}`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.error("Failed to download export file");
+    console.error(err);
+  }
+};
   const buildQueryParams = (params: Record<string, any>): string => {
     const searchParams = new URLSearchParams();
 
@@ -64,5 +85,6 @@ export function useCallLogOptimized() {
     isLoading,
     fetchCallLogs,
     setCalllogs,
+    exportCallLogsFile
   };
 }
