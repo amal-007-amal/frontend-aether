@@ -138,7 +138,9 @@ export default function CallDetailTestPage() {
         });
     };
 
-    const handleexportpdforcsv = (type:string) => { }
+    const handleexportpdforcsv = (type:string) => { 
+        console.log(type)
+    }
     const handleFilterChange = (value: AetherFilterApiVal) => {
         setfilter(value);
         const now = new Date();
