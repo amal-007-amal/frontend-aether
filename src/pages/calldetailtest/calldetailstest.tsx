@@ -1,4 +1,4 @@
-import { Columns3, FileDown, FileText, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
+import { Columns3, FileDown, FileText, FunnelPlus, RefreshCcw } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
