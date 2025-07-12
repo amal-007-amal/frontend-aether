@@ -1,4 +1,4 @@
-import { Columns3, FileDown, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
+import { Columns3, FileDown, FileText, FunnelPlus, Menu, RefreshCcw } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -27,11 +27,11 @@ export default function CallDetailTestPage() {
     const [currentOffset, setCurrentOffset] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10)
     const [rangepick, setRangePick] = useState<DateRange | undefined>(undefined);
-    const [filterParams, setFilterParams] = useState({
+    const [draftFilterParams, setDraftFilterParams] = useState({
         created_till: new Date().toISOString(),
         offset: 0,
-        limit: 1000,
-        filter_user_ids: [],
+        limit: 10,
+        filter_user_ids: []as string[],
         filter_min_start_datetime: "",
         filter_max_start_datetime: "",
         filter_other_numbers: [],
@@ -45,18 +45,19 @@ export default function CallDetailTestPage() {
         only_last: false,
         response_format: "default",
     });
-    console.log(setFilterParams)
+    const [filterParams, setFilterParams] = useState(draftFilterParams);
     const { users, fetchUsers, isLoading: isUserloading } = useUsers()
     const { calllogs, fetchCallLogs, total, offset } = useCallLogOptimized()
+
     useEffect(() => {
         fetchUsers();
-
         fetchCallLogs({
             ...filterParams,
             offset: (currentOffset - 1) * limit,
             limit,
         });
-    }, [fetchUsers, fetchCallLogs, filterParams, currentOffset, limit]);
+    }, [filterParams, currentOffset, limit]);
+
     useEffect(() => {
         if (!isInitialOffsetSet.current && offset >= 0) {
             const newPage = Math.floor(offset / limit) + 1;
@@ -107,15 +108,42 @@ export default function CallDetailTestPage() {
     // };
 
     const handleFilterApply = () => {
-        setISDilterOpen(false)
-    }
-    const handleResetFilters = () => { }
-    const handleexportpdf = () => { }
+        setISDilterOpen(false);
+        setCurrentOffset(1);
+        setFilterParams({ ...draftFilterParams,filter_user_ids:selectedUserIDs }); // triggers useEffect
+    };
+
+    const handleResetFilters = () => {
+        setfilter("today");
+        setFilterParams((prev) => ({
+            ...prev,
+            created_till: new Date().toISOString(),
+            filter_user_ids: [],
+            filter_min_start_datetime: "",
+            filter_max_start_datetime: "",
+            only_abandoned: false,
+            only_new: false,
+        }));
+        setCurrentOffset(1);
+        fetchCallLogs({
+            ...filterParams,
+            created_till: new Date().toISOString(),
+            filter_user_ids: [],
+            filter_min_start_datetime: "",
+            filter_max_start_datetime: "",
+            only_abandoned: false,
+            only_new: false,
+            offset: 0,
+            limit,
+        });
+    };
+
+    const handleexportpdforcsv = (type:string) => { }
     const handleFilterChange = (value: AetherFilterApiVal) => {
-        setfilter(value)
+        setfilter(value);
         const now = new Date();
         const end = now.toISOString();
-        let start: string;
+        let start: string | null = null;
 
         switch (value) {
             case 'today': {
@@ -133,14 +161,14 @@ export default function CallDetailTestPage() {
                 const yesterdayStart = new Date(now);
                 yesterdayStart.setDate(yesterdayStart.getDate() - 1);
                 yesterdayStart.setHours(0, 0, 0, 0);
-
                 const yesterdayEnd = new Date(yesterdayStart);
                 yesterdayEnd.setHours(23, 59, 59, 999);
-
-                return {
-                    start_date: yesterdayStart.toISOString(),
-                    end_date: yesterdayEnd.toISOString(),
-                };
+                setDraftFilterParams((prev) => ({
+                    ...prev,
+                    filter_min_start_datetime: yesterdayStart.toISOString(),
+                    filter_max_start_datetime: yesterdayEnd.toISOString(),
+                }));
+                return;
             }
             case 'this_week': {
                 const day = now.getDay();
@@ -166,19 +194,22 @@ export default function CallDetailTestPage() {
                 break;
             }
             case 'custom': {
-                return {
-                    start_date: null,
-                    end_date: null,
-                };
+                setDraftFilterParams((prev) => ({
+                    ...prev,
+                    filter_min_start_datetime: rangepick?.from?.toISOString() || "",
+                    filter_max_start_datetime: rangepick?.to?.toISOString() || "",
+                }));
+                return;
             }
         }
 
-        return {
-            start_date: start,
-            end_date: end,
-        };
+        setDraftFilterParams((prev) => ({
+            ...prev,
+            filter_min_start_datetime: start ?? "",
+            filter_max_start_datetime: end,
+        }));
+    };
 
-    }
 
     return (
         <div>
@@ -265,17 +296,12 @@ export default function CallDetailTestPage() {
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger>
-                                <AetherTooltip label="Export option">
-                                    <Menu className="h-4 w-4" />
-                                </AetherTooltip>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="space-y-2 p-3 me-10">
-                                <span onClick={handleexportpdf} className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export as Pdf</span>
-                                <span onClick={handleexportpdf} className="text-xs flex gap-3 cursor-pointer"><FileDown className="w-4 h-4" /> Export as csv</span>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <AetherTooltip label="Export as Pdf">
+                            <FileDown onClick={()=>{handleexportpdforcsv('pdf')}} className={`h-4 w-4 cursor-pointer`} />
+                        </AetherTooltip>
+                        <AetherTooltip label="Export as Csv">
+                            <FileText onClick={()=>{handleexportpdforcsv('csv')}} className={`h-4 w-4 cursor-pointer`} />
+                        </AetherTooltip>
                     </div>
                 </div>
                 <div>
@@ -349,7 +375,7 @@ export default function CallDetailTestPage() {
                                 {calllogs.length !== 0 && (
                                     calllogs.map((call, index) => (
                                         <TableRow key={call.id}>
-                                            <TableCell className="text-left w-14">{(index +1)+offset}</TableCell>
+                                            <TableCell className="text-left w-14">{(index + 1) + offset}</TableCell>
                                             {visibleColumns.includes("other_number") && (
                                                 <TableCell className="text-left">{call.other_number}</TableCell>
                                             )}
