@@ -25,7 +25,6 @@ import { AccordionContent, AccordionItem, AccordionTrigger, Accordion } from "..
 import { Range } from "react-range";
 import { AetherTimePicker } from "../../components/aethertimepicker";
 
-
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false)
@@ -377,7 +376,7 @@ export default function CallDetailTestPage() {
                                             <Range
                                                 step={1}
                                                 min={0}
-                                                max={120}
+                                                max={240}
                                                 values={tempValues}
                                                 onChange={setTempValues}
                                                 renderTrack={({ props, children }) => (
@@ -389,8 +388,8 @@ export default function CallDetailTestPage() {
                                                         <div
                                                             className="h-2 bg-gray-400 rounded-full absolute"
                                                             style={{
-                                                                left: `${(tempValues[0] / 120) * 100}%`,
-                                                                width: `${((tempValues[1] - tempValues[0]) / 120) * 100}%`,
+                                                                left: `${(tempValues[0] / 240) * 100}%`,
+                                                                width: `${((tempValues[1] - tempValues[0]) / 240) * 100}%`,
                                                             }}
                                                         />
                                                         {children}

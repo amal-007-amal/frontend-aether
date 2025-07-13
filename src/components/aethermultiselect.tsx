@@ -46,11 +46,13 @@ export function AetherMultiSelect({
 
   const handleSelectAll = () => {
     const allValues = data.map((item) => item.value);
-    onChange(allValues);
-  };
+    const isAllSelected = allValues.every((val) => selected.includes(val));
 
-  const handleDeselectAll = () => {
-    onChange([]);
+    if (isAllSelected) {
+      onChange([]); 
+    } else {
+      onChange(allValues);
+    }
   };
 
   const selectedLabels = data
@@ -68,7 +70,7 @@ export function AetherMultiSelect({
           className="w-[300px] justify-between text-gray-500 font-normal text-xs shadow-none"
         >
           {selectedCount === data.length
-            ? "All Users Selected"
+            ? "All Selected"
             : selectedCount > 1
               ? `${selectedCount} selected`
               : selectedLabels || placeholder}
@@ -81,14 +83,11 @@ export function AetherMultiSelect({
           <CommandEmpty>No results found.</CommandEmpty>
           <div className="flex justify-between items-center px-3 py-2 text-xs border-b">
             <button onClick={handleSelectAll} className="hover:underline">
-              Select All
+              {selected.length === data.length ? "Deselect All" : "Select All"}
             </button>
             <div className="flex gap-2">
-              <button onClick={handleDeselectAll} className="text-red-600 hover:underline">
-                Clear All
-              </button>
-              <button onClick={()=>{setOpen(prev=>!prev)}} className="text-blue-600 hover:underline">
-                Apply
+              <button onClick={() => { setOpen(prev => !prev) }} className="text-blue-600 hover:underline">
+                Close
               </button>
             </div>
           </div>
@@ -100,7 +99,7 @@ export function AetherMultiSelect({
                     checked={selected.includes(item.value)}
                     onCheckedChange={() => toggle(item.value)}
                   />
-                  <span className="text-xs">{typeCompressMap[item.label]||item.label}</span>
+                  <span className="text-xs">{typeCompressMap[item.label] || item.label}</span>
                 </div>
               </CommandItem>
             ))}
