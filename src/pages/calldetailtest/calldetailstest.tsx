@@ -433,7 +433,7 @@ export default function CallDetailTestPage() {
                                             <Range
                                                 step={1}
                                                 min={0}
-                                                max={120}
+                                                max={70}
                                                 values={tempValues}
                                                 onChange={setTempValues}
                                                 renderTrack={({ props, children }) => (
@@ -445,8 +445,8 @@ export default function CallDetailTestPage() {
                                                         <div
                                                             className="h-2 bg-gray-400 rounded-full absolute"
                                                             style={{
-                                                                left: `${(tempValues[0] / 120) * 100}%`,
-                                                                width: `${((tempValues[1] - tempValues[0]) / 120) * 100}%`,
+                                                                left: `${(tempValues[0] / 70) * 100}%`,
+                                                                width: `${((tempValues[1] - tempValues[0]) / 70) * 100}%`,
                                                             }}
                                                         />
                                                         {children}
