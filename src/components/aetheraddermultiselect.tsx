@@ -23,7 +23,7 @@ type AetherAdderMultiSelectProps = {
 export function AetherAdderMultiSelect({
   selected,
   onChange,
-  placeholder = "Type number...",
+  placeholder = "Other number...",
 }: AetherAdderMultiSelectProps) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
