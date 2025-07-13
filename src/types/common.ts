@@ -7,3 +7,12 @@ export type AetherFilterApiVal =
   | 'this_month'
   | 'last_30_days'
   | 'custom';
+
+ export const AethercallFillTypes = [
+  "incoming",
+  "not connected",
+  "connected",
+  "missed",
+  "outgoing",
+];
+

@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { useUsers } from "../../hooks/useUsers";
 import { useEffect, useRef, useState } from "react";
-import type { AetherFilterApiVal } from "../../types/common";
+import { AethercallFillTypes, type AetherFilterApiVal } from "../../types/common";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import AetherLoader from "../../shared/AetherLoader";
@@ -31,6 +31,7 @@ export default function CallDetailTestPage() {
     const [showDialog, setShowDialog] = useState(false);
     const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
+    const [selectedTypeVal, setSelecteTypeVal] = useState<string[]>([]);
     const [filter, setfilter] = useState<string>("today")
     const [currentOffset, setCurrentOffset] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10)
@@ -47,7 +48,7 @@ export default function CallDetailTestPage() {
         only_abandoned: false,
         filter_min_start_time: "00:00:00+05:30",
         filter_max_start_time: "23:59:59.999999+05:30",
-        filter_frontend_call_types: [],
+        filter_frontend_call_types: [] as string[],
         filter_min_duration: 0,
         filter_max_duration: "",
         only_last: false,
@@ -120,7 +121,8 @@ export default function CallDetailTestPage() {
             ...draftFilterParams,
             created_till: new Date().toISOString(),
             filter_user_ids: selectedUserIDs,
-            filter_other_numbers:phoneNumbers
+            filter_other_numbers: phoneNumbers,
+            filter_frontend_call_types: selectedTypeVal
         });
     };
 
@@ -277,6 +279,14 @@ export default function CallDetailTestPage() {
                                         data={users.map((user) => ({ label: user.name, value: user.id }))}
                                         selected={selectedUserIDs}
                                         onChange={setSelectedUserIDs}
+                                    />
+                                </div>
+                                <div onClick={(e) => e.stopPropagation()} className="w-full">
+                                    <AetherMultiSelect
+                                        placeholder="call type"
+                                        data={AethercallFillTypes.map((type) => ({ label: type, value: type }))}
+                                        selected={selectedTypeVal}
+                                        onChange={setSelecteTypeVal}
                                     />
                                 </div>
                                 <div>
