@@ -210,19 +210,14 @@ export default function CallDetailTestPage() {
 
     const handleResetFilters = () => {
         setfilter("today");
+        filtersApplied.current = false;
         setFilterParams((prev) => ({
             ...prev,
             created_till: new Date().toISOString(),
-            offset:0,
+            offset: 0,
             limit,
         }));
         setCurrentOffset(1);
-        fetchCallLogs({
-            ...filterParams,
-            created_till: new Date().toISOString(),
-            offset: 0,
-            limit,
-        });
     };
 
     const handleExportClick = (type: "pdf" | "csv") => {
