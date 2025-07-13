@@ -133,63 +133,21 @@ export default function CallDetailTestPage() {
         setISDilterOpen(false);
         setCurrentOffset(1);
 
-        const newParams: Partial<typeof draftFilterParams> = {};
-        const currentTime = new Date().toISOString();
-
-        if (tempValues[1] < 60) {
-            if (draftFilterParams.filter_min_duration !== tempValues[0] * 60) {
-                newParams.filter_min_duration = tempValues[0] * 60;
-            }
-            if (draftFilterParams.filter_max_duration !== tempValues[1] * 60) {
-                newParams.filter_max_duration = tempValues[1] * 60;
-            }
-        }
-
-        if (
-            selectedUserIDs.length > 0 &&
-            JSON.stringify(draftFilterParams.filter_user_ids) !== JSON.stringify(selectedUserIDs)
-        ) {
-            newParams.filter_user_ids = selectedUserIDs;
-        }
-
-        if (
-            phoneNumbers.length > 0 &&
-            JSON.stringify(draftFilterParams.filter_other_numbers) !== JSON.stringify(phoneNumbers)
-        ) {
-            newParams.filter_other_numbers = phoneNumbers;
-        }
-
-        if (
-            selectedTypeVal.length > 0 &&
-            JSON.stringify(draftFilterParams.filter_frontend_call_types) !== JSON.stringify(selectedTypeVal)
-        ) {
-            newParams.filter_frontend_call_types = selectedTypeVal;
-        }
-
-        if (onlylast) newParams.only_last = true;
-        if (onlyaban) newParams.only_abandoned = true;
-        if (onlynew) newParams.only_new = true;
-
-        const formattedMin = formatTimeWithOffset(minTime);
-        const formattedMax = formatTimeWithOffset(maxTime);
-
-        if (formattedMin !== "00:00:00+05:30") {
-            newParams.filter_min_start_time = formattedMin;
-        }
-
-        if (formattedMax !== "23:59:59+05:30") {
-            newParams.filter_max_start_time = formattedMax;
-        }
-
-        // Always required
-        newParams.created_till = currentTime;
-        newParams.limit = limit;
-        newParams.offset = 0;
-        newParams.response_format = "default";
-
-        setFilterParams(newParams as typeof draftFilterParams);
+        setFilterParams({
+            ...draftFilterParams,
+            created_till: new Date().toISOString(),
+            filter_user_ids: selectedUserIDs,
+            filter_other_numbers: phoneNumbers,
+            filter_frontend_call_types: selectedTypeVal,
+            filter_min_duration: tempValues[0] * 60,
+            filter_max_duration: tempValues[1] > 59 ? null as any : tempValues[1] * 60,
+            only_last: onlylast,
+            only_abandoned: onlyaban,
+            only_new: onlynew,
+            filter_min_start_time: formatTimeWithOffset(minTime),
+            filter_max_start_time: formatTimeWithOffset(maxTime),
+        });
     };
-
 
     // const handleFilterApply = () => {
     //     filtersApplied.current = true;
