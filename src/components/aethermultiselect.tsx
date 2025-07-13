@@ -14,6 +14,7 @@ import {
 import { Button } from "../components/ui/button";
 import { Checkbox } from "../components/ui/checkbox";
 import { ChevronsUpDown } from "lucide-react";
+import { typeCompressMap } from "../types/callnamemap";
 
 type MultiSelectOption = {
   label: string;
@@ -99,7 +100,7 @@ export function AetherMultiSelect({
                     checked={selected.includes(item.value)}
                     onCheckedChange={() => toggle(item.value)}
                   />
-                  <span className="text-xs">{item.label}</span>
+                  <span className="text-xs">{typeCompressMap[item.label]||item.label}</span>
                 </div>
               </CommandItem>
             ))}

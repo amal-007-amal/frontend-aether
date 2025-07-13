@@ -1,4 +1,4 @@
-import { CirclePlay, Columns3, FileDown, FileText, FunnelPlus, RefreshCcw } from "lucide-react";
+import { CirclePlay, Columns3, FileDown, FileText, FunnelPlus, LoaderCircle, RefreshCcw } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from "react";
 import { AethercallFillTypes, type AetherFilterApiVal } from "../../types/common";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
-import AetherLoader from "../../shared/AetherLoader";
 import { useCallLogOptimized } from "../../hooks/useCalllogOptimized";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
@@ -22,6 +21,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../compon
 import { useRecording } from "../../hooks/useRecording";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { AetherAdderMultiSelect } from "../../components/aetheraddermultiselect";
+import { AccordionContent, AccordionItem, AccordionTrigger, Accordion } from "../../components/ui/accordion";
+import { Range } from "react-range";
 
 
 export default function CallDetailTestPage() {
@@ -29,6 +30,9 @@ export default function CallDetailTestPage() {
     const [isFilterOpen, setISDilterOpen] = useState(false)
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
+    const [tempValues, setTempValues] = useState([0, 240])
+    const [onlylast, setOnlyLast] = useState(false);
+    const [onlyaban, setOnlyAbandon] = useState(false);
     const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTypeVal, setSelecteTypeVal] = useState<string[]>([]);
@@ -50,13 +54,13 @@ export default function CallDetailTestPage() {
         filter_max_start_time: "23:59:59.999999+05:30",
         filter_frontend_call_types: [] as string[],
         filter_min_duration: 0,
-        filter_max_duration: "",
+        filter_max_duration: 0,
         only_last: false,
         response_format: "default",
     });
     const [filterParams, setFilterParams] = useState(draftFilterParams);
-    const { users, fetchUsers, isLoading: isUserloading } = useUsers()
-    const { calllogs, fetchCallLogs, total, offset, exportCallLogsFile } = useCallLogOptimized()
+    const { users, fetchUsers } = useUsers()
+    const { calllogs, fetchCallLogs, total, offset, exportCallLogsFile, isLoading } = useCallLogOptimized()
     const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
     useEffect(() => {
         fetchUsers();
@@ -122,7 +126,9 @@ export default function CallDetailTestPage() {
             created_till: new Date().toISOString(),
             filter_user_ids: selectedUserIDs,
             filter_other_numbers: phoneNumbers,
-            filter_frontend_call_types: selectedTypeVal
+            filter_frontend_call_types: selectedTypeVal,
+            filter_min_duration: tempValues[0],
+            filter_max_duration: tempValues[1]
         });
     };
 
@@ -245,59 +251,163 @@ export default function CallDetailTestPage() {
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
-                                <div onClick={(e) => e.stopPropagation()} >
-                                    <Select value={filter} onValueChange={handleFilterChange}>
-                                        <SelectTrigger className="w-full text-xs shadow-none">
-                                            <SelectValue placeholder="Select a filter" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="today">Today</SelectItem>
-                                            <SelectItem value="past_24_hours">Past 24 hrs</SelectItem>
-                                            <SelectItem value="yesterday">Yesterday</SelectItem>
-                                            <SelectItem value="this_week">This Week</SelectItem>
-                                            <SelectItem value="past_7_days">Past 7 days</SelectItem>
-                                            <SelectItem value="this_month">This Month</SelectItem>
-                                            <SelectItem value="last_30_days">Last 30 days</SelectItem>
-                                            <SelectItem value="custom">Custom</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {filter === "custom" && (
-                                        <div className="flex items-center justify-center my-3 w-full">
-                                            <Calendar
-                                                mode="range"
-                                                selected={rangepick}
-                                                onSelect={(range) => {
-                                                    setRangePick(range);
-                                                }}
-                                                numberOfMonths={1}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                                <div onClick={(e) => e.stopPropagation()} className="w-full">
-                                    <AetherMultiSelect
-                                        data={users.map((user) => ({ label: user.name, value: user.id }))}
-                                        selected={selectedUserIDs}
-                                        onChange={setSelectedUserIDs}
-                                    />
-                                </div>
-                                <div onClick={(e) => e.stopPropagation()} className="w-full">
-                                    <AetherMultiSelect
-                                        placeholder="call type"
-                                        data={AethercallFillTypes.map((type) => ({ label: type, value: type }))}
-                                        selected={selectedTypeVal}
-                                        onChange={setSelecteTypeVal}
-                                    />
-                                </div>
-                                <div>
-                                    <AetherAdderMultiSelect selected={phoneNumbers} onChange={setPhoneNumbers} />
-                                </div>
-                                <div className="flex justify-end gap-4">
-                                    <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500" onClick={handleResetFilters}>Reset</Button>
-                                    <Button onClick={handleFilterApply} className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300">Apply</Button>
-                                </div>
+                                <Accordion type="multiple" className="w-[300px]">
+                                    {/* Date Filter */}
+                                    <AccordionItem value="date-filter">
+                                        <AccordionTrigger className="text-xs">Date Range</AccordionTrigger>
+                                        <AccordionContent className="px-1">
+                                            <div onClick={(e) => e.stopPropagation()}>
+                                                <Select value={filter} onValueChange={handleFilterChange}>
+                                                    <SelectTrigger className="w-full text-xs shadow-none">
+                                                        <SelectValue placeholder="Select a filter" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="today">Today</SelectItem>
+                                                        <SelectItem value="past_24_hours">Past 24 hrs</SelectItem>
+                                                        <SelectItem value="yesterday">Yesterday</SelectItem>
+                                                        <SelectItem value="this_week">This Week</SelectItem>
+                                                        <SelectItem value="past_7_days">Past 7 days</SelectItem>
+                                                        <SelectItem value="this_month">This Month</SelectItem>
+                                                        <SelectItem value="last_30_days">Last 30 days</SelectItem>
+                                                        <SelectItem value="custom">Custom</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
 
+                                                {filter === "custom" && (
+                                                    <div className="flex items-center justify-center my-3 w-full">
+                                                        <Calendar
+                                                            mode="range"
+                                                            selected={rangepick}
+                                                            onSelect={(range) => setRangePick(range)}
+                                                            numberOfMonths={1}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    {/* User Filter */}
+                                    <AccordionItem value="user-filter">
+                                        <AccordionTrigger className="text-xs">User Filter</AccordionTrigger>
+                                        <AccordionContent>
+                                            <div onClick={(e) => e.stopPropagation()} className="w-full">
+                                                <AetherMultiSelect
+                                                    data={users.map((user) => ({ label: user.name, value: user.id }))}
+                                                    selected={selectedUserIDs}
+                                                    onChange={setSelectedUserIDs}
+                                                />
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    {/* Call Type */}
+                                    <AccordionItem value="call-type">
+                                        <AccordionTrigger className="text-xs">Call Type</AccordionTrigger>
+                                        <AccordionContent>
+                                            <div onClick={(e) => e.stopPropagation()} className="w-full">
+                                                <AetherMultiSelect
+                                                    placeholder="call type"
+                                                    data={AethercallFillTypes.map((type) => ({ label: type, value: type }))}
+                                                    selected={selectedTypeVal}
+                                                    onChange={setSelecteTypeVal}
+                                                />
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    {/* Other Numbers */}
+                                    <AccordionItem value="numbers">
+                                        <AccordionTrigger className="text-xs">Phone Filter</AccordionTrigger>
+                                        <AccordionContent>
+                                            <div>
+                                                <AetherAdderMultiSelect selected={phoneNumbers} onChange={setPhoneNumbers} />
+                                                <div className="flex gap-5 px-1 py-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <Checkbox
+                                                            id="check1"
+                                                            checked={onlylast}
+                                                            onCheckedChange={(val) => {
+                                                                if (typeof val === "boolean") setOnlyLast(val);
+                                                            }}
+                                                        />
+                                                        <label htmlFor="check1" className="text-xs">
+                                                            Only Last
+                                                        </label>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Checkbox
+                                                            id="check2"
+                                                            checked={onlyaban}
+                                                            onCheckedChange={(val) => {
+                                                                if (typeof val === "boolean") setOnlyAbandon(val);
+                                                            }}
+                                                        />
+                                                        <label htmlFor="check2" className="text-xs">
+                                                            Second Option
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    <AccordionItem value="durations">
+                                        <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
+                                        <AccordionContent className="px-4">
+                                            <div className="mb-3 text-sm text-gray-700">
+                                                <span className="text-xs">Selected: {tempValues[0]} - {tempValues[1]} minutes minutes</span>
+                                            </div>
+
+                                            <Range
+                                                step={1}
+                                                min={0}
+                                                max={240}
+                                                values={tempValues}
+                                                onChange={setTempValues}
+                                                renderTrack={({ props, children }) => (
+                                                    <div
+                                                        {...props}
+                                                        className="h-2 bg-gray-200 rounded-full relative"
+                                                        style={props.style}
+                                                    >
+                                                        <div
+                                                            className="h-2 bg-gray-400 rounded-full absolute"
+                                                            style={{
+                                                                left: `${(tempValues[0] / 240) * 100}%`,
+                                                                width: `${((tempValues[1] - tempValues[0]) / 240) * 100}%`,
+                                                            }}
+                                                        />
+                                                        {children}
+                                                    </div>
+                                                )}
+                                                renderThumb={({ props }) => (
+                                                    <div
+                                                        {...props}
+                                                        className="h-5 w-5 bg-gray-400 rounded-full border border-white shadow"
+                                                    />
+                                                )}
+                                            />
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                    <div className="flex justify-end gap-4 mt-3">
+                                        <Button
+                                            className="bg-white text-black text-xs rounded-xl hover:bg-gray-500"
+                                            onClick={handleResetFilters}
+                                        >
+                                            Reset
+                                        </Button>
+                                        <Button
+                                            onClick={handleFilterApply}
+                                            className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300"
+                                        >
+                                            Apply
+                                        </Button>
+                                    </div>
+                                </Accordion>
                             </DropdownMenuContent>
+
                         </DropdownMenu>
                         <DropdownMenu>
                             <DropdownMenuTrigger>
@@ -334,6 +444,12 @@ export default function CallDetailTestPage() {
                     </div>
                 </div>
                 <div>
+                    {isLoading && (
+                        <div className="flex items-center justify-center text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            Loading...
+                            <LoaderCircle className="animate-spin w-5 h-5 text-purple-500 ml-2" />
+                        </div>
+                    )}
                     <Table className="w-full table-fixed border-collapse">
                         <TableHeader className="sticky top-0 z-10">
                             <TableRow className="text-sm font-light">
@@ -397,7 +513,6 @@ export default function CallDetailTestPage() {
                             </TableRow>
                         </TableHeader>
                     </Table>
-
                     <ScrollArea className="h-[370px]">
                         <Table className="w-full table-fixed border-collapse">
                             <TableBody className="text-xs">
@@ -486,7 +601,7 @@ export default function CallDetailTestPage() {
                                                                 </DialogHeader>
                                                                 <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
                                                                     {activeRecordingIds.map((item) => (
-                                                                        <div key={item} className="flex flex gap-1 border-b pb-2 p-2">
+                                                                        <div key={item} className="flex gap-1 border-b pb-2 p-2">
                                                                             <Button
                                                                                 onClick={() => { handleNextRecording(item) }}
                                                                                 className="bg-gray-100 hover:bg-gray-200 w-8 h-8 p-0 rounded-full flex items-center justify-center"
@@ -530,7 +645,6 @@ export default function CallDetailTestPage() {
                     setCurrentOffset={setCurrentOffset}
                 />
             </div>
-            {isUserloading && (<AetherLoader />)}
         </div>
     )
 }
