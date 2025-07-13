@@ -42,7 +42,7 @@ export default function CallDetailTestPage() {
         filter_user_ids: [] as string[],
         filter_min_start_datetime: "",
         filter_max_start_datetime: "",
-        filter_other_numbers: [],
+        filter_other_numbers: [] as string[],
         only_new: false,
         only_abandoned: false,
         filter_min_start_time: "00:00:00+05:30",
@@ -119,7 +119,8 @@ export default function CallDetailTestPage() {
         setFilterParams({
             ...draftFilterParams,
             created_till: new Date().toISOString(),
-            filter_user_ids: selectedUserIDs
+            filter_user_ids: selectedUserIDs,
+            filter_other_numbers:phoneNumbers
         });
     };
 
