@@ -360,7 +360,7 @@ export default function CallDetailTestPage() {
                                                             }}
                                                         />
                                                         <label htmlFor="check2" className="text-xs">
-                                                            Second Option
+                                                            Only Abandon
                                                         </label>
                                                     </div>
                                                 </div>
