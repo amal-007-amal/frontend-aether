@@ -128,7 +128,9 @@ export default function CallDetailTestPage() {
             filter_other_numbers: phoneNumbers,
             filter_frontend_call_types: selectedTypeVal,
             filter_min_duration: tempValues[0],
-            filter_max_duration: tempValues[1]
+            filter_max_duration: tempValues[1],
+            only_last:onlylast,
+            only_abandoned:onlyaban
         });
     };
 
