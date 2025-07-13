@@ -27,6 +27,7 @@ import { AetherTimePicker } from "../../components/aethertimepicker";
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
+    const filtersApplied = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false)
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
@@ -69,11 +70,15 @@ export default function CallDetailTestPage() {
         fetchUsers();
     }, []);
     useEffect(() => {
-        fetchCallLogs({
-            ...filterParams,
+        const baseParams = {
+            created_till: filterParams.created_till,
             offset: (currentOffset - 1) * limit,
-            limit,
-        });
+        };
+        const paramsToSend = filtersApplied.current
+            ? { ...filterParams, offset: (currentOffset - 1) * limit, limit }
+            : baseParams;
+
+        fetchCallLogs(paramsToSend);
     }, [filterParams, currentOffset, limit]);
 
     useEffect(() => {
@@ -124,6 +129,7 @@ export default function CallDetailTestPage() {
     };
 
     const handleFilterApply = () => {
+        filtersApplied.current = true;
         setISDilterOpen(false);
         setCurrentOffset(1);
         setFilterParams({
@@ -132,8 +138,8 @@ export default function CallDetailTestPage() {
             filter_user_ids: selectedUserIDs,
             filter_other_numbers: phoneNumbers,
             filter_frontend_call_types: selectedTypeVal,
-            filter_min_duration: tempValues[0]*60,
-            filter_max_duration: tempValues[1]*60,
+            filter_min_duration: tempValues[0] * 60,
+            filter_max_duration: tempValues[1] * 60,
             only_last: onlylast,
             only_abandoned: onlyaban,
             only_new: onlynew,
@@ -366,7 +372,7 @@ export default function CallDetailTestPage() {
                                         <AccordionContent className="px-4">
                                             <div className="mb-3 text-sm text-gray-700">
                                                 {tempValues[1] / 60 > 2 ? (
-                                                    <span className="text-xs text-red-500 flex items-center"> 0 to <ChevronRight className="h-4"/> 2hrs</span>
+                                                    <span className="text-xs text-red-500 flex items-center"> 0 to <ChevronRight className="h-4" /> 2hrs</span>
                                                 ) : (
                                                     <span className="text-xs">
                                                         Selected: {(tempValues[0] / 60).toFixed(1)} - {(tempValues[1] / 60).toFixed(1)} hours
