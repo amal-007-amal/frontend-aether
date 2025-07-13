@@ -136,54 +136,60 @@ export default function CallDetailTestPage() {
         const newParams: Partial<typeof draftFilterParams> = {};
         const currentTime = new Date().toISOString();
 
-        if (draftFilterParams.filter_min_duration !== tempValues[0] * 60) {
-            newParams.filter_min_duration = tempValues[0] * 60;
+        if (tempValues[1] < 60) {
+            if (draftFilterParams.filter_min_duration !== tempValues[0] * 60) {
+                newParams.filter_min_duration = tempValues[0] * 60;
+            }
+            if (draftFilterParams.filter_max_duration !== tempValues[1] * 60) {
+                newParams.filter_max_duration = tempValues[1] * 60;
+            }
         }
 
-        if (draftFilterParams.filter_max_duration !== tempValues[1] * 60) {
-            newParams.filter_max_duration = tempValues[1] * 60;
-        }
-
-        if (JSON.stringify(draftFilterParams.filter_user_ids) !== JSON.stringify(selectedUserIDs)) {
+        if (
+            selectedUserIDs.length > 0 &&
+            JSON.stringify(draftFilterParams.filter_user_ids) !== JSON.stringify(selectedUserIDs)
+        ) {
             newParams.filter_user_ids = selectedUserIDs;
         }
 
-        if (JSON.stringify(draftFilterParams.filter_other_numbers) !== JSON.stringify(phoneNumbers)) {
+        if (
+            phoneNumbers.length > 0 &&
+            JSON.stringify(draftFilterParams.filter_other_numbers) !== JSON.stringify(phoneNumbers)
+        ) {
             newParams.filter_other_numbers = phoneNumbers;
         }
 
-        if (JSON.stringify(draftFilterParams.filter_frontend_call_types) !== JSON.stringify(selectedTypeVal)) {
+        if (
+            selectedTypeVal.length > 0 &&
+            JSON.stringify(draftFilterParams.filter_frontend_call_types) !== JSON.stringify(selectedTypeVal)
+        ) {
             newParams.filter_frontend_call_types = selectedTypeVal;
         }
 
-        if (draftFilterParams.only_last !== onlylast) {
-            newParams.only_last = onlylast;
+        if (onlylast) newParams.only_last = true;
+        if (onlyaban) newParams.only_abandoned = true;
+        if (onlynew) newParams.only_new = true;
+
+        const formattedMin = formatTimeWithOffset(minTime);
+        const formattedMax = formatTimeWithOffset(maxTime);
+
+        if (formattedMin !== "00:00:00+05:30") {
+            newParams.filter_min_start_time = formattedMin;
         }
 
-        if (draftFilterParams.only_abandoned !== onlyaban) {
-            newParams.only_abandoned = onlyaban;
+        if (formattedMax !== "23:59:59+05:30") {
+            newParams.filter_max_start_time = formattedMax;
         }
 
-        if (draftFilterParams.only_new !== onlynew) {
-            newParams.only_new = onlynew;
-        }
-
-        if (draftFilterParams.filter_min_start_time !== formatTimeWithOffset(minTime)) {
-            newParams.filter_min_start_time = formatTimeWithOffset(minTime);
-        }
-
-        if (draftFilterParams.filter_max_start_time !== formatTimeWithOffset(maxTime)) {
-            newParams.filter_max_start_time = formatTimeWithOffset(maxTime);
-        }
-
-        // always update created_till
+        // Always required
         newParams.created_till = currentTime;
+        newParams.limit = limit;
+        newParams.offset = 0;
+        newParams.response_format = "default";
 
-        setFilterParams(prev => ({
-            ...prev,
-            ...newParams,
-        }));
+        setFilterParams(newParams as typeof draftFilterParams);
     };
+
 
     // const handleFilterApply = () => {
     //     filtersApplied.current = true;
@@ -419,15 +425,14 @@ export default function CallDetailTestPage() {
                                     <AccordionItem value="durations">
                                         <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
                                         <AccordionContent className="px-4">
-                                            <div className="mb-3 text-sm text-gray-700">
+                                            <div className="mb-3 text-sm text-gray-700 flex items-center">
+                                                Selected:{" "}
                                                 {tempValues[1] > 59 ? (
-                                                    <span className="text-xs text-red-500 flex items-center">
-                                                        0 to <ChevronRight className="h-4 mx-1" /> 60 min
-                                                    </span>
+                                                    <>
+                                                        0 to <ChevronRight className="h-4 mx-1" /> 60 mins
+                                                    </>
                                                 ) : (
-                                                    <span className="text-xs">
-                                                        Selected: {tempValues[0]} - {tempValues[1]} mins
-                                                    </span>
+                                                    `${tempValues[0]} - ${tempValues[1]} mins`
                                                 )}
                                             </div>
                                             <Range
