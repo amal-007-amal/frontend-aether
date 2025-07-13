@@ -132,21 +132,78 @@ export default function CallDetailTestPage() {
         filtersApplied.current = true;
         setISDilterOpen(false);
         setCurrentOffset(1);
-        setFilterParams({
-            ...draftFilterParams,
-            created_till: new Date().toISOString(),
-            filter_user_ids: selectedUserIDs,
-            filter_other_numbers: phoneNumbers,
-            filter_frontend_call_types: selectedTypeVal,
-            filter_min_duration: tempValues[0] * 60,
-            filter_max_duration: tempValues[1] * 60,
-            only_last: onlylast,
-            only_abandoned: onlyaban,
-            only_new: onlynew,
-            filter_min_start_time: formatTimeWithOffset(minTime),
-            filter_max_start_time: formatTimeWithOffset(maxTime)
-        });
+
+        const newParams: Partial<typeof draftFilterParams> = {};
+        const currentTime = new Date().toISOString();
+
+        if (draftFilterParams.filter_min_duration !== tempValues[0] * 60) {
+            newParams.filter_min_duration = tempValues[0] * 60;
+        }
+
+        if (draftFilterParams.filter_max_duration !== tempValues[1] * 60) {
+            newParams.filter_max_duration = tempValues[1] * 60;
+        }
+
+        if (JSON.stringify(draftFilterParams.filter_user_ids) !== JSON.stringify(selectedUserIDs)) {
+            newParams.filter_user_ids = selectedUserIDs;
+        }
+
+        if (JSON.stringify(draftFilterParams.filter_other_numbers) !== JSON.stringify(phoneNumbers)) {
+            newParams.filter_other_numbers = phoneNumbers;
+        }
+
+        if (JSON.stringify(draftFilterParams.filter_frontend_call_types) !== JSON.stringify(selectedTypeVal)) {
+            newParams.filter_frontend_call_types = selectedTypeVal;
+        }
+
+        if (draftFilterParams.only_last !== onlylast) {
+            newParams.only_last = onlylast;
+        }
+
+        if (draftFilterParams.only_abandoned !== onlyaban) {
+            newParams.only_abandoned = onlyaban;
+        }
+
+        if (draftFilterParams.only_new !== onlynew) {
+            newParams.only_new = onlynew;
+        }
+
+        if (draftFilterParams.filter_min_start_time !== formatTimeWithOffset(minTime)) {
+            newParams.filter_min_start_time = formatTimeWithOffset(minTime);
+        }
+
+        if (draftFilterParams.filter_max_start_time !== formatTimeWithOffset(maxTime)) {
+            newParams.filter_max_start_time = formatTimeWithOffset(maxTime);
+        }
+
+        // always update created_till
+        newParams.created_till = currentTime;
+
+        setFilterParams(prev => ({
+            ...prev,
+            ...newParams,
+        }));
     };
+
+    // const handleFilterApply = () => {
+    //     filtersApplied.current = true;
+    //     setISDilterOpen(false);
+    //     setCurrentOffset(1);
+    //     setFilterParams({
+    //         ...draftFilterParams,
+    //         created_till: new Date().toISOString(),
+    //         filter_user_ids: selectedUserIDs,
+    //         filter_other_numbers: phoneNumbers,
+    //         filter_frontend_call_types: selectedTypeVal,
+    //         filter_min_duration: tempValues[0] * 60,
+    //         filter_max_duration: tempValues[1] * 60,
+    //         only_last: onlylast,
+    //         only_abandoned: onlyaban,
+    //         only_new: onlynew,
+    //         filter_min_start_time: formatTimeWithOffset(minTime),
+    //         filter_max_start_time: formatTimeWithOffset(maxTime)
+    //     });
+    // };
     const formatTimeWithOffset = ({ h, m, s }: { h: string; m: string; s: string }) => {
         return `${h}:${m}:${s}+05:30`;
     }
