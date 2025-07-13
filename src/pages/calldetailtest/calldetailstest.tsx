@@ -68,6 +68,8 @@ export default function CallDetailTestPage() {
     const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
     useEffect(() => {
         fetchUsers();
+    }, []);
+    useEffect(() => {
         fetchCallLogs({
             ...filterParams,
             offset: (currentOffset - 1) * limit,
@@ -131,8 +133,8 @@ export default function CallDetailTestPage() {
             filter_user_ids: selectedUserIDs,
             filter_other_numbers: phoneNumbers,
             filter_frontend_call_types: selectedTypeVal,
-            filter_min_duration: tempValues[0],
-            filter_max_duration: tempValues[1],
+            filter_min_duration: tempValues[0]*60,
+            filter_max_duration: tempValues[1]*60,
             only_last: onlylast,
             only_abandoned: onlyaban,
             only_new: onlynew,
@@ -263,20 +265,20 @@ export default function CallDetailTestPage() {
                                     <AccordionItem value="date-filter">
                                         <AccordionTrigger className="text-xs">Date Range</AccordionTrigger>
                                         <AccordionContent className="px-1">
-                                            <div onClick={(e) => e.stopPropagation()}>
+                                            <div onClick={(e) => e.stopPropagation()} className="pt-1">
                                                 <Select value={filter} onValueChange={handleFilterChange}>
                                                     <SelectTrigger className="w-full text-xs shadow-none">
                                                         <SelectValue placeholder="Select a filter" />
                                                     </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="today">Today</SelectItem>
-                                                        <SelectItem value="past_24_hours">Past 24 hrs</SelectItem>
-                                                        <SelectItem value="yesterday">Yesterday</SelectItem>
-                                                        <SelectItem value="this_week">This Week</SelectItem>
-                                                        <SelectItem value="past_7_days">Past 7 days</SelectItem>
-                                                        <SelectItem value="this_month">This Month</SelectItem>
-                                                        <SelectItem value="last_30_days">Last 30 days</SelectItem>
-                                                        <SelectItem value="custom">Custom</SelectItem>
+                                                    <SelectContent className="text-xs">
+                                                        <SelectItem className="text-xs" value="today">Today</SelectItem>
+                                                        <SelectItem className="text-xs" value="past_24_hours">Past 24 hrs</SelectItem>
+                                                        <SelectItem className="text-xs" value="yesterday">Yesterday</SelectItem>
+                                                        <SelectItem className="text-xs" value="this_week">This Week</SelectItem>
+                                                        <SelectItem className="text-xs" value="past_7_days">Past 7 days</SelectItem>
+                                                        <SelectItem className="text-xs" value="this_month">This Month</SelectItem>
+                                                        <SelectItem className="text-xs" value="last_30_days">Last 30 days</SelectItem>
+                                                        <SelectItem className="text-xs" value="custom">Custom</SelectItem>
                                                     </SelectContent>
                                                 </Select>
 
@@ -375,7 +377,7 @@ export default function CallDetailTestPage() {
                                             <Range
                                                 step={1}
                                                 min={0}
-                                                max={240}
+                                                max={120}
                                                 values={tempValues}
                                                 onChange={setTempValues}
                                                 renderTrack={({ props, children }) => (
@@ -387,8 +389,8 @@ export default function CallDetailTestPage() {
                                                         <div
                                                             className="h-2 bg-gray-400 rounded-full absolute"
                                                             style={{
-                                                                left: `${(tempValues[0] / 240) * 100}%`,
-                                                                width: `${((tempValues[1] - tempValues[0]) / 240) * 100}%`,
+                                                                left: `${(tempValues[0] / 120) * 100}%`,
+                                                                width: `${((tempValues[1] - tempValues[0]) / 120) * 100}%`,
                                                             }}
                                                         />
                                                         {children}
@@ -397,8 +399,9 @@ export default function CallDetailTestPage() {
                                                 renderThumb={({ props }) => (
                                                     <div
                                                         {...props}
-                                                        className="h-5 w-5 bg-gray-400 rounded-full border border-white shadow"
-                                                    />
+                                                        className="h-5 w-5 bg-gray-400 rounded-full border border-white shadow flex items-center justify-center text-[10px] text-white font-bold"
+                                                    >
+                                                    </div>
                                                 )}
                                             />
                                         </AccordionContent>
