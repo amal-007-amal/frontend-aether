@@ -23,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/pop
 import { AetherAdderMultiSelect } from "../../components/aetheraddermultiselect";
 import { AccordionContent, AccordionItem, AccordionTrigger, Accordion } from "../../components/ui/accordion";
 import { Range } from "react-range";
+import { AetherTimePicker } from "../../components/aethertimepicker";
 
 
 export default function CallDetailTestPage() {
@@ -30,7 +31,9 @@ export default function CallDetailTestPage() {
     const [isFilterOpen, setISDilterOpen] = useState(false)
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
-    const [tempValues, setTempValues] = useState([0, 120])
+    const [tempValues, setTempValues] = useState([0, 60])
+    const [minTime, setMinTime] = useState({ h: "00", m: "00", s: "00" });
+    const [maxTime, setMaxTime] = useState({ h: "23", m: "59", s: "59" });
     const [onlylast, setOnlyLast] = useState(false);
     const [onlynew, setOnlyNew] = useState(false);
     const [onlyaban, setOnlyAbandon] = useState(false);
@@ -51,8 +54,8 @@ export default function CallDetailTestPage() {
         filter_other_numbers: [] as string[],
         only_new: false,
         only_abandoned: false,
-        filter_min_start_time: "00:00:00+05:30",
-        filter_max_start_time: "23:59:59.999999+05:30",
+        filter_min_start_time: "",
+        filter_max_start_time: "",
         filter_frontend_call_types: [] as string[],
         filter_min_duration: 0,
         filter_max_duration: 0,
@@ -132,9 +135,14 @@ export default function CallDetailTestPage() {
             filter_max_duration: tempValues[1],
             only_last: onlylast,
             only_abandoned: onlyaban,
-            only_new: onlynew
+            only_new: onlynew,
+            filter_min_start_time: formatTimeWithOffset(minTime),
+            filter_max_start_time: formatTimeWithOffset(maxTime)
         });
     };
+    const formatTimeWithOffset = ({ h, m, s }: { h: string; m: string; s: string }) => {
+        return `${h}:${m}:${s}+05:30`;
+    }
 
     const handleResetFilters = () => {
         setfilter("today");
@@ -357,7 +365,7 @@ export default function CallDetailTestPage() {
                                         <AccordionContent className="px-4">
                                             <div className="mb-3 text-sm text-gray-700">
                                                 {tempValues[1] / 60 > 2 ? (
-                                                    <span className="text-xs text-red-500">Greater than 0 to 2 hours</span>
+                                                    <span className="text-xs text-red-500"> 0 to greater than 2 hours</span>
                                                 ) : (
                                                     <span className="text-xs">
                                                         Selected: {(tempValues[0] / 60).toFixed(1)} - {(tempValues[1] / 60).toFixed(1)} hours
@@ -395,7 +403,16 @@ export default function CallDetailTestPage() {
                                             />
                                         </AccordionContent>
                                     </AccordionItem>
-                                                                       <AccordionItem value="group-row">
+                                    <AccordionItem value="time-picker">
+                                        <AccordionTrigger className="text-xs">Time Range</AccordionTrigger>
+                                        <AccordionContent>
+                                            <div className="flex flex-col">
+                                                <AetherTimePicker label="Minimum Time" value={minTime} onChange={setMinTime} />
+                                                <AetherTimePicker label="Maximum Time" value={maxTime} onChange={setMaxTime} />
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                    <AccordionItem value="group-row">
                                         <AccordionTrigger className="text-xs">Group Rows</AccordionTrigger>
                                         <AccordionContent>
                                             <div className="flex items-center gap-2">
@@ -466,7 +483,7 @@ export default function CallDetailTestPage() {
                 </div>
                 <div>
                     {isLoading && (
-                        <div className="flex items-center justify-center text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="flex inset-0 bg-gray-100 bg-opacity-10 items-center justify-center text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                             Loading...
                             <LoaderCircle className="animate-spin w-5 h-5 text-purple-500 ml-2" />
                         </div>
