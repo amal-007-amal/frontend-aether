@@ -30,7 +30,7 @@ export default function CallDetailTestPage() {
     const [isFilterOpen, setISDilterOpen] = useState(false)
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
-    const [tempValues, setTempValues] = useState([0, 240])
+    const [tempValues, setTempValues] = useState([0, 120])
     const [onlylast, setOnlyLast] = useState(false);
     const [onlynew, setOnlyNew] = useState(false);
     const [onlyaban, setOnlyAbandon] = useState(false);
@@ -132,7 +132,7 @@ export default function CallDetailTestPage() {
             filter_max_duration: tempValues[1],
             only_last: onlylast,
             only_abandoned: onlyaban,
-            only_new:onlynew
+            only_new: onlynew
         });
     };
 
@@ -286,23 +286,6 @@ export default function CallDetailTestPage() {
                                         </AccordionContent>
                                     </AccordionItem>
 
-                                    <AccordionItem value="group-row">
-                                        <AccordionTrigger className="text-xs">Group Rows</AccordionTrigger>
-                                        <AccordionContent>
-                                            <div className="flex items-center gap-2">
-                                                <Checkbox
-                                                    id="check1"
-                                                    checked={onlylast}
-                                                    onCheckedChange={(val) => {
-                                                        if (typeof val === "boolean") setOnlyLast(val);
-                                                    }}
-                                                />
-                                                <label htmlFor="check1" className="text-xs">
-                                                    Last Call (by caller id)
-                                                </label>
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
                                     {/* User Filter */}
                                     <AccordionItem value="user-filter">
                                         <AccordionTrigger className="text-xs">Users</AccordionTrigger>
@@ -373,9 +356,14 @@ export default function CallDetailTestPage() {
                                         <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
                                         <AccordionContent className="px-4">
                                             <div className="mb-3 text-sm text-gray-700">
-                                                <span className="text-xs">Selected: {tempValues[0]} - {tempValues[1]} minutes minutes</span>
+                                                {tempValues[1] / 60 > 2 ? (
+                                                    <span className="text-xs text-red-500">Greater than 0 to 2 hours</span>
+                                                ) : (
+                                                    <span className="text-xs">
+                                                        Selected: {(tempValues[0] / 60).toFixed(1)} - {(tempValues[1] / 60).toFixed(1)} hours
+                                                    </span>
+                                                )}
                                             </div>
-
                                             <Range
                                                 step={1}
                                                 min={0}
@@ -405,6 +393,23 @@ export default function CallDetailTestPage() {
                                                     />
                                                 )}
                                             />
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                                                       <AccordionItem value="group-row">
+                                        <AccordionTrigger className="text-xs">Group Rows</AccordionTrigger>
+                                        <AccordionContent>
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox
+                                                    id="check1"
+                                                    checked={onlylast}
+                                                    onCheckedChange={(val) => {
+                                                        if (typeof val === "boolean") setOnlyLast(val);
+                                                    }}
+                                                />
+                                                <label htmlFor="check1" className="text-xs">
+                                                    Last Call (by caller id)
+                                                </label>
+                                            </div>
                                         </AccordionContent>
                                     </AccordionItem>
                                     <div className="flex justify-end gap-4 mt-3">
