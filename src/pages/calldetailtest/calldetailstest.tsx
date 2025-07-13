@@ -1,4 +1,4 @@
-import { CirclePlay, Columns3, FileDown, FileText, FunnelPlus, LoaderCircle, RefreshCcw } from "lucide-react";
+import { ChevronRight, CirclePlay, Columns3, FileDown, FileText, FunnelPlus, LoaderCircle, RefreshCcw } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -366,7 +366,7 @@ export default function CallDetailTestPage() {
                                         <AccordionContent className="px-4">
                                             <div className="mb-3 text-sm text-gray-700">
                                                 {tempValues[1] / 60 > 2 ? (
-                                                    <span className="text-xs text-red-500"> 0 to greater than 2 hours</span>
+                                                    <span className="text-xs text-red-500 flex items-center"> 0 to <ChevronRight className="h-4"/> 2hrs</span>
                                                 ) : (
                                                     <span className="text-xs">
                                                         Selected: {(tempValues[0] / 60).toFixed(1)} - {(tempValues[1] / 60).toFixed(1)} hours
