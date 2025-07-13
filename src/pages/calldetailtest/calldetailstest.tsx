@@ -32,6 +32,7 @@ export default function CallDetailTestPage() {
     const [showDialog, setShowDialog] = useState(false);
     const [tempValues, setTempValues] = useState([0, 240])
     const [onlylast, setOnlyLast] = useState(false);
+    const [onlynew, setOnlyNew] = useState(false);
     const [onlyaban, setOnlyAbandon] = useState(false);
     const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
@@ -129,8 +130,9 @@ export default function CallDetailTestPage() {
             filter_frontend_call_types: selectedTypeVal,
             filter_min_duration: tempValues[0],
             filter_max_duration: tempValues[1],
-            only_last:onlylast,
-            only_abandoned:onlyaban
+            only_last: onlylast,
+            only_abandoned: onlyaban,
+            only_new:onlynew
         });
     };
 
@@ -149,11 +151,6 @@ export default function CallDetailTestPage() {
         fetchCallLogs({
             ...filterParams,
             created_till: new Date().toISOString(),
-            filter_user_ids: [],
-            filter_min_start_datetime: "",
-            filter_max_start_datetime: "",
-            only_abandoned: false,
-            only_new: false,
             offset: 0,
             limit,
         });
@@ -289,9 +286,26 @@ export default function CallDetailTestPage() {
                                         </AccordionContent>
                                     </AccordionItem>
 
+                                    <AccordionItem value="group-row">
+                                        <AccordionTrigger className="text-xs">Group Rows</AccordionTrigger>
+                                        <AccordionContent>
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox
+                                                    id="check1"
+                                                    checked={onlylast}
+                                                    onCheckedChange={(val) => {
+                                                        if (typeof val === "boolean") setOnlyLast(val);
+                                                    }}
+                                                />
+                                                <label htmlFor="check1" className="text-xs">
+                                                    Last Call (by caller id)
+                                                </label>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
                                     {/* User Filter */}
                                     <AccordionItem value="user-filter">
-                                        <AccordionTrigger className="text-xs">User Filter</AccordionTrigger>
+                                        <AccordionTrigger className="text-xs">Users</AccordionTrigger>
                                         <AccordionContent>
                                             <div onClick={(e) => e.stopPropagation()} className="w-full">
                                                 <AetherMultiSelect
@@ -320,7 +334,7 @@ export default function CallDetailTestPage() {
 
                                     {/* Other Numbers */}
                                     <AccordionItem value="numbers">
-                                        <AccordionTrigger className="text-xs">Phone Filter</AccordionTrigger>
+                                        <AccordionTrigger className="text-xs">Caller ID</AccordionTrigger>
                                         <AccordionContent>
                                             <div>
                                                 <AetherAdderMultiSelect selected={phoneNumbers} onChange={setPhoneNumbers} />
@@ -328,9 +342,9 @@ export default function CallDetailTestPage() {
                                                     <div className="flex items-center gap-2">
                                                         <Checkbox
                                                             id="check1"
-                                                            checked={onlylast}
+                                                            checked={onlynew}
                                                             onCheckedChange={(val) => {
-                                                                if (typeof val === "boolean") setOnlyLast(val);
+                                                                if (typeof val === "boolean") setOnlyNew(val);
                                                             }}
                                                         />
                                                         <label htmlFor="check1" className="text-xs">
