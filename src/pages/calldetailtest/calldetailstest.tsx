@@ -213,11 +213,8 @@ export default function CallDetailTestPage() {
         setFilterParams((prev) => ({
             ...prev,
             created_till: new Date().toISOString(),
-            filter_user_ids: [],
-            filter_min_start_datetime: "",
-            filter_max_start_datetime: "",
-            only_abandoned: false,
-            only_new: false,
+            offset:0,
+            limit,
         }));
         setCurrentOffset(1);
         fetchCallLogs({
@@ -428,7 +425,7 @@ export default function CallDetailTestPage() {
                                         <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
                                         <AccordionContent className="px-4">
                                             <div className="mb-3 text-sm text-gray-700">
-                                                {tempValues[1] > 60 ? (
+                                                {tempValues[1] > 59 ? (
                                                     <span className="text-xs text-red-500 flex items-center">
                                                         0 to <ChevronRight className="h-4 mx-1" /> 60 min
                                                     </span>
