@@ -428,18 +428,20 @@ export default function CallDetailTestPage() {
                                         <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
                                         <AccordionContent className="px-4">
                                             <div className="mb-3 text-sm text-gray-700">
-                                                {tempValues[1] / 60 > 2 ? (
-                                                    <span className="text-xs text-red-500 flex items-center"> 0 to <ChevronRight className="h-4" /> 2hrs</span>
+                                                {tempValues[1] > 60 ? (
+                                                    <span className="text-xs text-red-500 flex items-center">
+                                                        0 to <ChevronRight className="h-4 mx-1" /> 60 min
+                                                    </span>
                                                 ) : (
                                                     <span className="text-xs">
-                                                        Selected: {(tempValues[0] / 60).toFixed(1)} - {(tempValues[1] / 60).toFixed(1)} hours
+                                                        Selected: {tempValues[0]} - {tempValues[1]} mins
                                                     </span>
                                                 )}
                                             </div>
                                             <Range
                                                 step={1}
                                                 min={0}
-                                                max={240}
+                                                max={120}
                                                 values={tempValues}
                                                 onChange={setTempValues}
                                                 renderTrack={({ props, children }) => (
@@ -451,8 +453,8 @@ export default function CallDetailTestPage() {
                                                         <div
                                                             className="h-2 bg-gray-400 rounded-full absolute"
                                                             style={{
-                                                                left: `${(tempValues[0] / 240) * 100}%`,
-                                                                width: `${((tempValues[1] - tempValues[0]) / 240) * 100}%`,
+                                                                left: `${(tempValues[0] / 120) * 100}%`,
+                                                                width: `${((tempValues[1] - tempValues[0]) / 120) * 100}%`,
                                                             }}
                                                         />
                                                         {children}
