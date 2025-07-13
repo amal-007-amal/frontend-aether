@@ -33,7 +33,7 @@ export const AetherPagination = ({
                     value={String(currentOffset)}
                     onValueChange={(val) => setCurrentOffset(Number(val))}
                 >
-                    <SelectTrigger className="w-20 h-8 text-xs rounded-xl">
+                    <SelectTrigger className="w-20 h-8 text-xs border-none shadow-none">
                         <SelectValue placeholder="Page" />
                     </SelectTrigger>
                     <SelectContent>
@@ -60,7 +60,7 @@ export const AetherPagination = ({
                         setCurrentOffset(newPage);
                     }}
                 >
-                    <SelectTrigger className="w-24 h-8 text-xs rounded-xl">
+                    <SelectTrigger className="w-24 h-8 text-xs border-none shadow-none">
                         <SelectValue placeholder="Limit" />
                     </SelectTrigger>
                     <SelectContent>

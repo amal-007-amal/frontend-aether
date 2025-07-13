@@ -21,11 +21,13 @@ import { typeCompressMap } from "../../types/callnamemap";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../../components/ui/dialog";
 import { useRecording } from "../../hooks/useRecording";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import { AetherAdderMultiSelect } from "../../components/aetheraddermultiselect";
 
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false)
+    const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
     const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
@@ -231,7 +233,7 @@ export default function CallDetailTestPage() {
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <AetherTooltip label="Refresh">
-                            <RefreshCcw className={`h-4 w-4 cursor-pointer`} />
+                            <RefreshCcw onClick={() => handleResetFilters()} className={`h-4 w-4 cursor-pointer`} />
                         </AetherTooltip>
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
@@ -269,7 +271,6 @@ export default function CallDetailTestPage() {
                                         </div>
                                     )}
                                 </div>
-
                                 <div onClick={(e) => e.stopPropagation()} className="w-full">
                                     <AetherMultiSelect
                                         data={users.map((user) => ({ label: user.name, value: user.id }))}
@@ -277,10 +278,14 @@ export default function CallDetailTestPage() {
                                         onChange={setSelectedUserIDs}
                                     />
                                 </div>
+                                <div>
+                                    <AetherAdderMultiSelect selected={phoneNumbers} onChange={setPhoneNumbers} />
+                                </div>
                                 <div className="flex justify-end gap-4">
                                     <Button className="bg-white text-black text-xs rounded-xl hover:bg-gray-500" onClick={handleResetFilters}>Reset</Button>
                                     <Button onClick={handleFilterApply} className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300">Apply</Button>
                                 </div>
+
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <DropdownMenu>

@@ -10,31 +10,28 @@ export function useCallLogOptimized() {
   const [isLoading, setIsLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
-const exportCallLogsFile = async (params: any, type: "csv" | "pdf") => {
-  try {
-    const queryString = buildQueryParams({
-      ...params,
-      limit: -1,
-      offset: 0,
-      response_format: type,
-    });
-
-    const blob = await getCallsOptimizedFile(queryString); 
-
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `call-logs-export.${type}`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    toast.error("Failed to download export file");
-    console.error(err);
-  }
-};
+  const exportCallLogsFile = async (params: any, type: "csv" | "pdf") => {
+    try {
+      const queryString = buildQueryParams({
+        ...params,
+        limit: -1,
+        offset: 0,
+        response_format: type,
+      });
+      const blob = await getCallsOptimizedFile(queryString);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `call-logs-export.${type}`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error("Failed to download export file");
+      console.error(err);
+    }
+  };
   const buildQueryParams = (params: Record<string, any>): string => {
     const searchParams = new URLSearchParams();
-
     Object.entries(params).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         value.forEach((v) => {
@@ -46,7 +43,6 @@ const exportCallLogsFile = async (params: any, type: "csv" | "pdf") => {
         searchParams.append(key, value.toString());
       }
     });
-
     return searchParams.toString();
   };
 
@@ -80,8 +76,8 @@ const exportCallLogsFile = async (params: any, type: "csv" | "pdf") => {
   return {
     calllogs,
     abandoned,
-    total,        
-    offset,    
+    total,
+    offset,
     isLoading,
     fetchCallLogs,
     setCalllogs,
