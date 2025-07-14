@@ -62,6 +62,14 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
         maxTime: { h: string; m: string; s: string };
     }) => {
         setCurrentOffset(1);
+
+        const isCustom = draftFilterParams.filter_min_start_datetime === "" &&
+            draftFilterParams.filter_max_start_datetime === "" &&
+            rangepick?.from && rangepick?.to;
+
+        const customStart = isCustom ? rangepick?.from?.toISOString() : draftFilterParams.filter_min_start_datetime;
+        const customEnd = isCustom ? rangepick?.to?.toISOString() : draftFilterParams.filter_max_start_datetime;
+
         setFilterParams({
             ...draftFilterParams,
             created_till: new Date().toISOString(),
@@ -75,11 +83,14 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
             only_new: onlynew,
             filter_min_start_time: formatTimeWithOffset(minTime),
             filter_max_start_time: formatTimeWithOffset(maxTime),
+            filter_min_start_datetime: customStart ?? "",
+            filter_max_start_datetime: customEnd ?? "",
             offset: 0,
             limit,
         });
         setHasInitialApplied(true);
     };
+
 
     const handleResetFilters = () => {
         setDraftFilterParams(baseDraft);

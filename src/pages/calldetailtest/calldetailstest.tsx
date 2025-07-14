@@ -131,7 +131,7 @@ export default function CallDetailTestPage() {
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
                                 <AetherTooltip label="call Filter">
-                                    <FunnelPlus className={`h-4 w-4`} />
+                                    <FunnelPlus className={`h-4 w-4 text-fuchsia-500`} />
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
