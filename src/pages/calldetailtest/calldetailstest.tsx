@@ -184,6 +184,7 @@ export default function CallDetailTestPage() {
 
     const handlCommonReset = () => {
         setfilterType('today')
+        handleFilterChange('today')
         handleAgents()
         handleCallType()
         handleCallerID()
