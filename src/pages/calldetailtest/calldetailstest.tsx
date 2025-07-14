@@ -1,4 +1,4 @@
-import { ChevronRight, CirclePlay, Columns3, FileDown, FileText, FunnelPlus, LoaderCircle, RefreshCcw, RefreshCcwDot } from "lucide-react";
+import { CirclePlay, Columns3, FileDown, FileText, FunnelPlus, LoaderCircle, RefreshCcw } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -22,15 +22,17 @@ import { useRecording } from "../../hooks/useRecording";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { AetherAdderMultiSelect } from "../../components/aetheraddermultiselect";
 import { AccordionContent, AccordionItem, AccordionTrigger, Accordion } from "../../components/ui/accordion";
-import { Range } from "react-range";
 import { AetherTimePicker } from "../../components/aethertimepicker";
 import { useCallFilterManager } from "../../hooks/useFilterManager";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false);
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
-    const [tempValues, setTempValues] = useState([0, 62]);
+    const [min, setMin] = useState<number | ''>(0);
+    const [max, setMax] = useState<number | ''>(0);
     const [minTime, setMinTime] = useState({ h: "00", m: "00", s: "00" });
     const [maxTime, setMaxTime] = useState({ h: "23", m: "59", s: "59" });
     const [onlylast, setOnlyLast] = useState(false);
@@ -248,46 +250,28 @@ export default function CallDetailTestPage() {
                                     <AccordionItem value="durations">
                                         <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
                                         <AccordionContent className="px-4">
-                                            <div className="mb-3 text-xs text-gray-700 flex items-center">
-                                                <RefreshCcwDot className="h-4 mr-2 cursor-pointer" /> Selected:{" "}
-                                                {tempValues[1] > 59 ? (
-                                                    <>
-                                                        0 to <ChevronRight className="h-3 mx-1" /> 60 mins
-                                                    </>
-                                                ) : (
-                                                    `${tempValues[0]} - ${tempValues[1]} mins`
-                                                )}
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div>
+                                                    <Label className="block text-xs mb-1">Min</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={min}
+                                                        onChange={(e) => setMin(e.target.value === '' ? '' : Number(e.target.value))}
+                                                        className="w-full h-8 px-2 py-1 border rounded text-xs"
+                                                        placeholder="Min"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="block text-xs mb-1">Max</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={max}
+                                                        onChange={(e) => setMax(e.target.value === '' ? '' : Number(e.target.value))}
+                                                        className="w-full  h-8 px-2 py-1 border rounded text-xs"
+                                                        placeholder="Max"
+                                                    />
+                                                </div>
                                             </div>
-                                            <Range
-                                                step={1}
-                                                min={0}
-                                                max={62}
-                                                values={tempValues}
-                                                onChange={setTempValues}
-                                                renderTrack={({ props, children }) => (
-                                                    <div
-                                                        {...props}
-                                                        className="h-1 bg-gray-200 rounded-full relative"
-                                                        style={props.style}
-                                                    >
-                                                        <div
-                                                            className="h-1 bg-gray-400 rounded-full absolute"
-                                                            style={{
-                                                                left: `${(tempValues[0] / 62) * 100}%`,
-                                                                width: `${((tempValues[1] - tempValues[0]) / 62) * 100}%`,
-                                                            }}
-                                                        />
-                                                        {children}
-                                                    </div>
-                                                )}
-                                                renderThumb={({ props }) => (
-                                                    <div
-                                                        {...props}
-                                                        className="h-3 w-3 bg-gray-400 rounded-full border border-white shadow flex items-center justify-center text-[10px] text-white font-bold"
-                                                    >
-                                                    </div>
-                                                )}
-                                            />
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="time-picker">
@@ -297,7 +281,7 @@ export default function CallDetailTestPage() {
                                                 <AetherTimePicker label="Minimum Time" value={minTime} onChange={setMinTime} />
                                                 <AetherTimePicker label="Maximum Time" value={maxTime} onChange={setMaxTime} />
                                             </div>
-                                            <span onClick={handleResetTime} className="cursor-pointer underline px-3 text-xs">Reset</span>
+                                            <span onClick={handleResetTime} className="cursor-pointer underline px-3 text-xs flex items-end justify-end pt-2">Reset</span>
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="group-row">
@@ -339,7 +323,8 @@ export default function CallDetailTestPage() {
                                                         selectedUserIDs,
                                                         phoneNumbers,
                                                         selectedTypeVal,
-                                                        tempValues,
+                                                        min,
+                                                        max,
                                                         onlylast,
                                                         onlyaban,
                                                         onlynew,

@@ -29,7 +29,7 @@ export function AetherTimePicker({ label = "Select Time", value, onChange }: Tim
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="text-xs font-medium">{label}</Label>
+      <Label className="text-xs font-normal">{label}</Label>
       <div className="flex gap-2">
         <Select value={value.h} onValueChange={(val) => update("h", val)}>
           <SelectTrigger className="w-full h-8 text-xs shadow-none">
