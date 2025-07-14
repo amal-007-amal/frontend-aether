@@ -230,6 +230,7 @@ export const AetherDashboard = () => {
 
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <AetherMultiSelect
+                                    placeholder="Filter by agents"
                                         data={users.map((user) => ({ label: user.name, value: user.id }))}
                                         selected={selectedUserIDs}
                                         onChange={setSelectedUserIDs}

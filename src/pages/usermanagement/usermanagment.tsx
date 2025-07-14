@@ -159,7 +159,7 @@ export default function UserManagmentPage() {
                                         confirmText="Confirm"
                                         cancelText="Cancel"
                                         onConfirm={() => handleRemoveUser(user.id)}
-                                        trigger={<Trash className="w-3 h-3 text-red-400" />}
+                                        trigger={<Trash className="w-3 h-3 text-red-400 cursor-pointer" />}
                                     />
                                 </TableCell>
                             </TableRow>

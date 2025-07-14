@@ -27,6 +27,8 @@ import { useCallFilterManager } from "../../hooks/useFilterManager";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilePdf,faFileCsv } from "@fortawesome/free-solid-svg-icons";
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
@@ -214,7 +216,7 @@ export default function CallDetailTestPage() {
                         </AetherTooltip>
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
-                                <AetherTooltip label="call Filter">
+                                <AetherTooltip label="Call Filter">
                                     <FunnelPlus className={`h-4 w-4 text-fuchsia-500`} />
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
@@ -452,12 +454,22 @@ export default function CallDetailTestPage() {
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <AetherTooltip label="Export as Pdf">
-                            <FileDown onClick={() => { handleExportClick('pdf') }} className={`h-4 w-4 cursor-pointer`} />
+                        <div className="flex">
+                               <AetherTooltip label="Export PDF">
+                            <span className="flex items-center cursor-pointer" onClick={() => handleExportClick('pdf')}>
+                                <Button variant="ghost" size="icon" className="p-0 m-0">
+                                    <FontAwesomeIcon icon={faFilePdf} />
+                                </Button>
+                            </span>
                         </AetherTooltip>
-                        <AetherTooltip label="Export as Csv">
-                            <FileText onClick={() => { handleExportClick('csv') }} className={`h-4 w-4 cursor-pointer`} />
+                        <AetherTooltip label="Export CSV">
+                            <span className="flex items-center cursor-pointer" onClick={() => handleExportClick('csv')}>
+                                <Button variant="ghost" size="icon" className="p-0 m-0">
+                                    <FontAwesomeIcon icon={faFileCsv} />
+                                </Button>
+                            </span>
                         </AetherTooltip>
+                        </div>
                     </div>
                 </div>
                 <div>
