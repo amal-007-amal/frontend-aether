@@ -121,7 +121,7 @@ export default function CallDetailTestPage() {
 
     return (
         <div>
-            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700">
+            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
@@ -219,7 +219,7 @@ export default function CallDetailTestPage() {
                                                             }}
                                                         />
                                                         <label htmlFor="check2" className="text-xs">
-                                                            Only Abandon
+                                                            Only Abandoned
                                                         </label>
                                                     </div>
                                                 </div>
@@ -388,7 +388,7 @@ export default function CallDetailTestPage() {
                 </div>
                 <div>
                     {isLoading && (
-                        <div className="flex inset-0 bg-gray-100 bg-opacity-10 items-center justify-center text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="flex inset-0 dark:bg-transparent bg-gray-100 bg-opacity-10 items-center justify-center text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                             Loading...
                             <LoaderCircle className="animate-spin w-5 h-5 text-purple-500 ml-2" />
                         </div>

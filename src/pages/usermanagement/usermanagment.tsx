@@ -101,7 +101,7 @@ export default function UserManagmentPage() {
 
     return (
         <div>
-            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700">
+            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                 <div className="flex justify-between mb-2 items-center px-1">
                     <h2 className="text-sm font-medium flex items-center"><Users className="h-4" />User List</h2>
                     <div className="flex justify-between items-center gap-3">
