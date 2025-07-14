@@ -316,24 +316,7 @@ export default function CallDetailTestPage() {
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
-
-                                    {/* Call Type */}
-                                    <AccordionItem value="call-type">
-                                        <AccordionTrigger className="text-xs">Call Type</AccordionTrigger>
-                                        <AccordionContent>
-                                            <div onClick={(e) => e.stopPropagation()} className="w-full">
-                                                <AetherMultiSelect
-                                                    placeholder="call type"
-                                                    data={AethercallFillTypes.map((type) => ({ label: type, value: type }))}
-                                                    selected={selectedTypeVal}
-                                                    onChange={setSelecteTypeVal}
-                                                />
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-
-                                    {/* Other Numbers */}
-                                    <AccordionItem value="numbers">
+                                   <AccordionItem value="numbers">
                                         <AccordionTrigger className="text-xs">Caller ID</AccordionTrigger>
                                         <AccordionContent>
                                             <div>
@@ -368,15 +351,30 @@ export default function CallDetailTestPage() {
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
+                                    {/* Call Type */}
+                                    <AccordionItem value="call-type">
+                                        <AccordionTrigger className="text-xs">Call Type</AccordionTrigger>
+                                        <AccordionContent>
+                                            <div onClick={(e) => e.stopPropagation()} className="w-full">
+                                                <AetherMultiSelect
+                                                    placeholder="call type"
+                                                    data={AethercallFillTypes.map((type) => ({ label: type, value: type }))}
+                                                    selected={selectedTypeVal}
+                                                    onChange={setSelecteTypeVal}
+                                                />
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
 
                                     <AccordionItem value="durations">
                                         <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
                                         <AccordionContent className="px-4">
-                                            <div className="mb-3 text-sm text-gray-700 flex items-center">
+                                            <div className="mb-3 text-xs text-gray-700 flex items-center">
                                                 Selected:{" "}
                                                 {tempValues[1] > 59 ? (
                                                     <>
-                                                        0 to <ChevronRight className="h-4 mx-1" /> 60 mins
+                                                        0 to <ChevronRight className="h-3 mx-1" /> 60 mins
                                                     </>
                                                 ) : (
                                                     `${tempValues[0]} - ${tempValues[1]} mins`
@@ -391,11 +389,11 @@ export default function CallDetailTestPage() {
                                                 renderTrack={({ props, children }) => (
                                                     <div
                                                         {...props}
-                                                        className="h-2 bg-gray-200 rounded-full relative"
+                                                        className="h-1 bg-gray-200 rounded-full relative"
                                                         style={props.style}
                                                     >
                                                         <div
-                                                            className="h-2 bg-gray-400 rounded-full absolute"
+                                                            className="h-1 bg-gray-400 rounded-full absolute"
                                                             style={{
                                                                 left: `${(tempValues[0] / 70) * 100}%`,
                                                                 width: `${((tempValues[1] - tempValues[0]) / 70) * 100}%`,
@@ -407,7 +405,7 @@ export default function CallDetailTestPage() {
                                                 renderThumb={({ props }) => (
                                                     <div
                                                         {...props}
-                                                        className="h-5 w-5 bg-gray-400 rounded-full border border-white shadow flex items-center justify-center text-[10px] text-white font-bold"
+                                                        className="h-3 w-3 bg-gray-400 rounded-full border border-white shadow flex items-center justify-center text-[10px] text-white font-bold"
                                                     >
                                                     </div>
                                                 )}
@@ -440,19 +438,29 @@ export default function CallDetailTestPage() {
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
-                                    <div className="flex justify-end gap-4 mt-3">
-                                        <Button
-                                            className="bg-white text-black text-xs rounded-xl hover:bg-gray-500"
-                                            onClick={handleResetFilters}
-                                        >
-                                            Reset
-                                        </Button>
-                                        <Button
-                                            onClick={handleFilterApply}
-                                            className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300"
-                                        >
-                                            Apply
-                                        </Button>
+                                    <div className="flex justify-between gap-4 mt-3">
+                                        <div>
+                                            <Button
+                                                className="bg-white text-black text-xs rounded-xl hover:bg-gray-500"
+                                                onClick={() => { setISDilterOpen(false) }}
+                                            >
+                                                Close
+                                            </Button>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <Button
+                                                className="bg-white text-black text-xs rounded-xl hover:bg-gray-500"
+                                                onClick={handleResetFilters}
+                                            >
+                                                Reset
+                                            </Button>
+                                            <Button
+                                                onClick={handleFilterApply}
+                                                className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300"
+                                            >
+                                                Apply
+                                            </Button>
+                                        </div>
                                     </div>
                                 </Accordion>
                             </DropdownMenuContent>
