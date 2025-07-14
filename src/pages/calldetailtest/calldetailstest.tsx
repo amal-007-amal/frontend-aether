@@ -138,7 +138,7 @@ export default function CallDetailTestPage() {
                                 <Accordion type="multiple" className="w-[300px]">
                                     <AccordionItem value="date-filter">
                                         <AccordionTrigger className="text-xs flex">
-                                            <span className={`${filter ?'text-fuchsia-500':''} `}>
+                                            <span className={`${filter ? 'text-fuchsia-500' : ''} `}>
                                                 Date Range
                                             </span>
                                         </AccordionTrigger>
@@ -177,7 +177,7 @@ export default function CallDetailTestPage() {
                                     </AccordionItem>
                                     <AccordionItem value="user-filter">
                                         <AccordionTrigger className="text-xs">
-                                            <span className={`${selectedUserIDs.length>0?'text-fuchsia-500':''} `}>Agent</span>
+                                            <span className={`${selectedUserIDs.length > 0 ? 'text-fuchsia-500' : ''} `}>Agent</span>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div onClick={(e) => e.stopPropagation()} className="w-full">
@@ -192,7 +192,7 @@ export default function CallDetailTestPage() {
                                     </AccordionItem>
                                     <AccordionItem value="numbers">
                                         <AccordionTrigger className="text-xs">
-                                              <span className={`${phoneNumbers.length>0?'text-fuchsia-500':''} `}>Caller ID</span>
+                                            <span className={`${phoneNumbers.length > 0 ? 'text-fuchsia-500' : ''} `}>Caller ID</span>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div>
@@ -306,7 +306,7 @@ export default function CallDetailTestPage() {
                                                     }}
                                                 />
                                                 <label htmlFor="check3" className="text-xs">
-                                                    Last Call (by caller id)
+                                                    By Caller ID (last call only)
                                                 </label>
                                             </div>
                                         </AccordionContent>
@@ -449,7 +449,7 @@ export default function CallDetailTestPage() {
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("recording_ids") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer text-center">
+                                    <TableHead className="text-xs font-semibold cursor-pointer">
                                         {getColHeaderLabel('recording_ids')?.label}
                                     </TableHead>
                                 )}
@@ -492,7 +492,7 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{call.device_id}</TableCell>
                                             )}
                                             {visibleColumns.includes("recording_ids") && (
-                                                <TableCell className="flex gap-1 flex-wrap items-center justify-center">
+                                                <TableCell className="flex gap-1 flex-wrap items-center">
                                                     {Array.isArray(call.recording_ids) &&
                                                         call.recording_ids.length > 0 &&
                                                         call.recording_ids.slice(0, 1).map((item) => (
