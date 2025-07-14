@@ -27,7 +27,6 @@ import { AetherTimePicker } from "../../components/aethertimepicker";
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
-    const filtersApplied = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false)
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
@@ -49,7 +48,7 @@ export default function CallDetailTestPage() {
         offset: 0,
         limit: 10,
         filter_user_ids: [] as string[],
-        filter_min_start_datetime: "",
+        filter_min_start_datetime: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
         filter_max_start_datetime: "",
         filter_other_numbers: [] as string[],
         only_new: false,
@@ -70,15 +69,7 @@ export default function CallDetailTestPage() {
         fetchUsers();
     }, []);
     useEffect(() => {
-        const baseParams = {
-            created_till: filterParams.created_till,
-            offset: (currentOffset - 1) * limit,
-        };
-        const paramsToSend = filtersApplied.current
-            ? { ...filterParams, offset: (currentOffset - 1) * limit, limit }
-            : baseParams;
-
-        fetchCallLogs(paramsToSend);
+        fetchCallLogs(filterParams);
     }, [filterParams, currentOffset, limit]);
 
     useEffect(() => {
@@ -129,7 +120,6 @@ export default function CallDetailTestPage() {
     };
 
     const handleFilterApply = () => {
-        filtersApplied.current = true;
         setISDilterOpen(false);
         setCurrentOffset(1);
 
@@ -174,7 +164,6 @@ export default function CallDetailTestPage() {
 
     const handleResetFilters = () => {
         setfilter("today");
-        filtersApplied.current = false;
         setFilterParams((prev) => ({
             ...prev,
             created_till: new Date().toISOString(),
