@@ -138,11 +138,10 @@ export default function CallDetailTestPage() {
                                 <Accordion type="multiple" className="w-[300px]">
                                     <AccordionItem value="date-filter">
                                         <AccordionTrigger className="text-xs flex">
-                                            <span className={`${filter !== "today"?'text-fuchsia-500':''} `}>
+                                            <span className={`${filter ?'text-fuchsia-500':''} `}>
                                                 Date Range
                                             </span>
                                         </AccordionTrigger>
-
                                         <AccordionContent className="px-1">
                                             <div onClick={(e) => e.stopPropagation()} className="pt-1">
                                                 <Select value={filter} onValueChange={(val: AetherFilterApiVal) => {
@@ -163,7 +162,6 @@ export default function CallDetailTestPage() {
                                                         <SelectItem className="text-xs" value="custom">Custom</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-
                                                 {filter === "custom" && (
                                                     <div className="flex items-center justify-center my-3 w-full">
                                                         <Calendar
@@ -177,8 +175,6 @@ export default function CallDetailTestPage() {
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
-
-                                    {/* User Filter */}
                                     <AccordionItem value="user-filter">
                                         <AccordionTrigger className="text-xs">
                                             <span className={`${selectedUserIDs.length>0?'text-fuchsia-500':''} `}>Users</span>
@@ -230,7 +226,6 @@ export default function CallDetailTestPage() {
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
-                                    {/* Call Type */}
                                     <AccordionItem value="call-type">
                                         <AccordionTrigger className="text-xs">Call Type</AccordionTrigger>
                                         <AccordionContent>
@@ -244,8 +239,6 @@ export default function CallDetailTestPage() {
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
-
-
                                     <AccordionItem value="durations">
                                         <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
                                         <AccordionContent className="px-4">
