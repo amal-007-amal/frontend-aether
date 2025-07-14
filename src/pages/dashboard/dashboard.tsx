@@ -202,7 +202,7 @@ export const AetherDashboard = () => {
 
     return (
         <div>
-            <div className="p-2 rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-stone-900 ">
+            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-stone-900 ">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-normal flex items-center gap-2"><ChartLine className="h-5 text-fuchsia-500" /> Dashboard</h2>
                     <div className="flex items-center gap-5">
@@ -245,7 +245,7 @@ export const AetherDashboard = () => {
                 </div>
             </div>
             <div className="grid grid-cols-12 gap-4 my-4">
-                <div className="col-span-12 lg:col-span-5 border border-gray-200 dark:border-stone-700 dark:bg-stone-900 rounded-xl p-4">
+                <div className="col-span-12 lg:col-span-5 bg-white border border-gray-200 dark:border-stone-700 dark:bg-stone-900 rounded-xl p-4">
                     <h2 className="text-sm font-normal text-left flex gap-2"><Activity className="text-fuchsia-500 h-5" /> Call Activity</h2>
                     {activity && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-5">
@@ -259,7 +259,7 @@ export const AetherDashboard = () => {
                     )}
 
                 </div>
-                <div className="col-span-12 lg:col-span-7 border border-gray-200 dark:border-stone-700 dark:bg-stone-900 rounded-xl p-4">
+                <div className="col-span-12 lg:col-span-7 bg-white border border-gray-200 dark:border-stone-700 dark:bg-stone-900 rounded-xl p-4">
                     <h2 className="text-sm font-normal text-left flex gap-2"><Dice5 className="text-fuchsia-500 h-5" /> Leaderboard</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         <div className="rounded-xl p-4 flex flex-col items-start">
@@ -326,7 +326,7 @@ export const AetherDashboard = () => {
                 </div>
             </div>
             {activeHours ? (
-                <div className="col-span-12 lg:col-span-5 border border-gray-200 dark:border-stone-700 dark:bg-stone-900 rounded-xl p-4">
+                <div className="col-span-12 lg:col-span-5 bg-white border border-gray-200 dark:border-stone-700 dark:bg-stone-900 rounded-xl p-4">
                     <h2 className="text-sm font-normal text-left flex gap-3"><TrendingUp className="text-fuchsia-500" /> Active hours</h2>
                     <AetherHorizontalStackedGroupChart
                         labels={activeHours.labels}

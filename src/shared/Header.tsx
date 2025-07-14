@@ -37,7 +37,7 @@ export default function Header() {
         aetherNaviagte('/')
     }
     return (
-        <header className="text-white p-3 rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-stone-900 flex justify-between items-center">
+        <header className="text-white p-3 rounded-xl bg-white border border-gray-200 dark:border-stone-700 dark:bg-stone-900 flex justify-between items-center">
             <h2 className="font-light flex text-black dark:text-white text-xl items-center">
                 A<span className="text-fuchsia-500 font-normal">ether</span>&nbsp;Hub&nbsp;
                 <AudioLines className="h-5 w-5" />

@@ -1,4 +1,4 @@
-import { ChevronRight, CirclePlay, Columns3, FileDown, FileText, FunnelPlus, LoaderCircle, RefreshCcw } from "lucide-react";
+import { ChevronRight, CirclePlay, Columns3, FileDown, FileText, FunnelPlus, LoaderCircle, RefreshCcw, RefreshCcwDot } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -30,7 +30,7 @@ export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false);
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
-    const [tempValues, setTempValues] = useState([0, 60]);
+    const [tempValues, setTempValues] = useState([0, 62]);
     const [minTime, setMinTime] = useState({ h: "00", m: "00", s: "00" });
     const [maxTime, setMaxTime] = useState({ h: "23", m: "59", s: "59" });
     const [onlylast, setOnlyLast] = useState(false);
@@ -121,7 +121,7 @@ export default function CallDetailTestPage() {
 
     return (
         <div>
-            <div className="p-2 rounded-xl border border-gray-200 dark:border-stone-700">
+            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
@@ -177,11 +177,12 @@ export default function CallDetailTestPage() {
                                     </AccordionItem>
                                     <AccordionItem value="user-filter">
                                         <AccordionTrigger className="text-xs">
-                                            <span className={`${selectedUserIDs.length>0?'text-fuchsia-500':''} `}>Users</span>
+                                            <span className={`${selectedUserIDs.length>0?'text-fuchsia-500':''} `}>Agent</span>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div onClick={(e) => e.stopPropagation()} className="w-full">
                                                 <AetherMultiSelect
+                                                    placeholder="Filter by agents"
                                                     data={users.map((user) => ({ label: user.name, value: user.id }))}
                                                     selected={selectedUserIDs}
                                                     onChange={setSelectedUserIDs}
@@ -195,7 +196,7 @@ export default function CallDetailTestPage() {
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div>
-                                                <AetherAdderMultiSelect selected={phoneNumbers} onChange={setPhoneNumbers} />
+                                                <AetherAdderMultiSelect placeholder="Filter by caller IDs" selected={phoneNumbers} onChange={setPhoneNumbers} />
                                                 <div className="flex gap-5 px-1 py-3">
                                                     <div className="flex items-center gap-2">
                                                         <Checkbox
@@ -231,7 +232,7 @@ export default function CallDetailTestPage() {
                                         <AccordionContent>
                                             <div onClick={(e) => e.stopPropagation()} className="w-full">
                                                 <AetherMultiSelect
-                                                    placeholder="call type"
+                                                    placeholder="Filter by call types"
                                                     data={AethercallFillTypes.map((type) => ({ label: type, value: type }))}
                                                     selected={selectedTypeVal}
                                                     onChange={setSelecteTypeVal}
@@ -243,7 +244,7 @@ export default function CallDetailTestPage() {
                                         <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
                                         <AccordionContent className="px-4">
                                             <div className="mb-3 text-xs text-gray-700 flex items-center">
-                                                Selected:{" "}
+                                                <RefreshCcwDot className="h-4 mr-2 cursor-pointer" /> Selected:{" "}
                                                 {tempValues[1] > 59 ? (
                                                     <>
                                                         0 to <ChevronRight className="h-3 mx-1" /> 60 mins
@@ -255,7 +256,7 @@ export default function CallDetailTestPage() {
                                             <Range
                                                 step={1}
                                                 min={0}
-                                                max={70}
+                                                max={62}
                                                 values={tempValues}
                                                 onChange={setTempValues}
                                                 renderTrack={({ props, children }) => (
@@ -267,8 +268,8 @@ export default function CallDetailTestPage() {
                                                         <div
                                                             className="h-1 bg-gray-400 rounded-full absolute"
                                                             style={{
-                                                                left: `${(tempValues[0] / 70) * 100}%`,
-                                                                width: `${((tempValues[1] - tempValues[0]) / 70) * 100}%`,
+                                                                left: `${(tempValues[0] / 62) * 100}%`,
+                                                                width: `${((tempValues[1] - tempValues[0]) / 62) * 100}%`,
                                                             }}
                                                         />
                                                         {children}

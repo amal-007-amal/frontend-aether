@@ -10,7 +10,7 @@ export type AetherFilterApiVal =
 
  export const AethercallFillTypes = [
   "incoming",
-  "not connected",
+  "not_connected",
   "missed",
   "outgoing",
 ];

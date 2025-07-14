@@ -32,7 +32,7 @@ export function AetherMultiSelect({
   data,
   selected,
   onChange,
-  placeholder = "Search users...",
+  placeholder = "filter by users",
 }: DynamicMultiSelectProps) {
   const [open, setOpen] = useState(false);
 
