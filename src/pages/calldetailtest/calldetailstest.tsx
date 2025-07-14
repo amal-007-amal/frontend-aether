@@ -139,6 +139,16 @@ export default function CallDetailTestPage() {
         setOnlyLast(false)
     }
 
+    const handlCommonReset = () =>{
+        setFilter('today')
+        handleAgents()
+        handleCallType()
+        handleCallerID()
+        handleGroupRows()
+        handleResetDuration()
+        handleResetTime()
+    }
+
     const handleNextRecording = (newId: string) => {
         fetchRecording(newId);
     };
@@ -276,7 +286,7 @@ export default function CallDetailTestPage() {
                                         <AccordionContent className="px-4">
                                             <div className="flex items-center justify-between gap-4">
                                                 <div>
-                                                    <Label className="block text-xs mb-1 font-normal">Minimum(minutes)</Label>
+                                                    <Label className="block text-xs mb-1 font-normal">Minimum (minutes)</Label>
                                                     <Input
                                                         type="number"
                                                         value={min}
@@ -286,7 +296,7 @@ export default function CallDetailTestPage() {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label className="block text-xs mb-1 font-normal">Maximum(minutes)</Label>
+                                                    <Label className="block text-xs mb-1 font-normal">Maximum (minutes)</Label>
                                                     <Input
                                                         type="number"
                                                         value={max}
@@ -339,7 +349,7 @@ export default function CallDetailTestPage() {
                                         <div className="flex gap-3">
                                             <Button
                                                 className="bg-white text-black text-xs rounded-xl hover:bg-gray-500"
-                                                onClick={handleResetFilters}
+                                                onClick={handlCommonReset}
                                             >
                                                 Reset
                                             </Button>
