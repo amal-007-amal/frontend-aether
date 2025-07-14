@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { useUsers } from "../../hooks/useUsers";
 import { useEffect, useRef, useState } from "react";
-import { AethercallFillTypes } from "../../types/common";
+import { AethercallFillTypes, type AetherFilterApiVal } from "../../types/common";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import { useCallLogOptimized } from "../../hooks/useCalllogOptimized";
@@ -27,9 +27,7 @@ import { AetherTimePicker } from "../../components/aethertimepicker";
 import { useCallFilterManager } from "../../hooks/useFilterManager";
 
 export default function CallDetailTestPage() {
-
     const isInitialOffsetSet = useRef(false);
-
     const [isFilterOpen, setISDilterOpen] = useState(false);
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
     const [tempValues, setTempValues] = useState([0, 60]);
@@ -44,7 +42,7 @@ export default function CallDetailTestPage() {
     const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
     const [rangepick, setRangePick] = useState<DateRange | undefined>(undefined);
-    console.log(setFilter)
+
     const {
         filterParams,
         currentOffset,
@@ -82,20 +80,6 @@ export default function CallDetailTestPage() {
             isInitialOffsetSet.current = true;
         }
     }, [offset, limit]);
-
-    useEffect(() => {
-        handleFilterApply({
-            selectedUserIDs,
-            phoneNumbers,
-            selectedTypeVal,
-            tempValues,
-            onlylast,
-            onlyaban,
-            onlynew,
-            minTime,
-            maxTime,
-        });
-    }, []);
 
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
@@ -152,12 +136,19 @@ export default function CallDetailTestPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="space-y-2 p-3 me-10">
                                 <Accordion type="multiple" className="w-[300px]">
-                                    {/* Date Filter */}
                                     <AccordionItem value="date-filter">
-                                        <AccordionTrigger className="text-xs">Date Range</AccordionTrigger>
+                                        <AccordionTrigger className="text-xs flex">
+                                            <span className={`${filter !== "today"?'text-fuchsia-500':''} `}>
+                                                Date Range
+                                            </span>
+                                        </AccordionTrigger>
+
                                         <AccordionContent className="px-1">
                                             <div onClick={(e) => e.stopPropagation()} className="pt-1">
-                                                <Select value={filter} onValueChange={handleFilterChange}>
+                                                <Select value={filter} onValueChange={(val: AetherFilterApiVal) => {
+                                                    setFilter(val);
+                                                    handleFilterChange(val);
+                                                }}>
                                                     <SelectTrigger className="w-full text-xs shadow-none">
                                                         <SelectValue placeholder="Select a filter" />
                                                     </SelectTrigger>
@@ -189,7 +180,9 @@ export default function CallDetailTestPage() {
 
                                     {/* User Filter */}
                                     <AccordionItem value="user-filter">
-                                        <AccordionTrigger className="text-xs">Users</AccordionTrigger>
+                                        <AccordionTrigger className="text-xs">
+                                            <span className={`${selectedUserIDs.length>0?'text-fuchsia-500':''} `}>Users</span>
+                                        </AccordionTrigger>
                                         <AccordionContent>
                                             <div onClick={(e) => e.stopPropagation()} className="w-full">
                                                 <AetherMultiSelect
@@ -201,7 +194,9 @@ export default function CallDetailTestPage() {
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="numbers">
-                                        <AccordionTrigger className="text-xs">Caller ID</AccordionTrigger>
+                                        <AccordionTrigger className="text-xs">
+                                              <span className={`${phoneNumbers.length>0?'text-fuchsia-500':''} `}>Caller ID</span>
+                                        </AccordionTrigger>
                                         <AccordionContent>
                                             <div>
                                                 <AetherAdderMultiSelect selected={phoneNumbers} onChange={setPhoneNumbers} />
@@ -215,7 +210,7 @@ export default function CallDetailTestPage() {
                                                             }}
                                                         />
                                                         <label htmlFor="check1" className="text-xs">
-                                                            Only Last
+                                                            Only New
                                                         </label>
                                                     </div>
                                                     <div className="flex items-center gap-2">
@@ -310,13 +305,13 @@ export default function CallDetailTestPage() {
                                         <AccordionContent>
                                             <div className="flex items-center gap-2">
                                                 <Checkbox
-                                                    id="check1"
+                                                    id="check3"
                                                     checked={onlylast}
                                                     onCheckedChange={(val) => {
                                                         if (typeof val === "boolean") setOnlyLast(val);
                                                     }}
                                                 />
-                                                <label htmlFor="check1" className="text-xs">
+                                                <label htmlFor="check3" className="text-xs">
                                                     Last Call (by caller id)
                                                 </label>
                                             </div>
