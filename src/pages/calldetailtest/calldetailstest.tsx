@@ -69,6 +69,13 @@ export default function CallDetailTestPage() {
         fetchUsers();
     }, []);
     useEffect(() => {
+    setFilterParams((prev) => ({
+        ...prev,
+        offset: (currentOffset - 1) * limit,
+        limit: limit,
+    }));
+}, [currentOffset, limit]);
+    useEffect(() => {
         fetchCallLogs(filterParams);
     }, [filterParams, currentOffset, limit]);
 
@@ -122,7 +129,6 @@ export default function CallDetailTestPage() {
     const handleFilterApply = () => {
         setISDilterOpen(false);
         setCurrentOffset(1);
-
         setFilterParams({
             ...draftFilterParams,
             created_till: new Date().toISOString(),
@@ -138,26 +144,6 @@ export default function CallDetailTestPage() {
             filter_max_start_time: formatTimeWithOffset(maxTime),
         });
     };
-
-    // const handleFilterApply = () => {
-    //     filtersApplied.current = true;
-    //     setISDilterOpen(false);
-    //     setCurrentOffset(1);
-    //     setFilterParams({
-    //         ...draftFilterParams,
-    //         created_till: new Date().toISOString(),
-    //         filter_user_ids: selectedUserIDs,
-    //         filter_other_numbers: phoneNumbers,
-    //         filter_frontend_call_types: selectedTypeVal,
-    //         filter_min_duration: tempValues[0] * 60,
-    //         filter_max_duration: tempValues[1] * 60,
-    //         only_last: onlylast,
-    //         only_abandoned: onlyaban,
-    //         only_new: onlynew,
-    //         filter_min_start_time: formatTimeWithOffset(minTime),
-    //         filter_max_start_time: formatTimeWithOffset(maxTime)
-    //     });
-    // };
     const formatTimeWithOffset = ({ h, m, s }: { h: string; m: string; s: string }) => {
         return `${h}:${m}:${s}+05:30`;
     }
