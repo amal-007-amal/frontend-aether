@@ -40,7 +40,7 @@ export default function CallDetailTestPage() {
     const [onlyaban, setOnlyAbandon] = useState(false);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTypeVal, setSelecteTypeVal] = useState<string[]>([]);
-    const [filter, setFilter] = useState<string>("today");
+    const [filterType, setfilterType] = useState<string>("today");
     const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
     const [rangepick, setRangePick] = useState<DateRange | undefined>(undefined);
@@ -52,7 +52,6 @@ export default function CallDetailTestPage() {
         limit,
         setLimit,
         handleFilterApply,
-        handleResetFilters,
         handleFilterChange,
     } = useCallFilterManager({ rangepick });
 
@@ -82,6 +81,50 @@ export default function CallDetailTestPage() {
             isInitialOffsetSet.current = true;
         }
     }, [offset, limit]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("aether_common_filter");
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+
+                // Restore individual states
+                setPhoneNumbers(parsed.filter_other_numbers || []);
+                setMin(parsed.min ?? "");
+                setMax(parsed.max ?? "");
+                setMinTime(parsed.minTime || { h: "00", m: "00", s: "00" });
+                setMaxTime(parsed.maxTime || { h: "23", m: "59", s: "59" });
+                setSelectedUserIDs(parsed.filter_user_ids || []);
+                setSelecteTypeVal(parsed.filter_frontend_call_types || []);
+                setOnlyNew(parsed.only_new || false);
+                setOnlyAbandon(parsed.only_abandoned || false);
+                setOnlyLast(parsed.only_last || false);
+                setfilterType(parsed.filterType || "today");
+
+                if (parsed.filterType === "custom" && parsed.rangepick) {
+                    setRangePick(parsed.rangepick);
+                }
+
+                // Apply restored filters
+                handleFilterApply({
+                    selectedUserIDs: parsed.filter_user_ids || [],
+                    phoneNumbers: parsed.filter_other_numbers || [],
+                    selectedTypeVal: parsed.filter_frontend_call_types || [],
+                    min: parsed.min ?? "",
+                    max: parsed.max ?? "",
+                    minTime: parsed.minTime || { h: "00", m: "00", s: "00" },
+                    maxTime: parsed.maxTime || { h: "23", m: "59", s: "59" },
+                    onlylast: parsed.only_last || false,
+                    onlyaban: parsed.only_abandoned || false,
+                    onlynew: parsed.only_new || false,
+                    filterType: parsed.filterType || "today",
+                });
+            } catch (err) {
+                console.error("Invalid aether_common_filter in localStorage", err);
+            }
+        }
+    }, []);
+
 
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
@@ -139,8 +182,8 @@ export default function CallDetailTestPage() {
         setOnlyLast(false)
     }
 
-    const handlCommonReset = () =>{
-        setFilter('today')
+    const handlCommonReset = () => {
+        setfilterType('today')
         handleAgents()
         handleCallType()
         handleCallerID()
@@ -164,7 +207,7 @@ export default function CallDetailTestPage() {
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <AetherTooltip label="Refresh">
-                            <RefreshCcw onClick={() => handleResetFilters()} className={`h-4 w-4 cursor-pointer`} />
+                            <RefreshCcw className={`h-4 w-4 cursor-pointer`} />
                         </AetherTooltip>
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
@@ -176,14 +219,14 @@ export default function CallDetailTestPage() {
                                 <Accordion type="multiple" className="w-[300px]">
                                     <AccordionItem value="date-filter">
                                         <AccordionTrigger className="text-xs flex">
-                                            <span className={`${filter ? 'text-fuchsia-500' : ''} `}>
+                                            <span className={`${filterType ? 'text-fuchsia-500' : ''} `}>
                                                 Date Range
                                             </span>
                                         </AccordionTrigger>
                                         <AccordionContent className="px-1">
                                             <div onClick={(e) => e.stopPropagation()} className="pt-1">
-                                                <Select value={filter} onValueChange={(val: AetherFilterApiVal) => {
-                                                    setFilter(val);
+                                                <Select value={filterType} onValueChange={(val: AetherFilterApiVal) => {
+                                                    setfilterType(val);
                                                     handleFilterChange(val);
                                                 }}>
                                                     <SelectTrigger className="w-full text-xs shadow-none">
@@ -200,7 +243,7 @@ export default function CallDetailTestPage() {
                                                         <SelectItem className="text-xs" value="custom">Custom</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                {filter === "custom" && (
+                                                {filterType === "custom" && (
                                                     <div className="flex items-center justify-center my-3 w-full">
                                                         <Calendar
                                                             mode="range"
@@ -366,6 +409,7 @@ export default function CallDetailTestPage() {
                                                         onlynew,
                                                         minTime,
                                                         maxTime,
+                                                        filterType
                                                     });
                                                     setISDilterOpen(false);
                                                 }
