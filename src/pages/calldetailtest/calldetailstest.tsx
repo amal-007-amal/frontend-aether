@@ -118,6 +118,11 @@ export default function CallDetailTestPage() {
         setMaxTime({ h: "23", m: "59", s: "59" });
     }
 
+    const handleResetDuration = () => {
+        setMin(0);
+        setMax('');
+    }
+
     const handleNextRecording = (newId: string) => {
         fetchRecording(newId);
     };
@@ -272,6 +277,7 @@ export default function CallDetailTestPage() {
                                                     />
                                                 </div>
                                             </div>
+                                            <span onClick={handleResetDuration} className="cursor-pointer underline px-3 text-xs flex items-end justify-end pt-2">Reset</span>
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="time-picker">
