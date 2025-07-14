@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { useUsers } from "../../hooks/useUsers";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AethercallFillTypes, type AetherFilterApiVal } from "../../types/common";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
@@ -27,30 +27,31 @@ import { AetherTimePicker } from "../../components/aethertimepicker";
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
-    const [isFilterOpen, setISDilterOpen] = useState(false)
+
+    const [isFilterOpen, setISDilterOpen] = useState(false);
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
-    const [showDialog, setShowDialog] = useState(false);
-    const [tempValues, setTempValues] = useState([0, 60])
+    const [tempValues, setTempValues] = useState([0, 60]);
     const [minTime, setMinTime] = useState({ h: "00", m: "00", s: "00" });
     const [maxTime, setMaxTime] = useState({ h: "23", m: "59", s: "59" });
     const [onlylast, setOnlyLast] = useState(false);
     const [onlynew, setOnlyNew] = useState(false);
     const [onlyaban, setOnlyAbandon] = useState(false);
-    const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTypeVal, setSelecteTypeVal] = useState<string[]>([]);
-    const [filter, setfilter] = useState<string>("today")
+    const [filter, setFilter] = useState<string>("today");
     const [currentOffset, setCurrentOffset] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(10)
+    const [limit, setLimit] = useState<number>(10);
     const [rangepick, setRangePick] = useState<DateRange | undefined>(undefined);
-    const [draftFilterParams, setDraftFilterParams] = useState({
+    const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
+    const [showDialog, setShowDialog] = useState(false);
+
+    // Static initial filter template
+    const baseDraft = {
         created_till: new Date().toISOString(),
-        offset: 0,
-        limit: 10,
         filter_user_ids: [] as string[],
+        filter_other_numbers: [] as string[],
         filter_min_start_datetime: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
         filter_max_start_datetime: "",
-        filter_other_numbers: [] as string[],
         only_new: false,
         only_abandoned: false,
         filter_min_start_time: "",
@@ -59,26 +60,32 @@ export default function CallDetailTestPage() {
         filter_min_duration: 0,
         filter_max_duration: 0,
         only_last: false,
-        response_format: "default",
-    });
-    const [filterParams, setFilterParams] = useState(draftFilterParams);
-    const { users, fetchUsers } = useUsers()
-    const { calllogs, fetchCallLogs, total, offset, exportCallLogsFile, isLoading } = useCallLogOptimized()
-    const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-    useEffect(() => {
-    setFilterParams((prev) => ({
-        ...prev,
+        response_format: "default"
+    };
+
+    const [draftFilterParams, setDraftFilterParams] = useState(baseDraft);
+
+    // Derived filterParams used in API
+    const filterParams = useMemo(() => ({
+        ...draftFilterParams,
         offset: (currentOffset - 1) * limit,
-        limit: limit,
-    }));
-}, [currentOffset, limit]);
+        limit,
+    }), [draftFilterParams, currentOffset, limit]);
+
+    // API hooks
+    const { users, fetchUsers } = useUsers();
+    const { calllogs, fetchCallLogs, total, offset, exportCallLogsFile, isLoading } = useCallLogOptimized();
+    const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
+
+    // Initial API fetch
+    useEffect(() => { fetchUsers(); }, []);
+
+    // Fetch call logs when filterParams change
     useEffect(() => {
         fetchCallLogs(filterParams);
-    }, [filterParams, currentOffset, limit]);
+    }, [filterParams]);
 
+    // Set current page from offset (only once)
     useEffect(() => {
         if (!isInitialOffsetSet.current && offset >= 0) {
             const newPage = Math.floor(offset / limit) + 1;
@@ -86,6 +93,43 @@ export default function CallDetailTestPage() {
             isInitialOffsetSet.current = true;
         }
     }, [offset, limit]);
+
+    // Format time to ISO with timezone
+    const formatTimeWithOffset = ({ h, m, s }: { h: string; m: string; s: string }) => {
+       return `${h}:${m}:${s}+05:30`;
+    }
+
+
+
+    const handleFilterApply = () => {
+        setISDilterOpen(false);
+        setCurrentOffset(1);
+
+        setDraftFilterParams({
+            ...baseDraft,
+            created_till: new Date().toISOString(),
+            filter_user_ids: selectedUserIDs,
+            filter_other_numbers: phoneNumbers,
+            filter_frontend_call_types: selectedTypeVal,
+            filter_min_duration: tempValues[0] * 60,
+            filter_max_duration: tempValues[1] > 59 ? null as any : tempValues[1] * 60,
+            only_last: onlylast,
+            only_abandoned: onlyaban,
+            only_new: onlynew,
+            filter_min_start_time: formatTimeWithOffset(minTime),
+            filter_max_start_time: formatTimeWithOffset(maxTime),
+        });
+    };
+
+    const handleResetFilters = () => {
+        setFilter("today");
+        setDraftFilterParams(baseDraft);
+        setCurrentOffset(1);
+    };
+
+    const handleExportClick = (type: "pdf" | "csv") => {
+        exportCallLogsFile(filterParams, type); // exporting current state, not stale one
+    };
 
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
@@ -126,107 +170,55 @@ export default function CallDetailTestPage() {
         fetchRecording(newId);
     };
 
-    const handleFilterApply = () => {
-        setISDilterOpen(false);
-        setCurrentOffset(1);
-        setFilterParams({
-            ...draftFilterParams,
-            created_till: new Date().toISOString(),
-            filter_user_ids: selectedUserIDs,
-            filter_other_numbers: phoneNumbers,
-            filter_frontend_call_types: selectedTypeVal,
-            filter_min_duration: tempValues[0] * 60,
-            filter_max_duration: tempValues[1] > 59 ? null as any : tempValues[1] * 60,
-            only_last: onlylast,
-            only_abandoned: onlyaban,
-            only_new: onlynew,
-            filter_min_start_time: formatTimeWithOffset(minTime),
-            filter_max_start_time: formatTimeWithOffset(maxTime),
-        });
-    };
-    const formatTimeWithOffset = ({ h, m, s }: { h: string; m: string; s: string }) => {
-        return `${h}:${m}:${s}+05:30`;
-    }
-
-    const handleResetFilters = () => {
-        setfilter("today");
-        setFilterParams((prev) => ({
-            ...prev,
-            created_till: new Date().toISOString(),
-            offset: 0,
-            limit,
-        }));
-        setCurrentOffset(1);
-    };
-
-    const handleExportClick = (type: "pdf" | "csv") => {
-        exportCallLogsFile(draftFilterParams, type);
-    };
-
-
     const handleFilterChange = (value: AetherFilterApiVal) => {
-        setfilter(value);
+        setFilter(value);
         const now = new Date();
         const end = now.toISOString();
         let start: string | null = null;
 
         switch (value) {
-            case 'today': {
-                const startOfToday = new Date(now);
-                startOfToday.setHours(0, 0, 0, 0);
-                start = startOfToday.toISOString();
+            case "today":
+                start = new Date(now.setHours(0, 0, 0, 0)).toISOString();
                 break;
-            }
-            case 'past_24_hours': {
-                const past24 = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                start = past24.toISOString();
+            case "past_24_hours":
+                start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
                 break;
-            }
-            case 'yesterday': {
-                const yesterdayStart = new Date(now);
-                yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-                yesterdayStart.setHours(0, 0, 0, 0);
-                const yesterdayEnd = new Date(yesterdayStart);
-                yesterdayEnd.setHours(23, 59, 59, 999);
+            case "yesterday": {
+                const startOfYesterday = new Date();
+                startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+                startOfYesterday.setHours(0, 0, 0, 0);
+                const endOfYesterday = new Date(startOfYesterday);
+                endOfYesterday.setHours(23, 59, 59, 999);
                 setDraftFilterParams((prev) => ({
                     ...prev,
-                    filter_min_start_datetime: yesterdayStart.toISOString(),
-                    filter_max_start_datetime: yesterdayEnd.toISOString(),
+                    filter_min_start_datetime: startOfYesterday.toISOString(),
+                    filter_max_start_datetime: endOfYesterday.toISOString(),
                 }));
                 return;
             }
-            case 'this_week': {
+            case "this_week": {
                 const today = new Date();
-                const day = today.getDay();
-                const sunday = new Date(today);
-                sunday.setDate(today.getDate() - day);
+                const sunday = new Date(today.setDate(today.getDate() - today.getDay()));
                 sunday.setHours(0, 0, 0, 0);
                 start = sunday.toISOString();
                 break;
             }
-            case 'past_7_days': {
-                const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                start = past7.toISOString();
+            case "past_7_days":
+                start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
                 break;
-            }
-            case 'this_month': {
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-                start = monthStart.toISOString();
+            case "this_month":
+                start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
                 break;
-            }
-            case 'last_30_days': {
-                const past30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                start = past30.toISOString();
+            case "last_30_days":
+                start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
                 break;
-            }
-            case 'custom': {
+            case "custom":
                 setDraftFilterParams((prev) => ({
                     ...prev,
                     filter_min_start_datetime: rangepick?.from?.toISOString() || "",
                     filter_max_start_datetime: rangepick?.to?.toISOString() || "",
                 }));
                 return;
-            }
         }
 
         setDraftFilterParams((prev) => ({
@@ -236,6 +228,9 @@ export default function CallDetailTestPage() {
         }));
     };
 
+    useEffect(() => {
+        handleFilterApply(); // initial apply on mount
+    }, []);
 
     return (
         <div>
@@ -302,7 +297,7 @@ export default function CallDetailTestPage() {
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
-                                   <AccordionItem value="numbers">
+                                    <AccordionItem value="numbers">
                                         <AccordionTrigger className="text-xs">Caller ID</AccordionTrigger>
                                         <AccordionContent>
                                             <div>
