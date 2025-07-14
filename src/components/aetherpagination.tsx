@@ -28,25 +28,6 @@ export const AetherPagination = ({
     return (
         <div className="flex flex-col sm:flex-row sm:items-center justify-end mt-4 gap-4 text-sm">
             <div className="flex items-center gap-2">
-                <span className="text-xs">Page</span>
-                <Select
-                    value={String(currentOffset)}
-                    onValueChange={(val) => setCurrentOffset(Number(val))}
-                >
-                    <SelectTrigger className="w-20 h-8 text-xs border-none shadow-none">
-                        <SelectValue placeholder="Page" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <SelectItem key={page} value={String(page)}>
-                                {page}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <div className="flex items-center gap-2">
                 <span className="text-xs">Rows per page</span>
                 <Select
                     value={String(limit)}
@@ -85,7 +66,21 @@ export const AetherPagination = ({
                 >
                     <ChevronLeft className="h-4 w-4" />
                 </Button>
-
+                <Select
+                    value={String(currentOffset)}
+                    onValueChange={(val) => setCurrentOffset(Number(val))}
+                >
+                    <SelectTrigger className="w-20 h-8 text-xs border-none shadow-none">
+                        <SelectValue placeholder="Page" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <SelectItem key={page} value={String(page)}>
+                                {page}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 <Button
                     variant="ghost"
                     size="icon"
