@@ -32,7 +32,7 @@ export default function CallDetailTestPage() {
     const [isFilterOpen, setISDilterOpen] = useState(false);
     const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
     const [min, setMin] = useState<number | ''>(0);
-    const [max, setMax] = useState<number | ''>(0);
+    const [max, setMax] = useState<number | ''>('');
     const [minTime, setMinTime] = useState({ h: "00", m: "00", s: "00" });
     const [maxTime, setMaxTime] = useState({ h: "23", m: "59", s: "59" });
     const [onlylast, setOnlyLast] = useState(false);
@@ -252,7 +252,7 @@ export default function CallDetailTestPage() {
                                         <AccordionContent className="px-4">
                                             <div className="flex items-center justify-between gap-4">
                                                 <div>
-                                                    <Label className="block text-xs mb-1">Min</Label>
+                                                    <Label className="block text-xs mb-1">Minimum(minutes)</Label>
                                                     <Input
                                                         type="number"
                                                         value={min}
@@ -262,7 +262,7 @@ export default function CallDetailTestPage() {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label className="block text-xs mb-1">Max</Label>
+                                                    <Label className="block text-xs mb-1">Maximum(minutes)</Label>
                                                     <Input
                                                         type="number"
                                                         value={max}
