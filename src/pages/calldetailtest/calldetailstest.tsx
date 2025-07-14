@@ -350,7 +350,6 @@ export default function CallDetailTestPage() {
                                     </div>
                                 </Accordion>
                             </DropdownMenuContent>
-
                         </DropdownMenu>
                         <DropdownMenu>
                             <DropdownMenuTrigger>
