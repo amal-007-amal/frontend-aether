@@ -449,7 +449,7 @@ export default function CallDetailTestPage() {
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("recording_ids") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-xs font-semibold cursor-pointer text-center">
                                         {getColHeaderLabel('recording_ids')?.label}
                                     </TableHead>
                                 )}
@@ -492,7 +492,7 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{call.device_id}</TableCell>
                                             )}
                                             {visibleColumns.includes("recording_ids") && (
-                                                <TableCell className="flex gap-1 flex-wrap items-center">
+                                                <TableCell className="flex gap-1 flex-wrap items-center justify-center">
                                                     {Array.isArray(call.recording_ids) &&
                                                         call.recording_ids.length > 0 &&
                                                         call.recording_ids.slice(0, 1).map((item) => (
