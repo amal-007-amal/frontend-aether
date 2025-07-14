@@ -4,8 +4,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { useUsers } from "../../hooks/useUsers";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AethercallFillTypes, type AetherFilterApiVal } from "../../types/common";
+import { useEffect, useRef, useState } from "react";
+import { AethercallFillTypes } from "../../types/common";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import { useCallLogOptimized } from "../../hooks/useCalllogOptimized";
@@ -24,8 +24,10 @@ import { AetherAdderMultiSelect } from "../../components/aetheraddermultiselect"
 import { AccordionContent, AccordionItem, AccordionTrigger, Accordion } from "../../components/ui/accordion";
 import { Range } from "react-range";
 import { AetherTimePicker } from "../../components/aethertimepicker";
+import { useCallFilterManager } from "../../hooks/useFilterManager";
 
 export default function CallDetailTestPage() {
+
     const isInitialOffsetSet = useRef(false);
 
     const [isFilterOpen, setISDilterOpen] = useState(false);
@@ -39,53 +41,40 @@ export default function CallDetailTestPage() {
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [selectedTypeVal, setSelecteTypeVal] = useState<string[]>([]);
     const [filter, setFilter] = useState<string>("today");
-    const [currentOffset, setCurrentOffset] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(10);
-    const [rangepick, setRangePick] = useState<DateRange | undefined>(undefined);
     const [activeRecordingIds, setActiveRecordingIds] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
-
-    // Static initial filter template
-    const baseDraft = {
-        created_till: new Date().toISOString(),
-        filter_user_ids: [] as string[],
-        filter_other_numbers: [] as string[],
-        filter_min_start_datetime: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
-        filter_max_start_datetime: "",
-        only_new: false,
-        only_abandoned: false,
-        filter_min_start_time: "",
-        filter_max_start_time: "",
-        filter_frontend_call_types: [] as string[],
-        filter_min_duration: 0,
-        filter_max_duration: 0,
-        only_last: false,
-        response_format: "default"
-    };
-
-    const [draftFilterParams, setDraftFilterParams] = useState(baseDraft);
-
-    // Derived filterParams used in API
-    const filterParams = useMemo(() => ({
-        ...draftFilterParams,
-        offset: (currentOffset - 1) * limit,
+    const [rangepick, setRangePick] = useState<DateRange | undefined>(undefined);
+    console.log(setFilter)
+    const {
+        filterParams,
+        currentOffset,
+        setCurrentOffset,
         limit,
-    }), [draftFilterParams, currentOffset, limit]);
+        setLimit,
+        handleFilterApply,
+        handleResetFilters,
+        handleFilterChange,
+    } = useCallFilterManager({ rangepick });
 
-    // API hooks
     const { users, fetchUsers } = useUsers();
-    const { calllogs, fetchCallLogs, total, offset, exportCallLogsFile, isLoading } = useCallLogOptimized();
+    const {
+        calllogs,
+        fetchCallLogs,
+        total,
+        offset,
+        exportCallLogsFile,
+        isLoading,
+    } = useCallLogOptimized();
     const { fetchRecording, recordingMap, loadingMap, resetRecording } = useRecording();
 
-    // Initial API fetch
-    useEffect(() => { fetchUsers(); }, []);
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
-    // Fetch call logs when filterParams change
     useEffect(() => {
         fetchCallLogs(filterParams);
     }, [filterParams]);
 
-    // Set current page from offset (only once)
     useEffect(() => {
         if (!isInitialOffsetSet.current && offset >= 0) {
             const newPage = Math.floor(offset / limit) + 1;
@@ -94,42 +83,19 @@ export default function CallDetailTestPage() {
         }
     }, [offset, limit]);
 
-    // Format time to ISO with timezone
-    const formatTimeWithOffset = ({ h, m, s }: { h: string; m: string; s: string }) => {
-       return `${h}:${m}:${s}+05:30`;
-    }
-
-
-
-    const handleFilterApply = () => {
-        setISDilterOpen(false);
-        setCurrentOffset(1);
-
-        setDraftFilterParams({
-            ...baseDraft,
-            created_till: new Date().toISOString(),
-            filter_user_ids: selectedUserIDs,
-            filter_other_numbers: phoneNumbers,
-            filter_frontend_call_types: selectedTypeVal,
-            filter_min_duration: tempValues[0] * 60,
-            filter_max_duration: tempValues[1] > 59 ? null as any : tempValues[1] * 60,
-            only_last: onlylast,
-            only_abandoned: onlyaban,
-            only_new: onlynew,
-            filter_min_start_time: formatTimeWithOffset(minTime),
-            filter_max_start_time: formatTimeWithOffset(maxTime),
+    useEffect(() => {
+        handleFilterApply({
+            selectedUserIDs,
+            phoneNumbers,
+            selectedTypeVal,
+            tempValues,
+            onlylast,
+            onlyaban,
+            onlynew,
+            minTime,
+            maxTime,
         });
-    };
-
-    const handleResetFilters = () => {
-        setFilter("today");
-        setDraftFilterParams(baseDraft);
-        setCurrentOffset(1);
-    };
-
-    const handleExportClick = (type: "pdf" | "csv") => {
-        exportCallLogsFile(filterParams, type); // exporting current state, not stale one
-    };
+    }, []);
 
     const [allColumns, setAllColumns] = useState([
         { key: "other_number", label: "Caller ID", active: true },
@@ -139,15 +105,12 @@ export default function CallDetailTestPage() {
         { key: "duration", label: "Duration", active: true },
         { key: "user_id", label: "Agent Name", active: true },
         { key: "agent_number", label: "Agent Number", active: true },
-        { key: "recording_ids", label: "Recordings", active: true }
+        { key: "recording_ids", label: "Recordings", active: true },
     ]);
 
     const getColHeaderLabel = (key: string) => {
-        const getlabel = allColumns.find(item => item.key === key)
-        if (getlabel !== undefined) {
-            return getlabel
-        }
-    }
+        return allColumns.find((item) => item.key === key);
+    };
 
     const [visibleColumns, setVisibleColumns] = useState<string[]>(
         allColumns.filter((col) => col.active).map((col) => col.key)
@@ -155,9 +118,7 @@ export default function CallDetailTestPage() {
 
     const toggleColumn = (key: string) => {
         setVisibleColumns((prev) =>
-            prev.includes(key)
-                ? prev.filter((col) => col !== key)
-                : [...prev, key]
+            prev.includes(key) ? prev.filter((col) => col !== key) : [...prev, key]
         );
         setAllColumns((prev) =>
             prev.map((col) =>
@@ -170,67 +131,9 @@ export default function CallDetailTestPage() {
         fetchRecording(newId);
     };
 
-    const handleFilterChange = (value: AetherFilterApiVal) => {
-        setFilter(value);
-        const now = new Date();
-        const end = now.toISOString();
-        let start: string | null = null;
-
-        switch (value) {
-            case "today":
-                start = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-                break;
-            case "past_24_hours":
-                start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-                break;
-            case "yesterday": {
-                const startOfYesterday = new Date();
-                startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-                startOfYesterday.setHours(0, 0, 0, 0);
-                const endOfYesterday = new Date(startOfYesterday);
-                endOfYesterday.setHours(23, 59, 59, 999);
-                setDraftFilterParams((prev) => ({
-                    ...prev,
-                    filter_min_start_datetime: startOfYesterday.toISOString(),
-                    filter_max_start_datetime: endOfYesterday.toISOString(),
-                }));
-                return;
-            }
-            case "this_week": {
-                const today = new Date();
-                const sunday = new Date(today.setDate(today.getDate() - today.getDay()));
-                sunday.setHours(0, 0, 0, 0);
-                start = sunday.toISOString();
-                break;
-            }
-            case "past_7_days":
-                start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-                break;
-            case "this_month":
-                start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-                break;
-            case "last_30_days":
-                start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-                break;
-            case "custom":
-                setDraftFilterParams((prev) => ({
-                    ...prev,
-                    filter_min_start_datetime: rangepick?.from?.toISOString() || "",
-                    filter_max_start_datetime: rangepick?.to?.toISOString() || "",
-                }));
-                return;
-        }
-
-        setDraftFilterParams((prev) => ({
-            ...prev,
-            filter_min_start_datetime: start ?? "",
-            filter_max_start_datetime: end,
-        }));
+    const handleExportClick = (type: "pdf" | "csv") => {
+        exportCallLogsFile(filterParams, type);
     };
-
-    useEffect(() => {
-        handleFilterApply(); // initial apply on mount
-    }, []);
 
     return (
         <div>
@@ -436,7 +339,21 @@ export default function CallDetailTestPage() {
                                                 Reset
                                             </Button>
                                             <Button
-                                                onClick={handleFilterApply}
+                                                onClick={() => {
+                                                    handleFilterApply({
+                                                        selectedUserIDs,
+                                                        phoneNumbers,
+                                                        selectedTypeVal,
+                                                        tempValues,
+                                                        onlylast,
+                                                        onlyaban,
+                                                        onlynew,
+                                                        minTime,
+                                                        maxTime,
+                                                    });
+                                                    setISDilterOpen(false);
+                                                }
+                                                }
                                                 className="bg-fuchsia-500 text-white text-xs rounded-xl hover:bg-fuchsia-300"
                                             >
                                                 Apply
