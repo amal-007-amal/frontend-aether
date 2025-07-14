@@ -252,22 +252,22 @@ export default function CallDetailTestPage() {
                                         <AccordionContent className="px-4">
                                             <div className="flex items-center justify-between gap-4">
                                                 <div>
-                                                    <Label className="block text-xs mb-1">Minimum(minutes)</Label>
+                                                    <Label className="block text-xs mb-1 font-normal">Minimum(minutes)</Label>
                                                     <Input
                                                         type="number"
                                                         value={min}
                                                         onChange={(e) => setMin(e.target.value === '' ? '' : Number(e.target.value))}
-                                                        className="w-full h-8 px-2 py-1 border rounded text-xs"
+                                                        className="w-full h-8 px-2 py-1 border rounded text-xs placeholder:text-xs"
                                                         placeholder="Min"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label className="block text-xs mb-1">Maximum(minutes)</Label>
+                                                    <Label className="block text-xs mb-1 font-normal">Maximum(minutes)</Label>
                                                     <Input
                                                         type="number"
                                                         value={max}
                                                         onChange={(e) => setMax(e.target.value === '' ? '' : Number(e.target.value))}
-                                                        className="w-full  h-8 px-2 py-1 border rounded text-xs"
+                                                        className="w-full  h-8 px-2 py-1 border rounded text-xs placeholder:text-xs"
                                                         placeholder="Max"
                                                     />
                                                 </div>
@@ -278,8 +278,8 @@ export default function CallDetailTestPage() {
                                         <AccordionTrigger className="text-xs">Time Range</AccordionTrigger>
                                         <AccordionContent>
                                             <div className="flex flex-col px-2 gap-2">
-                                                <AetherTimePicker label="Minimum Time" value={minTime} onChange={setMinTime} />
-                                                <AetherTimePicker label="Maximum Time" value={maxTime} onChange={setMaxTime} />
+                                                <AetherTimePicker label="From Time" value={minTime} onChange={setMinTime} />
+                                                <AetherTimePicker label="Till Time" value={maxTime} onChange={setMaxTime} />
                                             </div>
                                             <span onClick={handleResetTime} className="cursor-pointer underline px-3 text-xs flex items-end justify-end pt-2">Reset</span>
                                         </AccordionContent>
