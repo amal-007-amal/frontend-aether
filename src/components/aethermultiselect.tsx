@@ -49,7 +49,7 @@ export function AetherMultiSelect({
     const isAllSelected = allValues.every((val) => selected.includes(val));
 
     if (isAllSelected) {
-      onChange([]); 
+      onChange([]);
     } else {
       onChange(allValues);
     }
@@ -83,7 +83,7 @@ export function AetherMultiSelect({
           <CommandEmpty>No results found.</CommandEmpty>
           <div className="flex justify-between items-center px-3 py-2 text-xs border-b">
             <button onClick={handleSelectAll} className="hover:underline">
-              {selected.length === data.length ? "Deselect All" : "Select All"}
+              {selected.length > 0 ? "Deselect All" : "Select All"}
             </button>
             <div className="flex gap-2">
               <button onClick={() => { setOpen(prev => !prev) }} className="text-blue-600 hover:underline">

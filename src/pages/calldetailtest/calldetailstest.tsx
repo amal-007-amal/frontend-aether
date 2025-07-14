@@ -123,6 +123,22 @@ export default function CallDetailTestPage() {
         setMax('');
     }
 
+    const handleCallType = () => {
+        setSelecteTypeVal([])
+    }
+    const handleCallerID = () => {
+        setPhoneNumbers([])
+        setOnlyNew(false)
+        setOnlyAbandon(false)
+    }
+    const handleAgents = () => {
+        setSelectedUserIDs([])
+    }
+
+    const handleGroupRows = () => {
+        setOnlyLast(false)
+    }
+
     const handleNextRecording = (newId: string) => {
         fetchRecording(newId);
     };
@@ -200,6 +216,8 @@ export default function CallDetailTestPage() {
                                                     onChange={setSelectedUserIDs}
                                                 />
                                             </div>
+                                            <span onClick={handleAgents} className="cursor-pointer underline px-3 text-xs flex items-end justify-end pt-2">Reset</span>
+
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="numbers">
@@ -235,7 +253,7 @@ export default function CallDetailTestPage() {
                                                         </label>
                                                     </div>
                                                 </div>
-
+                                                <span onClick={handleCallerID} className="cursor-pointer underline px-3 text-xs flex items-end justify-end pt-2">Reset</span>
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
@@ -250,6 +268,7 @@ export default function CallDetailTestPage() {
                                                     onChange={setSelecteTypeVal}
                                                 />
                                             </div>
+                                            <span onClick={handleCallType} className="cursor-pointer underline px-3 text-xs flex items-end justify-end pt-2">Reset</span>
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="durations">
@@ -305,6 +324,7 @@ export default function CallDetailTestPage() {
                                                     By Caller ID (last call only)
                                                 </label>
                                             </div>
+                                            <span onClick={handleGroupRows} className="cursor-pointer underline px-3 text-xs flex items-end justify-end pt-2">Reset</span>
                                         </AccordionContent>
                                     </AccordionItem>
                                     <div className="flex justify-between gap-4 mt-3">
