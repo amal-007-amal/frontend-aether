@@ -32,7 +32,7 @@ export function AetherTimePicker({ label = "Select Time", value, onChange }: Tim
       <Label className="text-xs font-medium">{label}</Label>
       <div className="flex gap-2">
         <Select value={value.h} onValueChange={(val) => update("h", val)}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-8 text-xs shadow-none">
             <SelectValue placeholder="HH" />
           </SelectTrigger>
           <SelectContent>
@@ -45,7 +45,7 @@ export function AetherTimePicker({ label = "Select Time", value, onChange }: Tim
         </Select>
 
         <Select value={value.m} onValueChange={(val) => update("m", val)}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-8 text-xs shadow-none">
             <SelectValue placeholder="MM" />
           </SelectTrigger>
           <SelectContent>
@@ -58,7 +58,7 @@ export function AetherTimePicker({ label = "Select Time", value, onChange }: Tim
         </Select>
 
         <Select value={value.s} onValueChange={(val) => update("s", val)}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-8 text-xs shadow-none">
             <SelectValue placeholder="SS" />
           </SelectTrigger>
           <SelectContent>

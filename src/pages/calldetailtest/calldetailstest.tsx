@@ -111,6 +111,11 @@ export default function CallDetailTestPage() {
         );
     };
 
+    const handleResetTime = () => {
+        setMinTime({ h: "00", m: "00", s: "00" });
+        setMaxTime({ h: "23", m: "59", s: "59" });
+    }
+
     const handleNextRecording = (newId: string) => {
         fetchRecording(newId);
     };
@@ -288,10 +293,11 @@ export default function CallDetailTestPage() {
                                     <AccordionItem value="time-picker">
                                         <AccordionTrigger className="text-xs">Time Range</AccordionTrigger>
                                         <AccordionContent>
-                                            <div className="flex flex-col">
+                                            <div className="flex flex-col px-2 gap-2">
                                                 <AetherTimePicker label="Minimum Time" value={minTime} onChange={setMinTime} />
                                                 <AetherTimePicker label="Maximum Time" value={maxTime} onChange={setMaxTime} />
                                             </div>
+                                            <span onClick={handleResetTime} className="cursor-pointer underline px-3 text-xs">Reset</span>
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="group-row">
