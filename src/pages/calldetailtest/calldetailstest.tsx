@@ -26,6 +26,7 @@ import { AetherTimePicker } from "../../components/aethertimepicker";
 import { useCallFilterManager } from "../../hooks/useFilterManager";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
+import { toast } from "sonner";
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
@@ -199,6 +200,7 @@ export default function CallDetailTestPage() {
 
     const handleExportClick = (type: "pdf" | "csv") => {
         exportCallLogsFile(filterParams, type);
+        toast.info('The request file will be downloaded shortly')
     };
 
     return (
