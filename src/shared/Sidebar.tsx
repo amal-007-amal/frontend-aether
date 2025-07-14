@@ -13,9 +13,9 @@ export default function SideBar() {
       tooltip: true,
     },
     {
-      path: "/calldetails",
-      label: "Call Details",
-      icon: AlignLeft,
+      path: "/calldetailstest",
+      label: "Call Details Test",
+      icon: PhoneCall,
       tooltip: true,
     },
     {
@@ -29,11 +29,10 @@ export default function SideBar() {
       label: "Settings",
       icon: Cog,
       tooltip: true,
-    },
-    {
-      path: "/calldetailstest",
-      label: "Call Details Test",
-      icon: PhoneCall,
+    }, {
+      path: "/calldetails",
+      label: "Call Details",
+      icon: AlignLeft,
       tooltip: true,
     },
   ]
@@ -58,7 +57,7 @@ export default function SideBar() {
           return tooltip ? (
             <Tooltip key={path}>
               <TooltipTrigger asChild>{link}</TooltipTrigger>
-              <TooltipContent  side="right">{label}</TooltipContent>
+              <TooltipContent side="right">{label}</TooltipContent>
             </Tooltip>
           ) : (
             link

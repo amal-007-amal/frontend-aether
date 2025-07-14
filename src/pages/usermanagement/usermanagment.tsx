@@ -12,6 +12,7 @@ import { Checkbox } from "../../components/ui/checkbox";
 import AetherLoader from "../../shared/AetherLoader";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { useUsers } from "../../hooks/useUsers";
+import { ConfirmDialog } from "../../components/aetherconfirmpopup";
 
 export default function UserManagmentPage() {
     const [open, setOpen] = useState(false)
@@ -152,9 +153,14 @@ export default function UserManagmentPage() {
                                     <Button className="rounded-full shadow-none h-3 w-3 border-none" onClick={() => handleEdit(user)} variant="outline" size="sm">
                                         <Pencil className="w-3 h-3" />
                                     </Button>
-                                    <Button className="rounded-full border-none shadow-none h-3 w-3" onClick={() => handleRemoveUser(user.id)} variant="outline" size="sm">
-                                        <Trash className="w-3 h-3 text-red-400" />
-                                    </Button>
+                                    <ConfirmDialog
+                                        title="Are you sure?"
+                                        description="This will permanently delete the user."
+                                        confirmText="Delete"
+                                        cancelText="Cancel"
+                                        onConfirm={() => handleRemoveUser(user.id)}
+                                        trigger={<Trash className="w-3 h-3 text-red-400" />}
+                                    />
                                 </TableCell>
                             </TableRow>
                         ))}
