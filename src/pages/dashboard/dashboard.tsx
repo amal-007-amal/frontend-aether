@@ -10,7 +10,7 @@ import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { useUsers } from "../../hooks/useUsers";
 import { Button } from "../../components/ui/button";
 import { CircleProgress } from "../../components/aethercircleorogress";
-import { startOfToday } from "date-fns";
+import { startOfToday, startOfWeek } from "date-fns";
 import AetherHorizontalStackedGroupChart from "../../components/aetherstackedbarchart";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
 import AetherLoader from "../../shared/AetherLoader";
