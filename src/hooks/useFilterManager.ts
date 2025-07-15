@@ -32,6 +32,7 @@ type FilterParams = {
   filter_max_duration: number | null;
   only_last: boolean;
   response_format: string;
+  requested_columns:string[]
   offset: number;
   limit: number;
   filterType: string;
@@ -60,6 +61,7 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
     filter_max_duration: null,
     only_last: false,
     response_format: "default",
+    requested_columns:[],
     offset: 0,
     limit: 10,
     filterType: "today",

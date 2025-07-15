@@ -30,14 +30,14 @@ import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faFileCsv } from "@fortawesome/free-solid-svg-icons";
 const defaultColumns = [
-    { key: "other_number", label: "Caller ID", active: true },
-    { key: "other_name", label: "Caller Name", active: true },
-    { key: "type", label: "Call Type", active: true },
-    { key: "start_time", label: "Timestamp", active: true },
-    { key: "duration", label: "Duration", active: true },
-    { key: "user_id", label: "Agent Name", active: true },
-    { key: "agent_number", label: "Agent Number", active: true },
-    { key: "recording_ids", label: "Recordings", active: true },
+    { key: "other_number", label: "Caller ID", active: true, mapkey: 'caller_id' },
+    { key: "other_name", label: "Caller Name", active: true, mapkey: 'caller_name' },
+    { key: "type", label: "Call Type", active: true, mapkey: 'call_type' },
+    { key: "start_time", label: "Timestamp", active: true, mapkey: 'call_time' },
+    { key: "duration", label: "Duration", active: true, mapkey: 'duration' },
+    { key: "user_id", label: "Agent Name", active: true, mapkey: 'agent_name' },
+    { key: "agent_number", label: "Agent Number", active: true, mapkey: 'agent_number' },
+    { key: "recording_ids", label: "Recordings", active: true, mapkey: '' },
 ];
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
@@ -155,14 +155,14 @@ export default function CallDetailTestPage() {
 
     // Get active (visible) columns
     const visibleColumns = useMemo(
-        () => allColumns.filter((col:any) => col.active).map((col:any) => col.key),
+        () => allColumns.filter((col: any) => col.active).map((col: any) => col.key),
         [allColumns]
     );
 
     // Toggle visibility by key
     const toggleColumn = (key: string) => {
-        setAllColumns((prev:any) =>
-            prev.map((col:any) =>
+        setAllColumns((prev: any) =>
+            prev.map((col: any) =>
                 col.key === key ? { ...col, active: !col.active } : col
             )
         );
@@ -210,7 +210,11 @@ export default function CallDetailTestPage() {
     };
 
     const handleExportClick = (type: "pdf" | "csv") => {
-        exportCallLogsFile(filterParams, type);
+        const collist = allColumns
+            .filter((item: any) => item.active)
+            .map((item: any) => item.mapkey);
+        console.log(JSON.stringify(allColumns),collist)
+        exportCallLogsFile(filterParams, type, collist);
         toast.info('The request file will be downloaded shortly')
     };
 
@@ -450,7 +454,7 @@ export default function CallDetailTestPage() {
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <p className="text-sm font-semibold mb-1">Columns</p>
                                     <div className="grid grid-cols-1 gap-x-6">
-                                        {allColumns.map((col:any) => (
+                                        {allColumns.map((col: any) => (
                                             <div key={col.key} className="flex items-center gap-2 text-sm">
                                                 <Checkbox
                                                     id={`col-${col.key}`}
@@ -495,8 +499,8 @@ export default function CallDetailTestPage() {
                             <TableRow className="text-sm font-light">
                                 <TableHead className="text-xs font-semibold w-14">Sl No.</TableHead>
                                 {allColumns
-                                    .filter((col:any) => col.active)
-                                    .map((col:any) => (
+                                    .filter((col: any) => col.active)
+                                    .map((col: any) => (
                                         <TableHead
                                             key={col.key}
                                             className="text-xs font-semibold cursor-pointer"

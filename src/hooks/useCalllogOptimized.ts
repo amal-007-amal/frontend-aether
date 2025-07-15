@@ -10,12 +10,14 @@ export function useCallLogOptimized() {
   const [isLoading, setIsLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
-  const exportCallLogsFile = async (params: any, type: "csv" | "pdf") => {
+  const exportCallLogsFile = async (params: any, type: "csv" | "pdf",collist:string[]) => {
     try {
+      console.log(collist)
       const queryString = buildQueryParams({
         ...params,
         limit: -1,
         offset: 0,
+        requested_columns:collist,
         response_format: type,
       });
       const blob = await getCallsOptimizedFile(queryString);
