@@ -187,12 +187,13 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
 
   const handleFilterChange = (value: AetherFilterApiVal) => {
     const now = new Date();
-    const end = now.toISOString();
+    let end = now.toISOString();
     let start: string | null = null;
 
     switch (value) {
       case "today":
         start = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+        end = new Date().toISOString();
         break;
       case "past_24_hours":
         start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();

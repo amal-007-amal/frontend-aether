@@ -152,7 +152,7 @@ export const AetherDashboard = () => {
             filters = null;
         }
 
-        console.log(saved,filters)
+        console.log(saved, filters)
 
         const fallback = {
             time_filter: "custom",
@@ -173,7 +173,7 @@ export const AetherDashboard = () => {
             filterMaxStart: finalFilters.end_date,
             userIDs: finalFilters.user_ids ?? [],
         });
-        setFilterStatus(filters!==null?filters.filterStatus:'today')
+        setFilterStatus(filters !== null ? filters.filterStatus : 'today')
         fetchLeaderBoard(finalFilters);
     };
 
@@ -220,9 +220,14 @@ export const AetherDashboard = () => {
                                             <SelectValue placeholder="Select a filter" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="today">Today</SelectItem>
-                                            <SelectItem value="week">This Week</SelectItem>
-                                            <SelectItem value="custom">Custom</SelectItem>
+                                            <SelectItem className="text-xs" value="today">Today</SelectItem>
+                                            <SelectItem className="text-xs" value="past_24_hours">Past 24 hrs</SelectItem>
+                                            <SelectItem className="text-xs" value="yesterday">Yesterday</SelectItem>
+                                            <SelectItem className="text-xs" value="this_week">This Week</SelectItem>
+                                            <SelectItem className="text-xs" value="past_7_days">Past 7 days</SelectItem>
+                                            <SelectItem className="text-xs" value="this_month">This Month</SelectItem>
+                                            <SelectItem className="text-xs" value="last_30_days">Last 30 days</SelectItem>
+                                            <SelectItem className="text-xs" value="custom">Custom</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     {selfilter === "custom" && (
@@ -232,7 +237,7 @@ export const AetherDashboard = () => {
 
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <AetherMultiSelect
-                                    placeholder="Filter by agents"
+                                        placeholder="Filter by agents"
                                         data={users.map((user) => ({ label: user.name, value: user.id }))}
                                         selected={selectedUserIDs}
                                         onChange={setSelectedUserIDs}
