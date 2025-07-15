@@ -160,6 +160,31 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
     setHasInitialApplied(true);
   };
 
+  const handleRefresh = () => {
+  setCurrentOffset(1);
+  const saved = localStorage.getItem("aether_common_filter");
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      handleFilterApply({
+        selectedUserIDs: parsed.filter_user_ids || [],
+        phoneNumbers: parsed.filter_other_numbers || [],
+        selectedTypeVal: parsed.filter_frontend_call_types || [],
+        min: parsed.min ?? "",
+        max: parsed.max ?? "",
+        minTime: parsed.minTime || { h: "00", m: "00", s: "00" },
+        maxTime: parsed.maxTime || { h: "23", m: "59", s: "59" },
+        onlylast: parsed.only_last || false,
+        onlyaban: parsed.only_abandoned || false,
+        onlynew: parsed.only_new || false,
+        filterType: parsed.filterType,
+      });
+    } catch (err) {
+      console.error("Invalid aether_common_filter in localStorage", err);
+    }
+  }
+};
+
   const handleFilterChange = (value: AetherFilterApiVal) => {
     const now = new Date();
     const end = now.toISOString();
@@ -271,6 +296,7 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
     setCurrentOffset,
     limit,
     setLimit,
+    handleRefresh,
     handleFilterApply,
     handleFilterChange,
   };

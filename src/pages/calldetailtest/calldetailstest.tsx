@@ -55,6 +55,7 @@ export default function CallDetailTestPage() {
         limit,
         setLimit,
         handleFilterApply,
+        handleRefresh,
         handleFilterChange,
     } = useCallFilterManager({ rangepick });
 
@@ -212,7 +213,7 @@ export default function CallDetailTestPage() {
                     <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <AetherTooltip label="Refresh">
-                            <RefreshCcw className={`h-4 w-4 cursor-pointer`} />
+                            <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer`} />
                         </AetherTooltip>
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
@@ -549,7 +550,7 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{call.other_number}</TableCell>
                                             )}
                                             {visibleColumns.includes("other_name") && (
-                                                <TableCell className="text-left">{call.other_name === "null" || call.other_name==="" ? '-' : call.other_name}</TableCell>
+                                                <TableCell className="text-left">{call.other_name === "null" || call.other_name==="" ? <span className="text-center">'-'</span> : call.other_name}</TableCell>
                                             )}
                                             {visibleColumns.includes("type") && (
                                                 <TableCell className="text-left">{typeCompressMap[call.type] || call.type}</TableCell>
@@ -562,14 +563,14 @@ export default function CallDetailTestPage() {
                                             )}
                                             {visibleColumns.includes("user_id") && (
                                                 <TableCell className="text-left">
-                                                    {call.user_id==="" ?('-'):(call.user_id)}
+                                                    {call.user_id==="" ?(<span className="text-center">'-'</span>):(call.user_id)}
                                                 </TableCell>
                                             )}
                                             {visibleColumns.includes("agent_number") && (
                                                 call.agent_number !== "" ? (
                                                     <TableCell className="text-left">{call.agent_number}</TableCell>
                                                 ) : (
-                                                    <TableCell className="text-left">{'-'}</TableCell>
+                                                    <TableCell className="text-left">{<span className="text-center">'-'</span>}</TableCell>
                                                 )
                                             )}
                                             {visibleColumns.includes("device_id") && (
@@ -654,7 +655,7 @@ export default function CallDetailTestPage() {
                                                             </DialogContent>
                                                         </Dialog>
                                                     )}
-                                                    {call.recording_ids.length===0&&('-')}
+                                                    {call.recording_ids.length===0&&(<span className="text-center">-</span>)}
                                                 </TableCell>
                                             )}
                                         </TableRow>
