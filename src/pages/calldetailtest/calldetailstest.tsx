@@ -215,7 +215,7 @@ export default function CallDetailTestPage() {
             .map((item: any) => item.mapkey);
         console.log(JSON.stringify(allColumns),collist)
         exportCallLogsFile(filterParams, type, collist);
-        toast.info('The request file will be downloaded shortly')
+        toast.info('The requested file will be downloaded shortly')
     };
 
     return (
