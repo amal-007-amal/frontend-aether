@@ -159,22 +159,31 @@ export const AetherDashboard = () => {
             console.error("Invalid filters in localStorage:", e);
         }
 
-        const fallback: LeaderboardFilter = {
-            time_filter: "today",
-            start_date: startOfToday().toISOString(),
-            end_date: new Date().toISOString(),
-            user_ids: [],
-            filterStatus: false,
+        // Use saved type (tempfillvalue), fallback to "today"
+        const tempType = filters?.tempfillvalue as AetherFilterApiVal ?? "today";
+
+        // Recalculate date range using current time
+        const { start, end } = getDateRangeForType(tempType, range);
+
+        // Build final filters with recalculated date range
+        const finalFilters: LeaderboardFilter = {
+            time_filter: "custom",
+            start_date: start,
+            end_date: end,
+            user_ids: filters?.user_ids ?? [],
+            tempfillvalue: tempType,
+            filterStatus: filters?.filterStatus ?? false,
         };
 
-        const finalFilters = filters && filters.start_date && filters.end_date ? filters : fallback;
+        // Optional: Save refreshed filters back to localStorage
+        localStorage.setItem("aether_leaderboard_filters", JSON.stringify(finalFilters));
 
-        setSelFilter(finalFilters.tempfillvalue ?? "today");
-        setSelectedUserIDs(finalFilters.user_ids ?? []);
+        setSelFilter(tempType);
+        setSelectedUserIDs(finalFilters.user_ids);
         setTimeSave({
-            filterMinStart: finalFilters.start_date,
-            filterMaxStart: finalFilters.end_date,
-            userIDs: finalFilters.user_ids ?? [],
+            filterMinStart: start,
+            filterMaxStart: end,
+            userIDs: finalFilters.user_ids,
         });
         setFilterStatus(!!finalFilters.filterStatus);
         setRange(undefined);
