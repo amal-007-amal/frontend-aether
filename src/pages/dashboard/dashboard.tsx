@@ -14,10 +14,9 @@ import { startOfToday, startOfWeek } from "date-fns";
 import AetherHorizontalStackedGroupChart from "../../components/aetherstackedbarchart";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
 import AetherLoader from "../../shared/AetherLoader";
-import type { AetherFilterApiVal } from "../../types/common";
 
 export const AetherDashboard = () => {
-    const [selfilter, setSelFilter] = useState<AetherFilterApiVal>("today");
+    const [selfilter, setSelFilter] = useState<"today" | "week" | "custom">("today");
     const [range, setRange] = useState<DateRange | undefined>();
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -107,14 +106,23 @@ export const AetherDashboard = () => {
         }
     }, [range, selfilter]);
 
-    const handleDateFilterChange = (value: AetherFilterApiVal) => {
+    const handleDateFilterChange = (value: "today" | "week" | "custom") => {
         setSelFilter(value);
-        const { start,end} = getDateRangeForType(value)
-        setTimeSave(prev => ({
-            ...prev,
-            filterMinStart: start,
-            filterMaxStart: end,
-        }));
+
+        if (value === "today") {
+            setTimeSave(prev => ({
+                ...prev,
+                filterMinStart: startOfToday().toISOString(),
+                filterMaxStart: null,
+            }));
+        } else if (value === "week") {
+            const weekStart = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
+            setTimeSave(prev => ({
+                ...prev,
+                filterMinStart: weekStart,
+                filterMaxStart: null,
+            }));
+        }
     };
 
     const handleFilterApply = () => {
@@ -144,8 +152,6 @@ export const AetherDashboard = () => {
             filters = null;
         }
 
-        console.log(saved, filters)
-
         const fallback = {
             time_filter: "custom",
             start_date: startOfToday().toISOString(),
@@ -165,56 +171,10 @@ export const AetherDashboard = () => {
             filterMaxStart: finalFilters.end_date,
             userIDs: finalFilters.user_ids ?? [],
         });
-        setFilterStatus(filters !== null ? filters.filterStatus : 'today')
+        setFilterStatus(filters.filterStatus)
         fetchLeaderBoard(finalFilters);
     };
 
-    const getDateRangeForType = (type: AetherFilterApiVal, rangepick?: DateRange) => {
-        const now = new Date();
-        let start: string = "";
-        let end: string = now.toISOString();
-
-        switch (type) {
-            case "today":
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-                break;
-            case "past_24_hours":
-                start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-                break;
-            case "yesterday": {
-                const startY = new Date(now);
-                startY.setDate(now.getDate() - 1);
-                startY.setHours(0, 0, 0, 0);
-                const endY = new Date(startY);
-                endY.setHours(23, 59, 59, 999);
-                return { start: startY.toISOString(), end: endY.toISOString() };
-            }
-            case "this_week": {
-                const startOfWeek = new Date(now);
-                startOfWeek.setDate(now.getDate() - now.getDay());
-                startOfWeek.setHours(0, 0, 0, 0);
-                start = startOfWeek.toISOString();
-                break;
-            }
-            case "past_7_days":
-                start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-                break;
-            case "this_month":
-                start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-                break;
-            case "last_30_days":
-                start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-                break;
-            case "custom":
-                const from = rangepick?.from ? new Date(rangepick.from) : null;
-                const to = rangepick?.to ? new Date(rangepick.to) : null;
-                start = from ? from.toISOString() : "";
-                end = to ? to.toISOString() : "";
-                break;
-        }
-
-        return { start, end };
-    };
     const handleReset = () => {
         const defaultFilters = {
             time_filter: "today",
@@ -258,14 +218,9 @@ export const AetherDashboard = () => {
                                             <SelectValue placeholder="Select a filter" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem className="text-xs" value="today">Today</SelectItem>
-                                            <SelectItem className="text-xs" value="past_24_hours">Past 24 hrs</SelectItem>
-                                            <SelectItem className="text-xs" value="yesterday">Yesterday</SelectItem>
-                                            <SelectItem className="text-xs" value="this_week">This Week</SelectItem>
-                                            <SelectItem className="text-xs" value="past_7_days">Past 7 days</SelectItem>
-                                            <SelectItem className="text-xs" value="this_month">This Month</SelectItem>
-                                            <SelectItem className="text-xs" value="last_30_days">Last 30 days</SelectItem>
-                                            <SelectItem className="text-xs" value="custom">Custom</SelectItem>
+                                            <SelectItem value="today">Today</SelectItem>
+                                            <SelectItem value="week">This Week</SelectItem>
+                                            <SelectItem value="custom">Custom</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     {selfilter === "custom" && (
@@ -275,7 +230,7 @@ export const AetherDashboard = () => {
 
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <AetherMultiSelect
-                                        placeholder="Filter by agents"
+                                    placeholder="Filter by agents"
                                         data={users.map((user) => ({ label: user.name, value: user.id }))}
                                         selected={selectedUserIDs}
                                         onChange={setSelectedUserIDs}
