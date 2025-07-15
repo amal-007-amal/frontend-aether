@@ -28,7 +28,7 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilePdf,faFileCsv } from "@fortawesome/free-solid-svg-icons";
+import { faFilePdf, faFileCsv } from "@fortawesome/free-solid-svg-icons";
 
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
@@ -91,8 +91,6 @@ export default function CallDetailTestPage() {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-
-                // Restore individual states
                 setPhoneNumbers(parsed.filter_other_numbers || []);
                 setMin(parsed.min ?? "");
                 setMax(parsed.max ?? "");
@@ -106,10 +104,9 @@ export default function CallDetailTestPage() {
                 setfilterType(parsed.filterType || "today");
 
                 if (parsed.filterType === "custom" && parsed.rangepick) {
+                    console.log("parsed", parsed.rangepick)
                     setRangePick(parsed.rangepick);
                 }
-
-                // Apply restored filters
                 handleFilterApply({
                     selectedUserIDs: parsed.filter_user_ids || [],
                     phoneNumbers: parsed.filter_other_numbers || [],
@@ -221,7 +218,7 @@ export default function CallDetailTestPage() {
                                     <FunnelPlus className={`h-4 w-4 text-fuchsia-500`} />
                                 </AetherTooltip>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="space-y-2 p-3 me-10">
+                            <DropdownMenuContent className="space-y-2 p-3 me-20">
                                 <Accordion type="multiple" className="w-[300px]">
                                     <AccordionItem value="date-filter">
                                         <AccordionTrigger className="text-xs flex">
@@ -229,7 +226,7 @@ export default function CallDetailTestPage() {
                                                 Date Range
                                             </span>
                                         </AccordionTrigger>
-                                        <AccordionContent className="px-1">
+                                        <AccordionContent>
                                             <div onClick={(e) => e.stopPropagation()} className="pt-1">
                                                 <Select value={filterType} onValueChange={(val: AetherFilterApiVal) => {
                                                     setfilterType(val);
@@ -249,15 +246,16 @@ export default function CallDetailTestPage() {
                                                         <SelectItem className="text-xs" value="custom">Custom</SelectItem>
                                                     </SelectContent>
                                                 </Select>
+                                            </div>
+                                            <div>
                                                 {filterType === "custom" && (
-                                                    <div className="flex items-center justify-center my-3 w-full">
-                                                        <Calendar
-                                                            mode="range"
-                                                            selected={rangepick}
-                                                            onSelect={(range) => setRangePick(range)}
-                                                            numberOfMonths={1}
-                                                        />
-                                                    </div>
+                                                    <Calendar
+                                                        className="w-full flex items-center justify-center"
+                                                        mode="range"
+                                                        selected={rangepick}
+                                                        onSelect={(range) => setRangePick(range)}
+                                                        numberOfMonths={1}
+                                                    />
                                                 )}
                                             </div>
                                         </AccordionContent>
@@ -276,12 +274,11 @@ export default function CallDetailTestPage() {
                                                 />
                                             </div>
                                             <span onClick={handleAgents} className="cursor-pointer underline px-3 text-xs flex items-end justify-end pt-2">Reset</span>
-
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="numbers">
                                         <AccordionTrigger className="text-xs">
-                                            <span className={`${phoneNumbers.length > 0 ? 'text-fuchsia-500' : ''} `}>Caller ID</span>
+                                            <span className={`${phoneNumbers.length > 0 || onlynew  || onlyaban ? 'text-fuchsia-500' : ''} `}>Caller ID</span>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div>
@@ -317,7 +314,9 @@ export default function CallDetailTestPage() {
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="call-type">
-                                        <AccordionTrigger className="text-xs">Call Type</AccordionTrigger>
+                                        <AccordionTrigger className="text-xs">
+                                            <span className={`${selectedTypeVal.length>0 ? 'text-fuchsia-500' : ''} `}>Call Type</span>
+                                        </AccordionTrigger>
                                         <AccordionContent>
                                             <div onClick={(e) => e.stopPropagation()} className="w-full">
                                                 <AetherMultiSelect
@@ -331,7 +330,8 @@ export default function CallDetailTestPage() {
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="durations">
-                                        <AccordionTrigger className="text-xs">Duration</AccordionTrigger>
+                                        <AccordionTrigger className="text-xs">
+                                            <span className={`${max!=="" ? 'text-fuchsia-500' : ''} `}>Duration</span></AccordionTrigger>
                                         <AccordionContent className="px-4">
                                             <div className="flex items-center justify-between gap-4">
                                                 <div>
@@ -456,16 +456,16 @@ export default function CallDetailTestPage() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <div className="flex gap-4">
-                               <AetherTooltip label="Export PDF">
-                            <span className="flex items-center cursor-pointer" onClick={() => handleExportClick('pdf')}>
-                                <FontAwesomeIcon icon={faFilePdf} />
-                            </span>
-                        </AetherTooltip>
-                        <AetherTooltip label="Export CSV">
-                            <span className="flex items-center cursor-pointer" onClick={() => handleExportClick('csv')}>
-                                <FontAwesomeIcon icon={faFileCsv} />
-                            </span>
-                        </AetherTooltip>
+                            <AetherTooltip label="Export PDF">
+                                <span className="flex items-center cursor-pointer" onClick={() => handleExportClick('pdf')}>
+                                    <FontAwesomeIcon icon={faFilePdf} />
+                                </span>
+                            </AetherTooltip>
+                            <AetherTooltip label="Export CSV">
+                                <span className="flex items-center cursor-pointer" onClick={() => handleExportClick('csv')}>
+                                    <FontAwesomeIcon icon={faFileCsv} />
+                                </span>
+                            </AetherTooltip>
                         </div>
                     </div>
                 </div>
@@ -550,7 +550,7 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{call.other_number}</TableCell>
                                             )}
                                             {visibleColumns.includes("other_name") && (
-                                                <TableCell className="text-left">{call.other_name === "null" || call.other_name==="" ? <span className="text-center">-</span> : call.other_name}</TableCell>
+                                                <TableCell className="text-left">{call.other_name === "null" || call.other_name === "" ? <span className="text-center">-</span> : call.other_name}</TableCell>
                                             )}
                                             {visibleColumns.includes("type") && (
                                                 <TableCell className="text-left">{typeCompressMap[call.type] || call.type}</TableCell>
@@ -563,7 +563,7 @@ export default function CallDetailTestPage() {
                                             )}
                                             {visibleColumns.includes("user_id") && (
                                                 <TableCell className="text-left">
-                                                    {call.user_id==="" ?(<span className="text-center">-</span>):(call.user_id)}
+                                                    {call.user_id === "" ? (<span className="text-center">-</span>) : (call.user_id)}
                                                 </TableCell>
                                             )}
                                             {visibleColumns.includes("agent_number") && (
@@ -655,7 +655,7 @@ export default function CallDetailTestPage() {
                                                             </DialogContent>
                                                         </Dialog>
                                                     )}
-                                                    {call.recording_ids.length===0&&(<span className="text-center">-</span>)}
+                                                    {call.recording_ids.length === 0 && (<span className="text-center">-</span>)}
                                                 </TableCell>
                                             )}
                                         </TableRow>
