@@ -225,30 +225,29 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
 
   const getDateRangeForType = (type: AetherFilterApiVal, rangepick?: DateRange) => {
     const now = new Date();
-    let start: string | null = null;
+    let start: string = "";
     let end: string = now.toISOString();
 
     switch (type) {
       case "today":
-        start = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
         break;
       case "past_24_hours":
         start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
         break;
       case "yesterday": {
-        const y = new Date();
-        y.setDate(y.getDate() - 1);
-        y.setHours(0, 0, 0, 0);
-        start = y.toISOString();
-        const endY = new Date(y);
+        const startY = new Date(now);
+        startY.setDate(now.getDate() - 1);
+        startY.setHours(0, 0, 0, 0);
+        const endY = new Date(startY);
         endY.setHours(23, 59, 59, 999);
-        end = endY.toISOString();
-        break;
+        return { start: startY.toISOString(), end: endY.toISOString() };
       }
       case "this_week": {
-        const sunday = new Date(now.setDate(now.getDate() - now.getDay()));
-        sunday.setHours(0, 0, 0, 0);
-        start = sunday.toISOString();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        start = startOfWeek.toISOString();
         break;
       }
       case "past_7_days":
@@ -266,8 +265,9 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
         break;
     }
 
-    return { start: start ?? "", end };
+    return { start, end };
   };
+
 
 
   useEffect(() => {
@@ -284,13 +284,14 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
       if (type && type !== "custom") {
         handleFilterChange(type);
       }
-      setTimeout(() => {
+
+      const frameId = requestAnimationFrame(() => {
         const saved = localStorage.getItem("aether_common_filter");
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
-
             const createdNow = new Date().toISOString();
+
             parsed.created_till = createdNow;
             parsed.filter_max_start_datetime = createdNow;
 
@@ -311,9 +312,11 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
             console.error("Invalid aether_common_filter in localStorage", err);
           }
         }
-      }, 0);
+      });
 
       setHasInitialApplied(true);
+
+      return () => cancelAnimationFrame(frameId); // cleanup
     }
   }, []);
 
