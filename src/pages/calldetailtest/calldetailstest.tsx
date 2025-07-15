@@ -550,7 +550,7 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{call.other_number}</TableCell>
                                             )}
                                             {visibleColumns.includes("other_name") && (
-                                                <TableCell className="text-left">{call.other_name === "null" || call.other_name==="" ? <span className="text-center">'-'</span> : call.other_name}</TableCell>
+                                                <TableCell className="text-left">{call.other_name === "null" || call.other_name==="" ? <span className="text-center">-</span> : call.other_name}</TableCell>
                                             )}
                                             {visibleColumns.includes("type") && (
                                                 <TableCell className="text-left">{typeCompressMap[call.type] || call.type}</TableCell>
@@ -563,7 +563,7 @@ export default function CallDetailTestPage() {
                                             )}
                                             {visibleColumns.includes("user_id") && (
                                                 <TableCell className="text-left">
-                                                    {call.user_id==="" ?(<span className="text-center">'-'</span>):(call.user_id)}
+                                                    {call.user_id==="" ?(<span className="text-center">-</span>):(call.user_id)}
                                                 </TableCell>
                                             )}
                                             {visibleColumns.includes("agent_number") && (
