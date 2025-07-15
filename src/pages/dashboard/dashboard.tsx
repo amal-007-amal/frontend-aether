@@ -75,25 +75,30 @@ export const AetherDashboard = () => {
             filters = null;
         }
 
-        const defaultFilters = {
+        const tempType = filters?.tempfillvalue as AetherFilterApiVal ?? "today";
+
+        // Always recalculate fresh range based on tempfillvalue
+        const { start, end } = getDateRangeForType(tempType);
+
+        const finalFilters = {
             time_filter: "custom",
-            start_date: startOfToday().toISOString(),
-            end_date: new Date().toISOString(),
-            user_ids: [],
+            start_date: start,
+            end_date: end,
+            user_ids: filters?.user_ids ?? [],
+            tempfillvalue: tempType,
+            filterStatus: filters?.filterStatus ?? false,
         };
 
-        const finalFilters = (!filters || !filters.start_date || !filters.end_date)
-            ? defaultFilters
-            : filters;
+        // Save updated filters to localStorage (optional)
+        localStorage.setItem("aether_leaderboard_filters", JSON.stringify(finalFilters));
 
-        setSelFilter(filters?.tempfillvalue ?? "today");
-
+        setSelFilter(tempType);
         setRange(undefined);
-        setSelectedUserIDs(finalFilters.user_ids ?? []);
+        setSelectedUserIDs(finalFilters.user_ids);
         setTimeSave({
-            filterMinStart: startOfToday().toISOString(),
-            filterMaxStart: finalFilters.end_date,
-            userIDs: finalFilters.user_ids ?? [],
+            filterMinStart: start,
+            filterMaxStart: end,
+            userIDs: finalFilters.user_ids,
         });
 
         fetchLeaderBoard(finalFilters);
@@ -135,7 +140,7 @@ export const AetherDashboard = () => {
             start_date: start,
             end_date: end || new Date().toISOString(),
             user_ids: selectedUserIDs,
-            tempfillvalue:selfilter,
+            tempfillvalue: selfilter,
             filterStatus: true,
         };
 
