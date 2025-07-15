@@ -10,13 +10,23 @@ import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { useUsers } from "../../hooks/useUsers";
 import { Button } from "../../components/ui/button";
 import { CircleProgress } from "../../components/aethercircleorogress";
-import { startOfToday, startOfWeek } from "date-fns";
+import { startOfToday } from "date-fns";
 import AetherHorizontalStackedGroupChart from "../../components/aetherstackedbarchart";
 import { useFormattedDuration } from "../../hooks/useDurationFormat";
 import AetherLoader from "../../shared/AetherLoader";
+import type { AetherFilterApiVal } from "../../types/common";
+
+type LeaderboardFilter = {
+    time_filter: AetherFilterApiVal;
+    start_date: string;
+    end_date: string;
+    user_ids: string[];
+    tempfillvalue?: AetherFilterApiVal;
+    filterStatus?: boolean;
+};
 
 export const AetherDashboard = () => {
-    const [selfilter, setSelFilter] = useState<"today" | "week" | "custom">("today");
+    const [selfilter, setSelFilter] = useState<AetherFilterApiVal>("today");
     const [range, setRange] = useState<DateRange | undefined>();
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -106,98 +116,138 @@ export const AetherDashboard = () => {
         }
     }, [range, selfilter]);
 
-    const handleDateFilterChange = (value: "today" | "week" | "custom") => {
-        setSelFilter(value);
 
-        if (value === "today") {
-            setTimeSave(prev => ({
-                ...prev,
-                filterMinStart: startOfToday().toISOString(),
-                filterMaxStart: null,
-            }));
-        } else if (value === "week") {
-            const weekStart = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
-            setTimeSave(prev => ({
-                ...prev,
-                filterMinStart: weekStart,
-                filterMaxStart: null,
-            }));
-        }
+    const handleDateFilterChange = (value: AetherFilterApiVal) => {
+        setSelFilter(value);
+        const { start, end } = getDateRangeForType(value, range);
+        setTimeSave((prev) => ({
+            ...prev,
+            filterMinStart: start,
+            filterMaxStart: end,
+        }));
     };
 
     const handleFilterApply = () => {
-        const filters = {
-            time_filter: "custom",
-            start_date: timesave.filterMinStart ?? undefined,
-            end_date: timesave.filterMaxStart ?? new Date().toISOString(),
-            user_ids: selectedUserIDs,
-            tempfillvalue: selfilter,
-            filterStatus: true
-        };
-        setFilterStatus(true)
+        const { start, end } = getDateRangeForType(selfilter, range);
 
+        const filters: LeaderboardFilter = {
+            time_filter: 'custom',
+            start_date: start,
+            end_date: end || new Date().toISOString(),
+            user_ids: selectedUserIDs,
+            tempfillvalue: 'custom',
+            filterStatus: true,
+        };
+
+        setFilterStatus(true);
         localStorage.setItem("aether_leaderboard_filters", JSON.stringify(filters));
         fetchLeaderBoard(filters);
         setIsDropdownOpen(false);
     };
-
     const handleRefresh = () => {
         const saved = localStorage.getItem("aether_leaderboard_filters");
-        let filters;
+        let filters: LeaderboardFilter | null = null;
 
         try {
             filters = saved ? JSON.parse(saved) : null;
         } catch (e) {
             console.error("Invalid filters in localStorage:", e);
-            filters = null;
         }
 
-        const fallback = {
-            time_filter: "custom",
+        const fallback: LeaderboardFilter = {
+            time_filter: "today",
             start_date: startOfToday().toISOString(),
             end_date: new Date().toISOString(),
             user_ids: [],
+            filterStatus: false,
         };
 
-        const finalFilters = (!filters || !filters.start_date || !filters.end_date)
-            ? fallback
-            : filters;
+        const finalFilters = filters && filters.start_date && filters.end_date ? filters : fallback;
 
-        setSelFilter(filters?.tempfillvalue ?? "today");
-        setRange(undefined);
+        setSelFilter(finalFilters.tempfillvalue ?? "today");
         setSelectedUserIDs(finalFilters.user_ids ?? []);
         setTimeSave({
             filterMinStart: finalFilters.start_date,
             filterMaxStart: finalFilters.end_date,
             userIDs: finalFilters.user_ids ?? [],
         });
-        setFilterStatus(filters.filterStatus)
+        setFilterStatus(!!finalFilters.filterStatus);
+        setRange(undefined);
+
         fetchLeaderBoard(finalFilters);
     };
 
     const handleReset = () => {
-        const defaultFilters = {
+        const defaultFilters: LeaderboardFilter = {
             time_filter: "today",
             start_date: startOfToday().toISOString(),
             end_date: new Date().toISOString(),
             user_ids: [],
-            filterStatus: false
+            filterStatus: false,
         };
 
-        localStorage.setItem("aether_leaderboard_filters",JSON.stringify(defaultFilters));
+        localStorage.setItem("aether_leaderboard_filters", JSON.stringify(defaultFilters));
 
-        setFilterStatus(false)
+        setFilterStatus(false);
         setSelFilter("today");
-        setRange(undefined);
         setSelectedUserIDs([]);
+        setRange(undefined);
         setTimeSave({
             filterMinStart: defaultFilters.start_date,
-            filterMaxStart: null,
+            filterMaxStart: defaultFilters.end_date,
             userIDs: [],
         });
 
         fetchLeaderBoard(defaultFilters);
         setIsDropdownOpen(false);
+    };
+
+    const getDateRangeForType = (type: AetherFilterApiVal, rangepick?: DateRange) => {
+        const now = new Date();
+        let start: string = "";
+        let end: string = now.toISOString();
+
+        switch (type) {
+            case "today":
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+                break;
+            case "past_24_hours":
+                start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+                break;
+            case "yesterday": {
+                const startY = new Date(now);
+                startY.setDate(now.getDate() - 1);
+                startY.setHours(0, 0, 0, 0);
+                const endY = new Date(startY);
+                endY.setHours(23, 59, 59, 999);
+                return {
+                    start: startY.toISOString(),
+                    end: endY.toISOString(),
+                };
+            }
+            case "this_week": {
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay());
+                startOfWeek.setHours(0, 0, 0, 0);
+                start = startOfWeek.toISOString();
+                break;
+            }
+            case "past_7_days":
+                start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+                break;
+            case "this_month":
+                start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+                break;
+            case "last_30_days":
+                start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                break;
+            case "custom":
+                start = rangepick?.from instanceof Date ? rangepick.from.toISOString() : "";
+                end = rangepick?.to instanceof Date ? rangepick.to.toISOString() : new Date().toISOString();
+                break;
+        }
+
+        return { start, end };
     };
 
     return (
@@ -218,9 +268,14 @@ export const AetherDashboard = () => {
                                             <SelectValue placeholder="Select a filter" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="today">Today</SelectItem>
-                                            <SelectItem value="week">This Week</SelectItem>
-                                            <SelectItem value="custom">Custom</SelectItem>
+                                            <SelectItem className="text-xs" value="today">Today</SelectItem>
+                                            <SelectItem className="text-xs" value="past_24_hours">Past 24 hrs</SelectItem>
+                                            <SelectItem className="text-xs" value="yesterday">Yesterday</SelectItem>
+                                            <SelectItem className="text-xs" value="this_week">This Week</SelectItem>
+                                            <SelectItem className="text-xs" value="past_7_days">Past 7 days</SelectItem>
+                                            <SelectItem className="text-xs" value="this_month">This Month</SelectItem>
+                                            <SelectItem className="text-xs" value="last_30_days">Last 30 days</SelectItem>
+                                            <SelectItem className="text-xs" value="custom">Custom</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     {selfilter === "custom" && (
@@ -230,7 +285,7 @@ export const AetherDashboard = () => {
 
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <AetherMultiSelect
-                                    placeholder="Filter by agents"
+                                        placeholder="Filter by agents"
                                         data={users.map((user) => ({ label: user.name, value: user.id }))}
                                         selected={selectedUserIDs}
                                         onChange={setSelectedUserIDs}
