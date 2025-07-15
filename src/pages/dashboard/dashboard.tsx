@@ -135,7 +135,7 @@ export const AetherDashboard = () => {
             start_date: start,
             end_date: end || new Date().toISOString(),
             user_ids: selectedUserIDs,
-            tempfillvalue: 'custom',
+            tempfillvalue:selfilter,
             filterStatus: true,
         };
 
@@ -275,7 +275,6 @@ export const AetherDashboard = () => {
                                             <SelectItem className="text-xs" value="past_7_days">Past 7 days</SelectItem>
                                             <SelectItem className="text-xs" value="this_month">This Month</SelectItem>
                                             <SelectItem className="text-xs" value="last_30_days">Last 30 days</SelectItem>
-                                            <SelectItem className="text-xs" value="custom">Custom</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     {selfilter === "custom" && (
