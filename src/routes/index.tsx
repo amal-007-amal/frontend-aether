@@ -7,7 +7,6 @@ import { AetherDashboard } from "../pages/dashboard/dashboard";
 import Auth from "../pages/onboard/auth";
 import SettingPage from "../pages/settings/settings";
 import UserManagmentPage from "../pages/usermanagement/usermanagment";
-import CallDetailPage from "../pages/calldetail/calldetail";
 import RedirectRoot from "../pages/redirect/redirect";
 import AetherAuthGuard from "../guard/authguard";
 import { setRouter } from "../utils/navigation";
