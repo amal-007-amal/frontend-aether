@@ -1,4 +1,4 @@
-import { AlignLeft, Cog, Home, PhoneCall, UserCog } from "lucide-react";
+import { Cog, Home, PhoneCall, UserCog } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../components/ui/tooltip";
 
