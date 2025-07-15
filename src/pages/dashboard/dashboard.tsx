@@ -152,6 +152,8 @@ export const AetherDashboard = () => {
             filters = null;
         }
 
+        console.log(saved,filters)
+
         const fallback = {
             time_filter: "custom",
             start_date: startOfToday().toISOString(),
@@ -171,7 +173,7 @@ export const AetherDashboard = () => {
             filterMaxStart: finalFilters.end_date,
             userIDs: finalFilters.user_ids ?? [],
         });
-        setFilterStatus(filters.filterStatus)
+        setFilterStatus(filters!==null?filters.filterStatus:'today')
         fetchLeaderBoard(finalFilters);
     };
 
