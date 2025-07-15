@@ -43,10 +43,6 @@ const router = createBrowserRouter([
       },
       {
         path: "/calldetails",
-        element: <CallDetailPage />,
-      },
-      {
-        path: "/calldetailstest",
         element: <CallDetailTestPage />,
       },
     ],

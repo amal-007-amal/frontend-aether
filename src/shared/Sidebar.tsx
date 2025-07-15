@@ -13,8 +13,8 @@ export default function SideBar() {
       tooltip: true,
     },
     {
-      path: "/calldetailstest",
-      label: "Call Details Test",
+      path: "/calldetails",
+      label: "Call Details",
       icon: PhoneCall,
       tooltip: true,
     },
@@ -29,12 +29,7 @@ export default function SideBar() {
       label: "Settings",
       icon: Cog,
       tooltip: true,
-    }, {
-      path: "/calldetails",
-      label: "Call Details",
-      icon: AlignLeft,
-      tooltip: true,
-    },
+    }
   ]
   const isActive = (path: string) => location.pathname === path;
 

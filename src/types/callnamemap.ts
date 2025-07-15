@@ -22,6 +22,5 @@ export const typeCompressMap: Record<string, string> = {
     incoming: "Incoming",
     outgoing: "Outgoing",
     missed: "Missed",
-    not_connected: 'Not Connected',
-    connected: 'Connected'
+    not_connected: 'Not Connected'
 }
