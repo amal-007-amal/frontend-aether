@@ -117,14 +117,7 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
   }) => {
     setCurrentOffset(1);
 
-    const isCustom =
-      draftFilterParams.filter_min_start_datetime === "" &&
-      draftFilterParams.filter_max_start_datetime === "" &&
-      rangepick?.from &&
-      rangepick?.to;
-
-    const customStart = isCustom ? rangepick?.from?.toISOString() : draftFilterParams.filter_min_start_datetime;
-    const customEnd = isCustom ? rangepick?.to?.toISOString() : draftFilterParams.filter_max_start_datetime;
+    const { start: customStart, end: customEnd } = getDateRangeForType(filterType as AetherFilterApiVal, rangepick);
 
     const minDuration = min !== "" ? Number(min) * 60 : 0;
     const maxDuration = max !== "" && Number(max) <= 59 ? Number(max) * 60 : null;
@@ -159,6 +152,7 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
     localStorage.setItem("aether_common_filter", JSON.stringify(newParams));
     setHasInitialApplied(true);
   };
+
   const handleRefresh = () => {
     setCurrentOffset(1);
     const saved = localStorage.getItem("aether_common_filter");
@@ -166,6 +160,11 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+
+        const createdNow = new Date().toISOString();
+
+        parsed.created_till = createdNow;
+        parsed.filter_max_start_datetime = createdNow;
 
         const relativeFilters: AetherFilterApiVal[] = [
           "today",
@@ -177,13 +176,9 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
           "last_30_days",
         ];
 
-        // Recalculate time range for relative filters
         if (relativeFilters.includes(parsed.filterType)) {
           handleFilterChange(parsed.filterType);
-
-          // Delay to ensure `draftFilterParams` gets updated by `handleFilterChange`
           setTimeout(() => {
-            // 👇 ensure `filter_max_start_datetime` is current
             handleFilterApply({
               selectedUserIDs: parsed.filter_user_ids || [],
               phoneNumbers: parsed.filter_other_numbers || [],
@@ -197,9 +192,8 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
               onlynew: parsed.only_new || false,
               filterType: parsed.filterType,
             });
-          }, 0); // 👈 let state update first
+          }, 0);
         } else {
-          // For custom filters, just re-apply
           handleFilterApply({
             selectedUserIDs: parsed.filter_user_ids || [],
             phoneNumbers: parsed.filter_other_numbers || [],
@@ -219,66 +213,8 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
       }
     }
   };
-
-
   const handleFilterChange = (value: AetherFilterApiVal) => {
-    const now = new Date();
-    let end = now.toISOString();
-    let start: string | null = null;
-
-    switch (value) {
-      case "today":
-        start = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-        end = new Date().toISOString();
-        break;
-      case "past_24_hours":
-        start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-        end = new Date().toISOString();
-        break;
-      case "yesterday": {
-        const startOfYesterday = new Date();
-        startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-        startOfYesterday.setHours(0, 0, 0, 0);
-        const endOfYesterday = new Date(startOfYesterday);
-        endOfYesterday.setHours(23, 59, 59, 999);
-        setDraftFilterParams((prev) => ({
-          ...prev,
-          filter_min_start_datetime: startOfYesterday.toISOString(),
-          filter_max_start_datetime: endOfYesterday.toISOString(),
-          filterType: value,
-        }));
-        return;
-      }
-      case "this_week": {
-        const today = new Date();
-        const sunday = new Date(today.setDate(today.getDate() - today.getDay()));
-        sunday.setHours(0, 0, 0, 0);
-        start = sunday.toISOString();
-        end = new Date().toISOString();
-        break;
-      }
-      case "past_7_days":
-        start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-        end = new Date().toISOString();
-        break;
-      case "this_month":
-        start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        end = new Date().toISOString();
-        break;
-      case "last_30_days":
-        start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-        end = new Date().toISOString();
-        break;
-      case "custom":
-        setDraftFilterParams((prev) => ({
-          ...prev,
-          filter_min_start_datetime: rangepick?.from?.toISOString() || "",
-          filter_max_start_datetime: rangepick?.to?.toISOString() || "",
-          filterType: value,
-        }));
-        return;
-    }
-
+    const { start, end } = getDateRangeForType(value, rangepick);
     setDraftFilterParams((prev) => ({
       ...prev,
       filter_min_start_datetime: start ?? "",
@@ -286,6 +222,53 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
       filterType: value,
     }));
   };
+
+  const getDateRangeForType = (type: AetherFilterApiVal, rangepick?: DateRange) => {
+    const now = new Date();
+    let start: string | null = null;
+    let end: string = now.toISOString();
+
+    switch (type) {
+      case "today":
+        start = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+        break;
+      case "past_24_hours":
+        start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+        break;
+      case "yesterday": {
+        const y = new Date();
+        y.setDate(y.getDate() - 1);
+        y.setHours(0, 0, 0, 0);
+        start = y.toISOString();
+        const endY = new Date(y);
+        endY.setHours(23, 59, 59, 999);
+        end = endY.toISOString();
+        break;
+      }
+      case "this_week": {
+        const sunday = new Date(now.setDate(now.getDate() - now.getDay()));
+        sunday.setHours(0, 0, 0, 0);
+        start = sunday.toISOString();
+        break;
+      }
+      case "past_7_days":
+        start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        break;
+      case "this_month":
+        start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        break;
+      case "last_30_days":
+        start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        break;
+      case "custom":
+        start = rangepick?.from?.toISOString() || "";
+        end = rangepick?.to?.toISOString() || "";
+        break;
+    }
+
+    return { start: start ?? "", end };
+  };
+
 
   useEffect(() => {
     setFilterParams((prev) => ({
@@ -301,12 +284,16 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
       if (type && type !== "custom") {
         handleFilterChange(type);
       }
-
       setTimeout(() => {
         const saved = localStorage.getItem("aether_common_filter");
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
+
+            const createdNow = new Date().toISOString();
+            parsed.created_till = createdNow;
+            parsed.filter_max_start_datetime = createdNow;
+
             handleFilterApply({
               selectedUserIDs: parsed.filter_user_ids || [],
               phoneNumbers: parsed.filter_other_numbers || [],
