@@ -570,7 +570,7 @@ export default function CallDetailTestPage() {
                                                 call.agent_number !== "" ? (
                                                     <TableCell className="text-left">{call.agent_number}</TableCell>
                                                 ) : (
-                                                    <TableCell className="text-left">{<span className="text-center">'-'</span>}</TableCell>
+                                                    <TableCell className="text-left">{<span className="text-center">-</span>}</TableCell>
                                                 )
                                             )}
                                             {visibleColumns.includes("device_id") && (
