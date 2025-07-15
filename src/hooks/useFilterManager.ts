@@ -197,6 +197,7 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
         break;
       case "past_24_hours":
         start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+        end = new Date().toISOString();
         break;
       case "yesterday": {
         const startOfYesterday = new Date();
@@ -217,16 +218,20 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
         const sunday = new Date(today.setDate(today.getDate() - today.getDay()));
         sunday.setHours(0, 0, 0, 0);
         start = sunday.toISOString();
+        end = new Date().toISOString();
         break;
       }
       case "past_7_days":
         start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        end = new Date().toISOString();
         break;
       case "this_month":
         start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        end = new Date().toISOString();
         break;
       case "last_30_days":
         start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        end = new Date().toISOString();
         break;
       case "custom":
         setDraftFilterParams((prev) => ({
