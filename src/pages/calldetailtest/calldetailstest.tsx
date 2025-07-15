@@ -454,19 +454,15 @@ export default function CallDetailTestPage() {
                                 </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <div className="flex">
+                        <div className="flex gap-4">
                                <AetherTooltip label="Export PDF">
                             <span className="flex items-center cursor-pointer" onClick={() => handleExportClick('pdf')}>
-                                <Button variant="ghost" size="icon" className="p-0 m-0">
-                                    <FontAwesomeIcon icon={faFilePdf} />
-                                </Button>
+                                <FontAwesomeIcon icon={faFilePdf} />
                             </span>
                         </AetherTooltip>
                         <AetherTooltip label="Export CSV">
                             <span className="flex items-center cursor-pointer" onClick={() => handleExportClick('csv')}>
-                                <Button variant="ghost" size="icon" className="p-0 m-0">
-                                    <FontAwesomeIcon icon={faFileCsv} />
-                                </Button>
+                                <FontAwesomeIcon icon={faFileCsv} />
                             </span>
                         </AetherTooltip>
                         </div>
@@ -553,7 +549,7 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{call.other_number}</TableCell>
                                             )}
                                             {visibleColumns.includes("other_name") && (
-                                                <TableCell className="text-left">{call.other_name === "null" ? '-' : call.other_name}</TableCell>
+                                                <TableCell className="text-left">{call.other_name === "null" || call.other_name==="" ? '-' : call.other_name}</TableCell>
                                             )}
                                             {visibleColumns.includes("type") && (
                                                 <TableCell className="text-left">{typeCompressMap[call.type] || call.type}</TableCell>
@@ -565,7 +561,9 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
                                             )}
                                             {visibleColumns.includes("user_id") && (
-                                                <TableCell className="text-left">{call.user_id}</TableCell>
+                                                <TableCell className="text-left">
+                                                    {call.user_id==="" ?('-'):(call.user_id)}
+                                                </TableCell>
                                             )}
                                             {visibleColumns.includes("agent_number") && (
                                                 call.agent_number !== "" ? (
@@ -656,6 +654,7 @@ export default function CallDetailTestPage() {
                                                             </DialogContent>
                                                         </Dialog>
                                                     )}
+                                                    {call.recording_ids.length===0&&('-')}
                                                 </TableCell>
                                             )}
                                         </TableRow>
