@@ -8,7 +8,7 @@ export default function InsightPage() {
 
     const [insighttext, setInsightText] = useState<string>("")
     const { insights, generateInsights, isLoading } = useInsight();
-    const handleInsight = async() => {
+    const handleInsight = async () => {
         let payload = {
             "model": "2.5_flash",
             "question": insighttext
@@ -38,26 +38,26 @@ export default function InsightPage() {
             </div>
             <div>
                 {insights && (
-  <div className="mt-4 space-y-4 p-4 border rounded-md bg-white">
-    <p className="text-sm text-muted-foreground">{insights.nl_answer}</p>
-    <h4 className="text-lg font-semibold">Results:</h4>
-    <div className="space-y-2 text-sm">
-      {insights.results.map((row: Record<string, any>, index: number) => (
-        <div
-          key={index}
-          className="border rounded p-2 flex flex-col sm:flex-row sm:justify-between"
-        >
-          {Object.entries(row).map(([key, value]) => (
-            <div key={key} className="flex gap-2">
-              <span className="font-medium capitalize">{key.replace(/_/g, " ")}:</span>
-              <span>{String(value)}</span>
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                    <div className="mt-4 space-y-4 p-4 border rounded-md bg-white">
+                        <p className="text-sm text-muted-foreground">{insights.nl_answer}</p>
+                        <h4 className="text-lg font-semibold">Results:</h4>
+                        <div className="space-y-2 text-sm">
+                            {insights.results.map((row: Record<string, any>, index: number) => (
+                                <div
+                                    key={index}
+                                    className="border rounded p-2 flex flex-col sm:flex-row sm:justify-between"
+                                >
+                                    {Object.entries(row).map(([key, value]) => (
+                                        <div key={key} className="flex gap-2">
+                                            <span className="font-medium capitalize">{key.replace(/_/g, " ")}:</span>
+                                            <span>{String(value)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
             </div>
         </div>
