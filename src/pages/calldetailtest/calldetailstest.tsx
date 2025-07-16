@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { AetherMultiSelect } from "../../components/aethermultiselect";
 import { useUsers } from "../../hooks/useUsers";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AethercallFillTypes, type AetherFilterApiVal } from "../../types/common";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
@@ -29,7 +29,16 @@ import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faFileCsv } from "@fortawesome/free-solid-svg-icons";
-
+const defaultColumns = [
+    { key: "other_number", label: "Caller ID", active: true, mapkey: 'caller_id' },
+    { key: "other_name", label: "Caller Name", active: true, mapkey: 'caller_name' },
+    { key: "type", label: "Call Type", active: true, mapkey: 'call_type' },
+    { key: "start_time", label: "Timestamp", active: true, mapkey: 'call_time' },
+    { key: "duration", label: "Duration", active: true, mapkey: 'duration' },
+    { key: "user_id", label: "Agent Name", active: true, mapkey: 'agent_name' },
+    { key: "agent_number", label: "Agent Number", active: true, mapkey: 'agent_number' },
+    { key: "recording_ids", label: "Recordings", active: true, mapkey: '' },
+];
 export default function CallDetailTestPage() {
     const isInitialOffsetSet = useRef(false);
     const [isFilterOpen, setISDilterOpen] = useState(false);
@@ -126,31 +135,33 @@ export default function CallDetailTestPage() {
     }, []);
 
 
-    const [allColumns, setAllColumns] = useState([
-        { key: "other_number", label: "Caller ID", active: true },
-        { key: "other_name", label: "Caller Name", active: true },
-        { key: "type", label: "Call Type", active: true },
-        { key: "start_time", label: "Timestamp", active: true },
-        { key: "duration", label: "Duration", active: true },
-        { key: "user_id", label: "Agent Name", active: true },
-        { key: "agent_number", label: "Agent Number", active: true },
-        { key: "recording_ids", label: "Recordings", active: true },
-    ]);
+    const [allColumns, setAllColumns] = useState(() => {
+        const saved = localStorage.getItem('aether_table_col');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch {
+                return defaultColumns;
+            }
+        }
+        return defaultColumns;
+    });
 
-    const getColHeaderLabel = (key: string) => {
-        return allColumns.find((item) => item.key === key);
-    };
+    // Persist to localStorage after state changes
+    useEffect(() => {
+        localStorage.setItem('aether_table_col', JSON.stringify(allColumns));
+    }, [allColumns]);
 
-    const [visibleColumns, setVisibleColumns] = useState<string[]>(
-        allColumns.filter((col) => col.active).map((col) => col.key)
+    // Get active (visible) columns
+    const visibleColumns = useMemo(
+        () => allColumns.filter((col: any) => col.active).map((col: any) => col.key),
+        [allColumns]
     );
 
+    // Toggle visibility by key
     const toggleColumn = (key: string) => {
-        setVisibleColumns((prev) =>
-            prev.includes(key) ? prev.filter((col) => col !== key) : [...prev, key]
-        );
-        setAllColumns((prev) =>
-            prev.map((col) =>
+        setAllColumns((prev: any) =>
+            prev.map((col: any) =>
                 col.key === key ? { ...col, active: !col.active } : col
             )
         );
@@ -198,8 +209,12 @@ export default function CallDetailTestPage() {
     };
 
     const handleExportClick = (type: "pdf" | "csv") => {
-        exportCallLogsFile(filterParams, type);
-        toast.info('The request file will be downloaded shortly')
+        const collist = allColumns
+            .filter((item: any) => item.active)
+            .map((item: any) => item.mapkey);
+        console.log(JSON.stringify(allColumns),collist)
+        exportCallLogsFile(filterParams, type, collist);
+        toast.info('The requested file will be downloaded shortly')
     };
 
     return (
@@ -277,7 +292,7 @@ export default function CallDetailTestPage() {
                                     </AccordionItem>
                                     <AccordionItem value="numbers">
                                         <AccordionTrigger className="text-xs">
-                                            <span className={`${phoneNumbers.length > 0 || onlynew  || onlyaban ? 'text-fuchsia-500' : ''} `}>Caller ID</span>
+                                            <span className={`${phoneNumbers.length > 0 || onlynew || onlyaban ? 'text-fuchsia-500' : ''} `}>Caller ID</span>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div>
@@ -314,7 +329,7 @@ export default function CallDetailTestPage() {
                                     </AccordionItem>
                                     <AccordionItem value="call-type">
                                         <AccordionTrigger className="text-xs">
-                                            <span className={`${selectedTypeVal.length>0 ? 'text-fuchsia-500' : ''} `}>Call Type</span>
+                                            <span className={`${selectedTypeVal.length > 0 ? 'text-fuchsia-500' : ''} `}>Call Type</span>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <div onClick={(e) => e.stopPropagation()} className="w-full">
@@ -330,7 +345,7 @@ export default function CallDetailTestPage() {
                                     </AccordionItem>
                                     <AccordionItem value="durations">
                                         <AccordionTrigger className="text-xs">
-                                            <span className={`${max!=="" ? 'text-fuchsia-500' : ''} `}>Duration</span></AccordionTrigger>
+                                            <span className={`${max !== "" ? 'text-fuchsia-500' : ''} `}>Duration</span></AccordionTrigger>
                                         <AccordionContent className="px-4">
                                             <div className="flex items-center justify-between gap-4">
                                                 <div>
@@ -438,14 +453,17 @@ export default function CallDetailTestPage() {
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <p className="text-sm font-semibold mb-1">Columns</p>
                                     <div className="grid grid-cols-1 gap-x-6">
-                                        {allColumns.map((col) => (
+                                        {allColumns.map((col: any) => (
                                             <div key={col.key} className="flex items-center gap-2 text-sm">
                                                 <Checkbox
                                                     id={`col-${col.key}`}
-                                                    checked={visibleColumns.includes(col.key)}
+                                                    checked={col.active}
                                                     onCheckedChange={() => toggleColumn(col.key)}
                                                 />
-                                                <label htmlFor={`col-${col.key}`} className="cursor-pointer text-xs py-1">
+                                                <label
+                                                    htmlFor={`col-${col.key}`}
+                                                    className="cursor-pointer text-xs py-1"
+                                                >
                                                     {col.label}
                                                 </label>
                                             </div>
@@ -478,64 +496,19 @@ export default function CallDetailTestPage() {
                     <Table className="w-full table-fixed border-collapse">
                         <TableHeader className="sticky top-0 z-10">
                             <TableRow className="text-sm font-light">
-                                <TableHead className="text-xs font-medium w-14">Sl No.</TableHead>
-                                {visibleColumns.includes("other_number") && (
-                                    <TableHead
-                                        className="text-xs font-medium"
-                                    >
-                                        {getColHeaderLabel('other_number')?.label}
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("other_name") && (
-                                    <TableHead className="text-xs font-medium cursor-pointer">
-                                        {getColHeaderLabel('other_name')?.label}
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("type") && (
-                                    <TableHead
-                                        className="text-xs font-medium cursor-pointer"
-                                    >
-                                        {getColHeaderLabel('type')?.label}
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("start_time") && (
-                                    <TableHead className="text-xs font-medium cursor-pointer">
-                                        {getColHeaderLabel('start_time')?.label}
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("duration") && (
-                                    <TableHead
-                                        className="text-xs font-medium cursor-pointer"
-                                    >
-                                        {getColHeaderLabel('duration')?.label}
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("user_id") && (
-                                    <TableHead className="text-xs font-medium">
-                                        <div className="flex items-center  gap-1 relative">
-                                            {getColHeaderLabel('user_id')?.label}
-                                        </div>
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("agent_number") && (
-                                    <TableHead className="text-xs font-medium cursor-pointer">
-                                        <span className="flex items-center  gap-1">
-                                            {getColHeaderLabel('agent_number')?.label}
-                                        </span>
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("device_id") && (
-                                    <TableHead
-                                        className="text-xs font-medium cursor-pointer"
-                                    >{getColHeaderLabel('device_id')?.label}
-                                    </TableHead>
-                                )}
-                                {visibleColumns.includes("recording_ids") && (
-                                    <TableHead className="text-xs font-medium cursor-pointer">
-                                        {getColHeaderLabel('recording_ids')?.label}
-                                    </TableHead>
-                                )}
+                                <TableHead className="text-xs font-semibold w-14">Sl No.</TableHead>
+                                {allColumns
+                                    .filter((col: any) => col.active)
+                                    .map((col: any) => (
+                                        <TableHead
+                                            key={col.key}
+                                            className="text-xs font-semibold cursor-pointer"
+                                        >
+                                            {col.label}
+                                        </TableHead>
+                                    ))}
                             </TableRow>
+
                         </TableHeader>
                     </Table>
                     <ScrollArea className="h-[370px]">
