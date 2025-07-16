@@ -62,12 +62,12 @@ export default function InsightPage() {
                             <div className="space-y-4 p-4">
                                 <div className="text-sm flex items-center gap-3 border-b py-2">
                                     <p className="font-medium whitespace-nowrap">Input Query:</p>
-                                    <p className="text-muted-foreground">{insighttext}</p>
+                                    <p className="text-muted-foreground text-xs">{insighttext}</p>
                                 </div>
 
                                 <div className="text-sm flex items-center gap-3 border-b py-2">
                                     <p className="font-medium whitespace-nowrap">Generated Insight:</p>
-                                    <p className="text-muted-foreground break-all">{insights.nl_answer}</p>
+                                    <p className="text-muted-foreground break-all text-xs">{insights.nl_answer}</p>
                                 </div>
                             </div>
 
@@ -81,7 +81,7 @@ export default function InsightPage() {
                                 {/* Generated SQL Query */}
                                 <div className="text-sm flex items-center gap-3 border-b py-2">
                                     <p className="font-medium whitespace-nowrap">Generated SQL Query:</p>
-                                    <p className="text-muted-foreground break-all">{insights.sql_query}</p>
+                                    <p className="text-muted-foreground break-all text-xs">{insights.sql_query}</p>
                                 </div>
 
                                 {/* SQL Output (same?) */}
