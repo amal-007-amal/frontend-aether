@@ -9,6 +9,8 @@ import RedirectRoot from "../pages/redirect/redirect";
 import AetherAuthGuard from "../guard/authguard";
 import { setRouter } from "../utils/navigation";
 import CallDetailTestPage from "../pages/calldetailtest/calldetailstest";
+import UserGrousPage from "../pages/usergroups/usergroup";
+import InsightPage from "../pages/insights/insight";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +35,14 @@ const router = createBrowserRouter([
       {
         path: "/usermanagment",
         element: <UserManagmentPage />,
+      },
+      {
+        path: "/usergroups",
+        element: <UserGrousPage />,
+      },
+      {
+        path: "/insights",
+        element: <InsightPage />,
       },
       {
         path: "/calldetails",

@@ -1,4 +1,4 @@
-import { Cog, Home, PhoneCall, UserCog } from "lucide-react";
+import { Brain, Cog, Home, PhoneCall, UserCog, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../components/ui/tooltip";
 
@@ -25,11 +25,24 @@ export default function SideBar() {
       tooltip: true,
     },
     {
+      path: "/usergroups",
+      label: "User Groups",
+      icon: Users,
+      tooltip: true,
+    },
+    {
+      path: "/insights",
+      label: "Insights",
+      icon: Brain,
+      tooltip: true,
+    },
+    {
       path: "/settings",
       label: "Settings",
       icon: Cog,
       tooltip: true,
     }
+    
   ]
   const isActive = (path: string) => location.pathname === path;
 

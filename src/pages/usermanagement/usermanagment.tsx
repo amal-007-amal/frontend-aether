@@ -187,7 +187,6 @@ export default function UserManagmentPage() {
                                                 {deviceStatus[user.id] &&
                                                     <>
                                                         {Object.entries(deviceStatus[user.id]).map(([key, value]) => {
-                                                            // Special case: created_at
                                                             if (key === "current_recording_folder_uri") {
                                                                 return (
                                                                     <div key={key} className="flex justify-between border-b py-1">
