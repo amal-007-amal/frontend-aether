@@ -267,8 +267,8 @@ export const AetherDashboard = () => {
     return (
         <div>
             <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-stone-900 ">
-                <div className="flex justify-between mb-2 items-center py-1 px-1">
-                    <h2 className="text-sm font-medium flex items-center gap-2"><ChartLine className="h-5 text-fuchsia-500" /> Dashboard</h2>
+                <div className="flex justify-between items-center py-2 px-1">
+                    <h2 className="text-sm font-medium flex items-center gap-2"><ChartLine className="h-4 text-fuchsia-500" /> Dashboard</h2>
                     <div className="flex items-center gap-5">
                         <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer ${loading ? 'animate-spin' : ''}`} />
                         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>

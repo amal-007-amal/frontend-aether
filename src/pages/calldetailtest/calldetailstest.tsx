@@ -29,6 +29,7 @@ import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faFileCsv } from "@fortawesome/free-solid-svg-icons";
+
 const defaultColumns = [
     { key: "other_number", label: "Caller ID", active: true, mapkey: 'caller_id' },
     { key: "other_name", label: "Caller Name", active: true, mapkey: 'caller_name' },
@@ -219,12 +220,11 @@ export default function CallDetailTestPage() {
 
     return (
         <div>
-            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
-                <div className="flex justify-between mb-2 items-center py-1 px-1">
+            <div className="flex justify-between mb-3 items-center py-4 px-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                     <h2 className="text-sm font-medium flex items-center gap-2"><Phone className="h-4 text-fuchsia-500"/> Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <AetherTooltip label="Refresh">
-                            <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer`} />
+                            <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer ${isLoading ? 'animate-spin' : ''}`} />
                         </AetherTooltip>
                         <DropdownMenu open={isFilterOpen} onOpenChange={setISDilterOpen}>
                             <DropdownMenuTrigger>
@@ -486,6 +486,7 @@ export default function CallDetailTestPage() {
                         </div>
                     </div>
                 </div>
+            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                 <div>
                     {isLoading && (
                         <div className="flex inset-0 dark:text-white dark:bg-transparent bg-gray-100 bg-opacity-10 items-center justify-center text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -493,16 +494,16 @@ export default function CallDetailTestPage() {
                             <LoaderCircle className="animate-spin w-5 h-5 text-purple-500 ml-2" />
                         </div>
                     )}
-                    <Table className="w-full table-fixed border-collapse">
+                    <Table className="w-full table-fixed ">
                         <TableHeader className="sticky top-0 z-10">
                             <TableRow className="text-sm font-light">
-                                <TableHead className="text-xs font-semibold w-14">Sl No.</TableHead>
+                                <TableHead className="text-xs font-medium w-14">Sl No.</TableHead>
                                 {allColumns
                                     .filter((col: any) => col.active)
                                     .map((col: any) => (
                                         <TableHead
                                             key={col.key}
-                                            className="text-xs font-semibold cursor-pointer"
+                                            className="text-xs font-medium cursor-pointer"
                                         >
                                             {col.label}
                                         </TableHead>
@@ -512,7 +513,7 @@ export default function CallDetailTestPage() {
                         </TableHeader>
                     </Table>
                     <ScrollArea className="h-[370px]">
-                        <Table className="w-full table-fixed border-collapse">
+                        <Table className="w-full table-fixed ">
                             <TableBody className="text-xs">
                                 {calllogs.length !== 0 && (
                                     calllogs.map((call, index) => (
@@ -534,22 +535,25 @@ export default function CallDetailTestPage() {
                                                 <TableCell className="text-left">{useFormattedDuration(call.duration)}</TableCell>
                                             )}
                                             {visibleColumns.includes("user_id") && (
+                                                call.user_id !== "" ?( 
                                                 <TableCell className="text-left">
-                                                    {call.user_id === "" ? (<span className="text-center">-</span>) : (call.user_id)}
+                                                    {call.user_id}
                                                 </TableCell>
+                                                ):(<TableCell className="pr-16">-</TableCell>)
                                             )}
                                             {visibleColumns.includes("agent_number") && (
                                                 call.agent_number !== "" ? (
                                                     <TableCell className="text-left">{call.agent_number}</TableCell>
                                                 ) : (
-                                                    <TableCell className="text-left">{<span className="text-center">-</span>}</TableCell>
+                                                    <TableCell className="pr-16">{<span className="text-center">-</span>}</TableCell>
                                                 )
                                             )}
                                             {visibleColumns.includes("device_id") && (
                                                 <TableCell className="text-left">{call.device_id}</TableCell>
                                             )}
                                             {visibleColumns.includes("recording_ids") && (
-                                                <TableCell className="flex gap-1 flex-wrap items-center">
+                                                call.recording_ids.length > 0 ? (
+                                                                                                    <TableCell className="flex gap-1 flex-wrap items-center">
                                                     {Array.isArray(call.recording_ids) &&
                                                         call.recording_ids.length > 0 &&
                                                         call.recording_ids.slice(0, 1).map((item) => (
@@ -627,8 +631,10 @@ export default function CallDetailTestPage() {
                                                             </DialogContent>
                                                         </Dialog>
                                                     )}
-                                                    {call.recording_ids.length === 0 && (<span className="text-center">-</span>)}
                                                 </TableCell>
+                                                ) : (
+                                                    <TableCell className="pr-16">-</TableCell>
+                                                )
                                             )}
                                         </TableRow>
                                     ))
