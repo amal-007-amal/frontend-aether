@@ -1,4 +1,4 @@
-import { CirclePlay, Columns3, FunnelPlus, LoaderCircle, RefreshCcw } from "lucide-react";
+import { CirclePlay, Columns3, FunnelPlus, LoaderCircle, Phone, RefreshCcw } from "lucide-react";
 import { AetherTooltip } from "../../components/aethertooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -58,7 +58,6 @@ export default function CallDetailTestPage() {
         handleRefresh,
         handleFilterChange,
     } = useCallFilterManager({ rangepick });
-
     const { users, fetchUsers } = useUsers();
     const {
         calllogs,
@@ -207,7 +206,7 @@ export default function CallDetailTestPage() {
         <div>
             <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                 <div className="flex justify-between mb-2 items-center py-1 px-1">
-                    <h2 className="text-sm font-medium flex items-center">Call Logs</h2>
+                    <h2 className="text-sm font-medium flex items-center gap-2"><Phone className="h-4 text-fuchsia-500"/> Call Logs</h2>
                     <div className="flex items-center gap-5">
                         <AetherTooltip label="Refresh">
                             <RefreshCcw onClick={handleRefresh} className={`h-4 w-4 cursor-pointer`} />
@@ -471,7 +470,7 @@ export default function CallDetailTestPage() {
                 </div>
                 <div>
                     {isLoading && (
-                        <div className="flex inset-0 dark:bg-transparent bg-gray-100 bg-opacity-10 items-center justify-center text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="flex inset-0 dark:text-white dark:bg-transparent bg-gray-100 bg-opacity-10 items-center justify-center text-xs absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                             Loading...
                             <LoaderCircle className="animate-spin w-5 h-5 text-purple-500 ml-2" />
                         </div>
@@ -479,47 +478,47 @@ export default function CallDetailTestPage() {
                     <Table className="w-full table-fixed border-collapse">
                         <TableHeader className="sticky top-0 z-10">
                             <TableRow className="text-sm font-light">
-                                <TableHead className="text-xs font-semibold w-14">Sl No.</TableHead>
+                                <TableHead className="text-xs font-medium w-14">Sl No.</TableHead>
                                 {visibleColumns.includes("other_number") && (
                                     <TableHead
-                                        className="text-xs font-semibold"
+                                        className="text-xs font-medium"
                                     >
                                         {getColHeaderLabel('other_number')?.label}
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("other_name") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-xs font-medium cursor-pointer">
                                         {getColHeaderLabel('other_name')?.label}
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("type") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
+                                        className="text-xs font-medium cursor-pointer"
                                     >
                                         {getColHeaderLabel('type')?.label}
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("start_time") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-xs font-medium cursor-pointer">
                                         {getColHeaderLabel('start_time')?.label}
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("duration") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
+                                        className="text-xs font-medium cursor-pointer"
                                     >
                                         {getColHeaderLabel('duration')?.label}
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("user_id") && (
-                                    <TableHead className="text-xs font-semibold">
+                                    <TableHead className="text-xs font-medium">
                                         <div className="flex items-center  gap-1 relative">
                                             {getColHeaderLabel('user_id')?.label}
                                         </div>
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("agent_number") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-xs font-medium cursor-pointer">
                                         <span className="flex items-center  gap-1">
                                             {getColHeaderLabel('agent_number')?.label}
                                         </span>
@@ -527,12 +526,12 @@ export default function CallDetailTestPage() {
                                 )}
                                 {visibleColumns.includes("device_id") && (
                                     <TableHead
-                                        className="text-xs font-semibold cursor-pointer"
+                                        className="text-xs font-medium cursor-pointer"
                                     >{getColHeaderLabel('device_id')?.label}
                                     </TableHead>
                                 )}
                                 {visibleColumns.includes("recording_ids") && (
-                                    <TableHead className="text-xs font-semibold cursor-pointer">
+                                    <TableHead className="text-xs font-medium cursor-pointer">
                                         {getColHeaderLabel('recording_ids')?.label}
                                     </TableHead>
                                 )}

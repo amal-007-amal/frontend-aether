@@ -99,12 +99,11 @@ export default function UserManagmentPage() {
     }
 
 
-
     return (
         <div>
             <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
-                <div className="flex justify-between mb-2 items-center px-1">
-                    <h2 className="text-sm font-medium flex items-center"><Users className="h-4" />User List</h2>
+                <div className="flex justify-between mb-2 items-center px-1 pt-1">
+                    <h2 className="text-sm font-medium flex items-center gap-2"><Users className="h-4 text-fuchsia-500" />User List</h2>
                     <div className="flex justify-between items-center gap-3">
                         <UserRoundPlus onClick={() => {
                             setUserData({
@@ -131,13 +130,13 @@ export default function UserManagmentPage() {
                 <Table >
                     <TableHeader>
                         <TableRow className="text-sm font-light">
-                            <TableHead className="text-xs font-semibold">Sl No.</TableHead>
-                            <TableHead className="text-xs font-semibold">Name</TableHead>
-                            <TableHead className="text-xs font-semibold">Phone Number</TableHead>
-                            <TableHead className="text-xs font-semibold">Agent Device id</TableHead>
-                            <TableHead className="text-xs font-semibold">Console Access</TableHead>
-                            <TableHead className="text-xs font-semibold">Agent Access</TableHead>
-                            <TableHead className="text-xs font-semibold">Actions</TableHead>
+                            <TableHead className="text-xs font-medium">Sl No.</TableHead>
+                            <TableHead className="text-xs font-medium">Name</TableHead>
+                            <TableHead className="text-xs font-medium">Phone Number</TableHead>
+                            <TableHead className="text-xs font-medium">Agent Device id</TableHead>
+                            <TableHead className="text-xs font-medium">Console Access</TableHead>
+                            <TableHead className="text-xs font-medium">Agent Access</TableHead>
+                            <TableHead className="text-xs font-medium">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
