@@ -67,7 +67,7 @@ export default function InsightPage() {
                                 <AccordionTrigger className="px-4 text-left text-sm font-medium">
                                     View Intermediary Steps
                                 </AccordionTrigger>
-                                <AccordionContent className="space-y-4 p-4">
+                                <AccordionContent className="space-y-2 p-4">
                                     {/* Generated SQL Query */}
                                     <div className="text-sm flex items-center gap-3 border-b py-2">
                                         <p className="font-medium whitespace-nowrap">Generated SQL Query:</p>
