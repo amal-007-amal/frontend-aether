@@ -52,73 +52,72 @@ export default function InsightPage() {
             </div>
             <div>
                 {insights && (
-                    <Accordion
-                        type="single"
-                        collapsible
-                        className="w-full mt-4 rounded-xl border border-gray-200 dark:border-stone-700 bg-white dark:bg-transparent"
-                    >
-                        <AccordionItem value="insight">
-                            {/* Always visible: Input Query & Generated Insight */}
-                            <div className="space-y-4 p-4">
-                                <div className="text-sm flex items-center gap-3 border-b py-2">
-                                    <p className="font-medium whitespace-nowrap">Input Query:</p>
-                                    <p className="text-muted-foreground text-xs">{insighttext}</p>
-                                </div>
-
-                                <div className="text-sm flex items-center gap-3 border-b py-2">
-                                    <p className="font-medium whitespace-nowrap">Generated Insight:</p>
-                                    <p className="text-muted-foreground break-all text-xs">{insights.nl_answer}</p>
-                                </div>
+                    <div className="w-full mt-4 rounded-xl border border-gray-200 bg-white dark:border-stone-700 dark:bg-transparent">
+                        <div className="space-y-4 p-4">
+                            {/* Always visible: Input Query */}
+                            <div className="text-sm flex items-center gap-3">
+                                <p className="font-medium whitespace-nowrap">Input Query:</p>
+                                <p className="text-muted-foreground text-xs">{insighttext}</p>
                             </div>
+                        </div>
 
-                            {/* Accordion Toggle */}
-                            <AccordionTrigger className="px-4 text-left text-sm font-medium">
-                                View Results
-                            </AccordionTrigger>
+                        {/* Accordion for SQL Query + Output */}
+                        <Accordion type="single" collapsible>
+                            <AccordionItem value="sql">
+                                <AccordionTrigger className="px-4 text-left text-sm font-medium">
+                                    View Intermediary Steps
+                                </AccordionTrigger>
+                                <AccordionContent className="space-y-4 p-4">
+                                    {/* Generated SQL Query */}
+                                    <div className="text-sm flex items-center gap-3 border-b py-2">
+                                        <p className="font-medium whitespace-nowrap">Generated SQL Query:</p>
+                                        <p className="text-muted-foreground break-all text-xs">{insights.sql_query}</p>
+                                    </div>
 
-                            {/* Hidden initially — expands on toggle */}
-                            <AccordionContent className="space-y-4 p-4">
-                                {/* Generated SQL Query */}
-                                <div className="text-sm flex items-center gap-3 border-b py-2">
-                                    <p className="font-medium whitespace-nowrap">Generated SQL Query:</p>
-                                    <p className="text-muted-foreground break-all text-xs">{insights.sql_query}</p>
-                                </div>
+                                    {/* SQL Output */}
+                                    <div className="text-sm flex items-center gap-3 border-b py-2">
+                                        <p className="font-medium whitespace-nowrap">SQL Output:</p>
+                                    </div>
 
-                                {/* SQL Output (same?) */}
-                                <div className="text-sm flex items-center gap-3 border-b py-2">
-                                    <p className="font-medium whitespace-nowrap">SQL Output:</p>
-                                </div>
-
-                                {/* Results Table */}
-                                {insights.results.length > 0 && (
-                                    <div className="pt-2 text-sm">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    {Object.keys(insights.results[0]).map((key) => (
-                                                        <TableHead key={key} className="capitalize font-medium">
-                                                            {key.replace(/_/g, " ")}
-                                                        </TableHead>
-                                                    ))}
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {insights.results.map((row: any, rowIndex: number) => (
-                                                    <TableRow key={rowIndex}>
-                                                        {Object.values(row).map((value, colIndex: number) => (
-                                                            <TableCell key={colIndex} className="text-left">
-                                                                {String(value)}
-                                                            </TableCell>
+                                    {/* Results Table */}
+                                    {insights.results.length > 0 && (
+                                        <div className="pt-2 text-sm">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        {Object.keys(insights.results[0]).map((key) => (
+                                                            <TableHead key={key} className="capitalize font-medium">
+                                                                {key.replace(/_/g, " ")}
+                                                            </TableHead>
                                                         ))}
                                                     </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                )}
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {insights.results.map((row: any, rowIndex: number) => (
+                                                        <TableRow key={rowIndex}>
+                                                            {Object.values(row).map((value, colIndex: number) => (
+                                                                <TableCell key={colIndex} className="text-left">
+                                                                    {String(value)}
+                                                                </TableCell>
+                                                            ))}
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    )}
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+
+                        {/* Always visible: Generated Insight (at bottom) */}
+                        <div className="space-y-4 p-4">
+                            <div className="text-sm flex items-center gap-3">
+                                <p className="font-medium whitespace-nowrap">Generated Insight:</p>
+                                <p className="text-muted-foreground break-all text-xs">{insights.nl_answer}</p>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
             </div>
