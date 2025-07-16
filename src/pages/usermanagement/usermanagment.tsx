@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../co
 import { useUsers } from "../../hooks/useUsers";
 import { ConfirmDialog } from "../../components/aetherconfirmpopup";
 import { useDeviceStatus } from "../../hooks/useDeviceStatus";
+import { aetherFormatDate } from "../../hooks/useFormattedDate";
 
 export default function UserManagmentPage() {
     const [open, setOpen] = useState(false)
@@ -181,18 +182,45 @@ export default function UserManagmentPage() {
                                             {user.latest_agent_device_id}
                                         </DropdownMenuTrigger>
 
-                                        <DropdownMenuContent className="space-y-2 p-3 me-10 w-[300px] text-xs">
+                                        <DropdownMenuContent className="space-y-2 p-3 me-10 w-full text-xs ove">
                                             <div className="space-y-1">
-                                                {deviceStatus[user.id] ? (
-                                                    Object.entries(deviceStatus[user.id]).map(([key, value]) => (
-                                                        <div key={key} className="flex justify-between border-b py-1">
-                                                            <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span>
-                                                            <span className="text-right">{String(value)}</span>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div>Loading...</div>
-                                                )}
+                                                {deviceStatus[user.id] &&
+                                                    <>
+                                                        {Object.entries(deviceStatus[user.id]).map(([key, value]) => {
+                                                            // Special case: created_at
+                                                            if (key === "current_recording_folder_uri") {
+                                                                return (
+                                                                    <div key={key} className="flex justify-between border-b py-1">
+                                                                        <span className="capitalize">Recording Path:</span>
+                                                                        <span>{decodeURIComponent(String(value))}</span>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            if (key === "last_fetched_recording_timestamp") {
+                                                                return (
+                                                                    <div key={key} className="flex justify-between border-b py-1">
+                                                                        <span className="capitalize">last fetched recording timestamp:</span>
+                                                                        <span>{aetherFormatDate(String(value))}</span>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            if (key === "created_at") {
+                                                                return (
+                                                                    <div key={key} className="flex justify-between border-b py-1">
+                                                                        <span className="capitalize">Created at:</span>
+                                                                        <span>{aetherFormatDate(String(value))}</span>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return (
+                                                                <div key={key} className="flex justify-between border-b py-1">
+                                                                    <span className="capitalize">{key.replace(/_/g, " ")}:</span>
+                                                                    <span>{String(value)}</span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </>
+                                                }
                                             </div>
                                             <div className="flex justify-end gap-2 pt-2">
                                                 <Button variant="ghost" size="sm" onClick={() => setOpenRowId(null)}>

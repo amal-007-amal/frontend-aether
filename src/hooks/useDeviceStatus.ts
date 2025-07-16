@@ -12,7 +12,7 @@ export function useDeviceStatus() {
       const timeZone = "Asia/Kolkata";
       const zonedDate = toZonedTime(rawDate, timeZone);
       const formattedDate = format(zonedDate, "MMMM d, yyyy, h:mm a '(GMT+5:30)'");
-
+      console.log(parsedPayload)
       return {
         ...parsedPayload,
         created_at: formattedDate,
