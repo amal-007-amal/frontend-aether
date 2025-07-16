@@ -220,7 +220,7 @@ export default function CallDetailTestPage() {
 
     return (
         <div>
-            <div className="flex justify-between mb-3 items-center py-4 px-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
+        <div className="flex justify-between mb-4 items-center py-4 px-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                 <h2 className="text-sm font-medium flex items-center gap-2"><Phone className="h-4 text-fuchsia-500" /> Call Logs</h2>
                 <div className="flex items-center gap-5">
                     <AetherTooltip label="Refresh">
@@ -587,9 +587,9 @@ export default function CallDetailTestPage() {
                                                                     <PopoverTrigger asChild>
                                                                         <Button
                                                                             onClick={() => { handleNextRecording(item) }}
-                                                                            className="bg-white hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
+                                                                            className="bg-white dark:bg-transparent dark:border dark:border-fuchsia-500 hover:bg-gray-100 w-8 h-8 p-0 rounded-full flex items-center justify-center"
                                                                         >
-                                                                            <CirclePlay className="w-4 h-4 text-black" />
+                                                                            <CirclePlay className="w-4 h-4 text-black dark:text-fuchsia-500" />
                                                                         </Button>
                                                                     </PopoverTrigger>
                                                                     <PopoverContent className="w-80 mx-10">
