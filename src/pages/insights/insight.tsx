@@ -49,7 +49,7 @@ export default function InsightPage() {
                     <div className="mt-4 space-y-4 p-4 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                         <div className="text-sm flex items-center gap-10">
                             <div className="flex items-center gap-3">
-                                <Button className="text-fuchsia-500 bg-white dark:bg-transparent h-8 w-5 rounded-full">1</Button>
+                                <Button className="text-gray-600 shadow-none bg-transparent h-8 w-5 rounded-full">1</Button>
                                 <p className="font-semibold"> Generated sql query:</p>
                             </div>
 
@@ -57,7 +57,7 @@ export default function InsightPage() {
                         </div>
                         <div className="text-sm flex items-center gap-10">
                             <div className="flex items-center gap-3">
-                                <Button className="text-fuchsia-500 bg-white dark:bg-transparent h-8 w-5 rounded-full">2</Button>
+                                <Button className="text-gray-600 shadow-none bg-transparent h-8 w-5 rounded-full">2</Button>
                                 <p className="font-semibold">Sql query:</p>
                             </div>
 
@@ -65,7 +65,7 @@ export default function InsightPage() {
                         </div>
                         <div className="text-sm flex items-center gap-10">
                             <div className="flex items-center gap-3">
-                                <Button className="text-fuchsia-500 bg-white dark:bg-transparent h-8 w-5 rounded-full">3</Button>
+                                <Button className="text-gray-600 shadow-none bg-transparent h-8 w-5 rounded-full">3</Button>
                                 <p className="font-semibold">Results:</p>
                             </div>
                         </div>
@@ -97,7 +97,7 @@ export default function InsightPage() {
                         </div>
                         <div className="text-sm flex items-center gap-10">
                             <div className="flex items-center gap-3">
-                                <Button className="text-fuchsia-500 bg-white dark:bg-transparent h-8 w-5 rounded-full">4</Button>
+                                <Button className="text-gray-600 shadow-none bg-transparent h-8 w-5 rounded-full">4</Button>
                                 <p className="font-semibold">Generated insight:</p>
                             </div>
                             <p>{insights.nl_answer}</p>
