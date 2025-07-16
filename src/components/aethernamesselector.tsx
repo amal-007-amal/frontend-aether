@@ -66,20 +66,27 @@ export function AetherNameMultiSelect({
 
     const toggle = (value: string) => {
         setTempSelected((prev) =>
-            prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+            prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value]
         );
     };
 
-    const handleToggleSelectAll = () => {
-        if (tempSelected.length === data.length) {
-            // Deselect all
-            setTempSelected([]);
-        } else {
-            // Select all
-            const allLabels = data.map((item) => item.label);
-            setTempSelected(allLabels);
-        }
-    };
+const handleToggleSelectAll = () => {
+  const allLabels = data.map((item) => item.label);
+
+  const isAllSelected =
+    allLabels.length > 0 &&
+    allLabels.every((label) => tempSelected.includes(label));
+
+  if (isAllSelected) {
+    // Deselect all
+    setTempSelected([]);
+  } else {
+    // Select all
+    setTempSelected(allLabels);
+  }
+};
 
     const handleApply = () => {
         onChange(tempSelected);
@@ -122,7 +129,9 @@ export function AetherNameMultiSelect({
                         <div className="flex justify-between items-center px-3 py-2 text-xs border-b">
                             <div className="gap-4 flex">
                                 <button onClick={handleToggleSelectAll} className="hover:underline font-normal">
-                                    {tempSelected.length === data.length ? "Deselect All" : "Select All"}
+                                   {data.length > 0 && data.every((item) => tempSelected.includes(item.label))
+    ? "Deselect All"
+    : "Select All"}
                                 </button>
                             </div>
                             <div className="flex gap-2">

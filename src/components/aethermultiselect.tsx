@@ -36,6 +36,7 @@ export function AetherMultiSelect({
 }: DynamicMultiSelectProps) {
   const [open, setOpen] = useState(false);
 
+
   const toggle = (value: string) => {
     if (selected.includes(value)) {
       onChange(selected.filter((v) => v !== value));
@@ -44,17 +45,18 @@ export function AetherMultiSelect({
     }
   };
 
+
+
   const handleSelectAll = () => {
     const allValues = data.map((item) => item.value);
-    const isAllSelected = allValues.every((val) => selected.includes(val));
+    const isAllSelected = selected.length > 0;
 
     if (isAllSelected) {
-      onChange([]);
+      onChange([]); // Clear all
     } else {
-      onChange(allValues);
+      onChange(allValues); // Select all
     }
   };
-
   const selectedLabels = data
     .filter((item) => selected.includes(item.value))
     .map((item) => item.label)
