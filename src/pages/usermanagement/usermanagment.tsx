@@ -182,7 +182,7 @@ export default function UserManagmentPage() {
                                             {user.latest_agent_device_id}
                                         </DropdownMenuTrigger>
 
-                                        <DropdownMenuContent className="space-y-2 p-3 me-10 w-full text-xs ove">
+                                        <DropdownMenuContent className="space-y-2 p-3 me-10 w-[300px] text-xs ove">
                                             <div className="space-y-1">
                                                 {deviceStatus[user.id] &&
                                                     <>
@@ -192,7 +192,7 @@ export default function UserManagmentPage() {
                                                                 return (
                                                                     <div key={key} className="flex justify-between border-b py-1">
                                                                         <span className="capitalize">Recording Path:</span>
-                                                                        <span>{decodeURIComponent(String(value))}</span>
+                                                                        <span className="overflow-x-auto">{decodeURIComponent(String(value))}</span>
                                                                     </div>
                                                                 );
                                                             }
