@@ -30,7 +30,7 @@ export default function InsightPage() {
                     value={insighttext}
                     onChange={(e) => setInsightText(e.target.value)}
                     placeholder="Enter your query..."
-                    className="min-h-[160px]"
+                    className="min-h-[50px]"
                 />
                 <Button className="bg-fuchsia-500 w-36 p-2 hover:bg-fuchsia-300 rounded-full" onClick={handleInsight}>
                     {isLoading ? <Loader className="animate-spin text-white" /> : 'Generate insights'}
@@ -39,8 +39,10 @@ export default function InsightPage() {
             <div>
                 {insights && (
                     <div className="mt-4 space-y-4 p-4 border rounded-md bg-white">
-                        <p className="text-sm text-muted-foreground">{insights.nl_answer}</p>
-                        <h4 className="text-lg font-semibold">Results:</h4>
+                        <p className="text-sm text-left">Generated sql query:&nbsp;{insighttext}</p>
+                        <p className="text-sm text-left">Sql query:&nbsp;{insights.sql_query}</p>
+                        <p className="text-sm text-left">Generated insights:&nbsp;{insights.nl_answer}</p>
+                        <h4 className="text-md text-left">Results:</h4>
                         <div className="space-y-2 text-sm">
                             {insights.results.map((row: Record<string, any>, index: number) => (
                                 <div
