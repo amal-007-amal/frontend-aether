@@ -13,10 +13,14 @@ import AetherLoader from "../../shared/AetherLoader";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { useUsers } from "../../hooks/useUsers";
 import { ConfirmDialog } from "../../components/aetherconfirmpopup";
+import { useDeviceStatus } from "../../hooks/useDeviceStatus";
 
 export default function UserManagmentPage() {
     const [open, setOpen] = useState(false)
     const [isEditMode, setIsEditMode] = useState(false)
+    const [openRowId, setOpenRowId] = useState<string | null>(null);
+    const [deviceStatus, setDeviceStatus] = useState<Record<string, any>>({});
+    const [sortedUsers, setSortedUsers] = useState<User[]>([]);
     const [userData, setUserData] = useState<CreateUser>({
         id: '',
         phone_number: "",
@@ -29,9 +33,20 @@ export default function UserManagmentPage() {
 
     const { users, fetchUsers, isLoading } = useUsers()
 
+    const { fetchDeviceStatus } = useDeviceStatus()
+
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
+
+    useEffect(() => {
+        if (users?.length) {
+            const sorted = [...users].sort((a, b) =>
+                a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+            );
+            setSortedUsers(sorted);
+        }
+    }, [users]);
 
     const handleEdit = (user: User) => {
         setIsEditMode(true);
@@ -98,7 +113,13 @@ export default function UserManagmentPage() {
         }
     }
 
-
+    const handleDeviceStatus = async (deviceId: string, userId: string) => {
+        const status = await fetchDeviceStatus(deviceId);
+        if (status) {
+            setDeviceStatus(prev => ({ ...prev, [userId]: status }));
+            setOpenRowId(userId);
+        }
+    };
     return (
         <div>
             <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
@@ -140,12 +161,48 @@ export default function UserManagmentPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {users.map((user, index) => (
+                        {sortedUsers.map((user, index) => (
                             <TableRow key={user.id} className="text-xs">
                                 <TableCell className="text-left">{index + 1}</TableCell>
                                 <TableCell className="text-left">{user.name}</TableCell>
                                 <TableCell className="text-left">{user.phone_number}</TableCell>
-                                <TableCell className="text-left">{user.latest_agent_device_id}</TableCell>
+                                <TableCell className="text-left cursor-pointer">
+                                    <DropdownMenu
+                                        open={openRowId === user.id}
+                                        onOpenChange={(open) => {
+                                            if (open) {
+                                                handleDeviceStatus(user.latest_agent_device_id, user.id);
+                                            } else {
+                                                setOpenRowId(null);
+                                            }
+                                        }}
+                                    >
+                                        <DropdownMenuTrigger>
+                                            {user.latest_agent_device_id}
+                                        </DropdownMenuTrigger>
+
+                                        <DropdownMenuContent className="space-y-2 p-3 me-10 w-[300px] text-xs">
+                                            <div className="space-y-1">
+                                                {deviceStatus[user.id] ? (
+                                                    Object.entries(deviceStatus[user.id]).map(([key, value]) => (
+                                                        <div key={key} className="flex justify-between border-b py-1">
+                                                            <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span>
+                                                            <span className="text-right">{String(value)}</span>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div>Loading...</div>
+                                                )}
+                                            </div>
+                                            <div className="flex justify-end gap-2 pt-2">
+                                                <Button variant="ghost" size="sm" onClick={() => setOpenRowId(null)}>
+                                                    Close
+                                                </Button>
+                                            </div>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+
                                 <TableCell className="text-left">{user.has_console_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left">{user.has_agent_access ? 'Granted' : ''}</TableCell>
                                 <TableCell className="text-left flex items-center gap-2">

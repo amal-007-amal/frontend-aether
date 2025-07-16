@@ -3,7 +3,7 @@ import axios from "axios";
 import { getApiClient } from "./axios";
 
 export const getAccessToken = async (): Promise<string | null> => {
-    try {  
+    try {
         const client = axios.create({
             baseURL: String(localStorage.getItem("aether_server_url")),
             headers: { "Content-Type": "application/json" },
@@ -11,7 +11,7 @@ export const getAccessToken = async (): Promise<string | null> => {
 
         const res = await client.get("/api/v1/auth/refresh-tokens");
         return res?.data?.access_token || null;
-     }catch (error) {
+    } catch (error) {
         console.error("Error fetching access token:", error);
         return null;
     }
@@ -34,7 +34,7 @@ export const getServerUrl = async (customBaseUrl?: string) => {
 export const postLogin = async (payload: any): Promise<UserLoginResponse> => {
     const apiClient = getApiClient();
     const baseUrlFromStorage = localStorage.getItem("aether_server_url")?.trim();
-    console.log("server url before login",baseUrlFromStorage)
+    console.log("server url before login", baseUrlFromStorage)
     const { data } = await apiClient.post('/api/v1/auth/login', payload, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -106,4 +106,16 @@ export const deleteUser = async (userid: any): Promise<any> => {
     return data
 }
 
+
+export const getDeviceStatus = async (deviceid: any): Promise<any> => {
+    const apiClient = getApiClient();
+    const token = localStorage.getItem('aether_access_token')
+    const { data } = await apiClient.get(`/api/v1/device-data/${deviceid}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    }
+    )
+    return data
+}
 
