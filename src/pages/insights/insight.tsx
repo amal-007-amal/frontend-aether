@@ -87,7 +87,6 @@ export default function InsightPage() {
                                 {/* SQL Output (same?) */}
                                 <div className="text-sm flex items-center gap-3 border-b py-2">
                                     <p className="font-medium whitespace-nowrap">SQL Output:</p>
-                                    <p className="text-muted-foreground break-all">{insights.sql_query}</p>
                                 </div>
 
                                 {/* Results Table */}
