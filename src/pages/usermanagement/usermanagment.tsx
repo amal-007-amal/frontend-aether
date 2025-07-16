@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../co
 import { useUsers } from "../../hooks/useUsers";
 import { ConfirmDialog } from "../../components/aetherconfirmpopup";
 import { useDeviceStatus } from "../../hooks/useDeviceStatus";
-import { aetherFormatDate } from "../../hooks/useFormattedDate";
+import { aetherFormaISOLocaltDate, aetherFormatDate } from "../../hooks/useFormattedDate";
 
 export default function UserManagmentPage() {
     const [open, setOpen] = useState(false)
@@ -123,7 +123,7 @@ export default function UserManagmentPage() {
     };
     return (
         <div>
-            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
+            <div className="p-2 bg-white mb-4 rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                 <div className="flex justify-between mb-2 items-center px-1 pt-1">
                     <h2 className="text-sm font-medium flex items-center gap-2"><Users className="h-4 text-fuchsia-500" />User List</h2>
                     <div className="flex justify-between items-center gap-3">
@@ -149,6 +149,8 @@ export default function UserManagmentPage() {
                         </DropdownMenu>
                     </div>
                 </div>
+            </div>
+            <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                 <Table >
                     <TableHeader>
                         <TableRow className="text-sm font-light">
@@ -199,7 +201,7 @@ export default function UserManagmentPage() {
                                                                 return (
                                                                     <div key={key} className="flex justify-between border-b py-1">
                                                                         <span className="capitalize">last fetched recording timestamp:</span>
-                                                                        <span>{aetherFormatDate(String(value))}</span>
+                                                                        <span>{aetherFormaISOLocaltDate(String(value))}</span>
                                                                     </div>
                                                                 );
                                                             }
@@ -222,7 +224,7 @@ export default function UserManagmentPage() {
                                                 }
                                             </div>
                                             <div className="flex justify-end gap-2 pt-2">
-                                                <Button variant="ghost" size="sm" onClick={() =>handleDeviceStatus(user.latest_agent_device_id, user.id)}>
+                                                <Button variant="ghost" size="sm" onClick={() => handleDeviceStatus(user.latest_agent_device_id, user.id)}>
                                                     Refresh
                                                 </Button>
                                                 <Button variant="ghost" size="sm" onClick={() => setOpenRowId(null)}>

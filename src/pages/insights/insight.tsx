@@ -47,27 +47,17 @@ export default function InsightPage() {
             <div>
                 {insights && (
                     <div className="mt-4 space-y-4 p-4 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
-                        <div className="text-sm flex items-center gap-10">
-                            <div className="flex items-center gap-3">
-                                <Button className="text-gray-600 shadow-none bg-transparent h-8 w-5 rounded-full">1</Button>
-                                <p className="font-semibold"> Generated sql query:</p>
-                            </div>
-
-                            <p>{insighttext}</p>
+                        <div className="text-sm flex items-center border-b py-2 gap-3">
+                            <p className="font-medium whitespace-nowrap">Input Query:</p>
+                            <p className="text-muted-foreground">{insighttext}</p>
                         </div>
-                        <div className="text-sm flex items-center gap-10">
-                            <div className="flex items-center gap-3">
-                                <Button className="text-gray-600 shadow-none bg-transparent h-8 w-5 rounded-full">2</Button>
-                                <p className="font-semibold">Sql query:</p>
-                            </div>
-
-                            <p>{insights.sql_query}</p>
+                        <div className="text-sm flex items-center gap-3 border-b py-2">
+                            <p className="font-medium whitespace-nowrap">Generated SQL Query:</p>
+                            <p className="text-muted-foreground break-all">{insights.sql_query}</p>
                         </div>
-                        <div className="text-sm flex items-center gap-10">
-                            <div className="flex items-center gap-3">
-                                <Button className="text-gray-600 shadow-none bg-transparent h-8 w-5 rounded-full">3</Button>
-                                <p className="font-semibold">Results:</p>
-                            </div>
+                        <div className="text-sm flex items-center gap-3 border-b py-2">
+                            <p className="font-medium whitespace-nowrap">SQL Output</p>
+                            <p className="text-muted-foreground break-all">{insights.sql_query}</p>
                         </div>
                         <div className="space-y-2 px-9 text-sm">
                             {insights.results.length > 0 && (
@@ -95,12 +85,9 @@ export default function InsightPage() {
                                 </div>
                             )}
                         </div>
-                        <div className="text-sm flex items-center gap-10">
-                            <div className="flex items-center gap-3">
-                                <Button className="text-gray-600 shadow-none bg-transparent h-8 w-5 rounded-full">4</Button>
-                                <p className="font-semibold">Generated insight:</p>
-                            </div>
-                            <p>{insights.nl_answer}</p>
+                        <div className="text-sm flex items-center gap-3 border-b py-2">
+                            <p className="font-medium whitespace-nowrap">Generated insight:</p>
+                            <p className="text-muted-foreground break-all">{insights.nl_answer}</p>
                         </div>
                     </div>
                 )}
