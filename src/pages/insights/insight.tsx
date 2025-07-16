@@ -3,6 +3,14 @@ import { Button } from "../../components/ui/button";
 import { Textarea } from "../../components/ui/textarea";
 import { Brain, Loader } from "lucide-react";
 import { useInsight } from "../../hooks/useInsight";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "../../components/ui/table";
 
 export default function InsightPage() {
 
@@ -38,25 +46,61 @@ export default function InsightPage() {
             </div>
             <div>
                 {insights && (
-                    <div className="mt-4 space-y-4 p-4 border rounded-md bg-white">
-                        <p className="text-sm text-left">Generated sql query:&nbsp;{insighttext}</p>
-                        <p className="text-sm text-left">Sql query:&nbsp;{insights.sql_query}</p>
-                        <p className="text-sm text-left">Generated insights:&nbsp;{insights.nl_answer}</p>
-                        <h4 className="text-md text-left">Results:</h4>
-                        <div className="space-y-2 text-sm">
-                            {insights.results.map((row: Record<string, any>, index: number) => (
-                                <div
-                                    key={index}
-                                    className="border rounded p-2 flex flex-col sm:flex-row sm:justify-between"
-                                >
-                                    {Object.entries(row).map(([key, value]) => (
-                                        <div key={key} className="flex gap-2">
-                                            <span className="font-medium capitalize">{key.replace(/_/g, " ")}:</span>
-                                            <span>{String(value)}</span>
-                                        </div>
-                                    ))}
+                    <div className="mt-4 space-y-4 p-4 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
+                        <div className="text-sm flex items-center gap-10">
+                            <div className="flex items-center gap-3">
+                                <Button className="text-fuchsia-500 bg-white dark:bg-transparent h-8 w-5 rounded-full">1</Button>
+                                <p className="font-semibold"> Generated sql query:</p>
+                            </div>
+
+                            <p>{insighttext}</p>
+                        </div>
+                        <div className="text-sm flex items-center gap-10">
+                            <div className="flex items-center gap-3">
+                                <Button className="text-fuchsia-500 bg-white dark:bg-transparent h-8 w-5 rounded-full">2</Button>
+                                <p className="font-semibold">Sql query:</p>
+                            </div>
+
+                            <p>{insights.sql_query}</p>
+                        </div>
+                        <div className="text-sm flex items-center gap-10">
+                            <div className="flex items-center gap-3">
+                                <Button className="text-fuchsia-500 bg-white dark:bg-transparent h-8 w-5 rounded-full">3</Button>
+                                <p className="font-semibold">Results:</p>
+                            </div>
+                        </div>
+                        <div className="space-y-2 px-9 text-sm">
+                            {insights.results.length > 0 && (
+                                <div className="mt-4">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                {Object.keys(insights.results[0]).map((key) => (
+                                                    <TableHead key={key} className="capitalize">
+                                                        {key.replace(/_/g, " ")}
+                                                    </TableHead>
+                                                ))}
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {insights.results.map((row: any, rowIndex: any) => (
+                                                <TableRow key={rowIndex}>
+                                                    {Object.values(row).map((value, colIndex) => (
+                                                        <TableCell className="text-left" key={colIndex}>{String(value)}</TableCell>
+                                                    ))}
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
                                 </div>
-                            ))}
+                            )}
+                        </div>
+                        <div className="text-sm flex items-center gap-10">
+                            <div className="flex items-center gap-3">
+                                <Button className="text-fuchsia-500 bg-white dark:bg-transparent h-8 w-5 rounded-full">4</Button>
+                                <p className="font-semibold">Generated insight:</p>
+                            </div>
+                            <p>{insights.nl_answer}</p>
                         </div>
                     </div>
                 )}
