@@ -31,9 +31,11 @@ export default function InsightPage() {
     }
     function cleanHtml(raw: string): string {
         if (!raw) return '';
-        // Remove ```html and ``` code fences
-        const withoutFence = raw.replace(/^```html\n?|```$/g, '').trim();
-        return withoutFence;
+        return raw
+            .replace(/^```html\n?/, '') // optional code block start
+            .replace(/```$/, '')        // optional code block end
+            .replace(/^<html>|<\/html>$/gi, '') // strip <html> tags
+            .trim();
     }
     return (
         <div>
@@ -119,7 +121,12 @@ export default function InsightPage() {
                             <div className="text-sm flex flex-col justify-start items-start gap-3">
                                 <p className="font-medium whitespace-nowrap">Generated Insight:</p>
                                 <div
-                                    className="text-muted-foreground break-all text-xs text-left"
+                                    className="text-muted-foreground break-words text-xs text-left
+    [&_p]:m-0 [&_ul]:m-0 [&_ol]:m-0 [&_li]:my-1
+    [&_code]:bg-transparent [&_strong]:font-semibold
+    [&_table]:table [&_table]:w-full [&_table]:border [&_table]:border-collapse
+    [&_th]:border [&_td]:border [&_th]:px-2 [&_td]:px-2 [&_th]:py-1 [&_td]:py-1
+    [&_thead]:bg-muted"
                                     dangerouslySetInnerHTML={{
                                         __html: cleanHtml(insights?.nl_answer || ''),
                                     }}
