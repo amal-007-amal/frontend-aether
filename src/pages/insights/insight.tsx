@@ -114,7 +114,10 @@ export default function InsightPage() {
                         <div className="space-y-4 p-4">
                             <div className="text-sm flex items-center gap-3">
                                 <p className="font-medium whitespace-nowrap">Generated Insight:</p>
-                                <p className="text-muted-foreground break-all text-xs">{insights.nl_answer}</p>
+                                <p
+                                    className="text-muted-foreground break-all text-xs"
+                                    dangerouslySetInnerHTML={{ __html: insights.nl_answer }}
+                                />
                             </div>
                         </div>
                     </div>
