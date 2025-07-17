@@ -1,17 +1,20 @@
-import React, { useMemo } from "react";
+import React from "react";
 
 interface CircleProgressProps {
   value: number;
   max: number;
   label: string;
-  isDark: boolean;
+  color: {
+    stroke: string;
+    fill: string;
+  };
 }
 
 export const CircleProgress: React.FC<CircleProgressProps> = ({
   value,
   max,
   label,
-  isDark,
+  color,
 }) => {
   const radius = 40;
   const stroke = 10;
@@ -19,28 +22,6 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
   const circumference = 2 * Math.PI * normalizedRadius;
   const progress = Math.min(value / max, 1);
   const strokeDashoffset = circumference - progress * circumference;
-
-  const { strokeColor, fillColor } = useMemo(() => {
-    if (label === "Abandoned Numbers") {
-      return isDark
-        ? {
-            strokeColor: "#3a332e",
-            fillColor: "#3a332e",
-          }
-        : {
-            strokeColor: "#F5D0FE",
-            fillColor: "#d396dc",
-          };
-    }
-
-    return {
-      strokeColor: "#D946EF",
-      fillColor: "transparent",
-    };
-  }, [label, isDark]);
-
-  const safeStroke = strokeColor || "#cccccc";
-  const safeFill = fillColor || "transparent";
 
   return (
     <div className="flex flex-col items-center relative">
@@ -54,8 +35,8 @@ export const CircleProgress: React.FC<CircleProgressProps> = ({
           cy={radius}
         />
         <circle
-          stroke={safeStroke}
-          fill={safeFill}
+          stroke={color.stroke}
+          fill={color.fill}
           strokeWidth={stroke}
           strokeLinecap="butt"
           strokeDasharray={`${circumference} ${circumference}`}

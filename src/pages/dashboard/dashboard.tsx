@@ -309,15 +309,32 @@ export const AetherDashboard = () => {
                     <h2 className="text-sm font-normal text-left flex gap-2"><Activity className="text-fuchsia-500 h-5" /> Call Activity</h2>
                     {activity && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 my-5">
-                            <CircleProgress value={activity.total_calls} max={activity.total_calls} isDark={isDark} label="Total Calls" />
-                            <CircleProgress value={activity.incoming_calls} max={activity.total_calls} isDark={isDark} label="Incoming Calls" />
-                            <CircleProgress value={activity.outgoing_calls} max={activity.total_calls} isDark={isDark} label="Outgoing Calls" />
-                            <CircleProgress value={activity.missed_calls} max={activity.total_calls} isDark={isDark} label="Missed Calls" />
-                            <CircleProgress value={activity.not_connected_calls} max={activity.total_calls} isDark={isDark} label="Not Connected" />
-                            <CircleProgress value={activity.abandoned_numbers} max={activity.abandoned_numbers} isDark={isDark} label="Abandoned Numbers" />
+                            <CircleProgress value={activity.total_calls} max={activity.total_calls} color={{
+                                stroke: "#D946EF",
+                                fill: "transparent",
+                            }} label="Total Calls" />
+                            <CircleProgress value={activity.incoming_calls} max={activity.total_calls} color={{
+                                stroke: "#D946EF",
+                                fill: "transparent",
+                            }} label="Incoming Calls" />
+                            <CircleProgress value={activity.outgoing_calls} max={activity.total_calls} color={{
+                                stroke: "#D946EF",
+                                fill: "transparent",
+                            }} label="Outgoing Calls" />
+                            <CircleProgress value={activity.missed_calls} max={activity.total_calls} color={{
+                                stroke: "#D946EF",
+                                fill: "transparent",
+                            }} label="Missed Calls" />
+                            <CircleProgress value={activity.not_connected_calls} max={activity.total_calls} color={{
+                                stroke: "#D946EF",
+                                fill: "transparent",
+                            }} label="Not Connected" />
+                            <CircleProgress value={activity.abandoned_numbers} max={activity.abandoned_numbers} color={{
+                                stroke: "#F5D0FE",
+                                fill: "#d396dc",
+                            }} label="Abandoned Numbers" />
                         </div>
-                    )}
-
+                    )}            
                 </div>
                 <div className="col-span-12 lg:col-span-7 bg-white border dark:border-stone-700 dark:bg-stone-900 rounded-xl p-4">
                     <h2 className="text-sm font-normal text-left flex gap-2"><Dice5 className="text-fuchsia-500 h-5" /> Leaderboard</h2>
