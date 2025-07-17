@@ -4,6 +4,7 @@ import { Textarea } from "../../components/ui/textarea";
 import { Brain, Loader } from "lucide-react";
 import { useInsight } from "../../hooks/useInsight";
 import { InsightCard } from "./components/insightcard";
+import { toast } from "sonner";
 
 type InsightItem = {
     input_query: string;
@@ -15,13 +16,15 @@ type InsightItem = {
 };
 
 export default function InsightPage() {
-
     const [insighttext, setInsightText] = useState<string>("")
     const [insightList, setInsightList] = useState<InsightItem[]>([]);
     const { generateInsights, isLoading } = useInsight();
 
     const handleInsight = async () => {
-        if (!insighttext.trim()) return;
+        if (!insighttext.trim()){
+            toast.warning("Please enter a valid query.");
+            return
+        }
 
         const payload = {
             model: "2.5_flash",
