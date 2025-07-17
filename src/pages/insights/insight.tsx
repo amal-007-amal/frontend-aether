@@ -28,9 +28,13 @@ export default function InsightPage() {
             "question": insighttext
         }
         await generateInsights(payload)
-
     }
-
+    function cleanHtml(raw: string): string {
+        if (!raw) return '';
+        // Remove ```html and ``` code fences
+        const withoutFence = raw.replace(/^```html\n?|```$/g, '').trim();
+        return withoutFence;
+    }
     return (
         <div>
             <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
@@ -112,11 +116,13 @@ export default function InsightPage() {
 
                         {/* Always visible: Generated Insight (at bottom) */}
                         <div className="space-y-4 p-4">
-                            <div className="text-sm flex items-center gap-3">
+                            <div className="text-sm flex flex-col justify-start items-start gap-3">
                                 <p className="font-medium whitespace-nowrap">Generated Insight:</p>
                                 <div
                                     className="text-muted-foreground break-all text-xs text-left"
-                                    dangerouslySetInnerHTML={{ __html: insights?.nl_answer || '' }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: cleanHtml(insights?.nl_answer || ''),
+                                    }}
                                 />
                             </div>
                         </div>
