@@ -18,24 +18,28 @@ export default function InsightPage() {
 
     const [insighttext, setInsightText] = useState<string>("")
     const [insightList, setInsightList] = useState<InsightItem[]>([]);
-    const { insights, generateInsights, isLoading } = useInsight();
+    const { generateInsights, isLoading } = useInsight();
+
     const handleInsight = async () => {
         if (!insighttext.trim()) return;
-        let payload = {
-            "model": "2.5_flash",
-            "question": insighttext
-        }
 
-        await generateInsights(payload);
-        if (insights !== undefined) {
+        const payload = {
+            model: "2.5_flash",
+            question: insighttext,
+        };
+
+        const result = await generateInsights(payload); // now this returns data
+
+        if (result) {
             const newInsight: InsightItem = {
                 input_query: insighttext,
-                insights: insights as InsightItem["insights"],
+                insights: result,
             };
             setInsightList((prev) => [newInsight, ...prev]);
             setInsightText("");
         }
-    }
+    };
+
     return (
         <div>
             <div className="p-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">

@@ -34,9 +34,14 @@ export function InsightCard({ insighttext, insights }: InsightCardProps) {
                         View Intermediary Steps
                     </AccordionTrigger>
                     <AccordionContent className="space-y-2 p-4">
+
                         <div className="text-sm flex items-center gap-3 border-b py-2">
                             <p className="font-medium whitespace-nowrap">Generated SQL Query:</p>
-                            <p className="text-muted-foreground break-all text-xs">{insights.sql_query}</p>
+                            {insights?.sql_query ? (
+                                <p className="text-muted-foreground text-xs">{insights.sql_query}</p>
+                            ) : (
+                                <p className="text-red-500 text-xs">No SQL query generated</p>
+                            )}
                         </div>
 
                         {insights.results?.length > 0 && (
