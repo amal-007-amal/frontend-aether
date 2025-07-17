@@ -220,7 +220,7 @@ export default function CallDetailTestPage() {
 
     return (
         <div>
-        <div className="flex justify-between mb-4 items-center py-4 px-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
+        <div className="flex justify-between mb-4 h-14 items-center py-4 px-2 bg-white rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
                 <h2 className="text-sm font-medium flex items-center gap-2"><Phone className="h-4 text-fuchsia-500" /> Call Logs</h2>
                 <div className="flex items-center gap-5">
                     <AetherTooltip label="Refresh">

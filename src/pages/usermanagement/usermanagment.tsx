@@ -123,8 +123,8 @@ export default function UserManagmentPage() {
     };
     return (
         <div>
-            <div className="p-2 bg-white mb-4 rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
-                <div className="flex justify-between mb-2 items-center px-1 pt-1">
+            <div className="p-2 bg-white mb-4  h-14 rounded-xl border border-gray-200 dark:border-stone-700 dark:bg-transparent">
+                <div className="flex justify-between mb-2 items-center px-1 pt-2">
                     <h2 className="text-sm font-medium flex items-center gap-2"><Users className="h-4 text-fuchsia-500" />User List</h2>
                     <div className="flex justify-between items-center gap-3">
                         <UserRoundPlus onClick={() => {

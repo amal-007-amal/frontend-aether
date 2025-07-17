@@ -38,7 +38,6 @@ export const AetherDashboard = () => {
     console.log(setIsDark)
     useEffect(() => {
         const root = window.document.documentElement;
-
         if (isDark) {
             root.classList.add("dark");
             localStorage.setItem("aether_theme", "dark");
@@ -77,7 +76,6 @@ export const AetherDashboard = () => {
 
         const tempType = filters?.tempfillvalue as AetherFilterApiVal ?? "today";
 
-        // Always recalculate fresh range based on tempfillvalue
         const { start, end } = getDateRangeForType(tempType);
 
         const finalFilters = {
@@ -89,7 +87,6 @@ export const AetherDashboard = () => {
             filterStatus: filters?.filterStatus ?? false,
         };
 
-        // Save updated filters to localStorage (optional)
         localStorage.setItem("aether_leaderboard_filters", JSON.stringify(finalFilters));
 
         setSelFilter(tempType);
@@ -104,7 +101,6 @@ export const AetherDashboard = () => {
         fetchLeaderBoard(finalFilters);
     }, []);
 
-    // Update timesave when date range changes for custom filter
     useEffect(() => {
         if (selfilter === "custom" && range?.from && range?.to) {
             const start = new Date(range.from);
@@ -158,14 +154,9 @@ export const AetherDashboard = () => {
         } catch (e) {
             console.error("Invalid filters in localStorage:", e);
         }
-
-        // Use saved type (tempfillvalue), fallback to "today"
         const tempType = filters?.tempfillvalue as AetherFilterApiVal ?? "today";
-
-        // Recalculate date range using current time
         const { start, end } = getDateRangeForType(tempType, range);
 
-        // Build final filters with recalculated date range
         const finalFilters: LeaderboardFilter = {
             time_filter: "custom",
             start_date: start,
@@ -266,7 +257,7 @@ export const AetherDashboard = () => {
 
     return (
         <div>
-            <div className="p-2 bg-white rounded-xl border dark:border-stone-700 dark:bg-stone-900 ">
+            <div className="p-2 bg-white  h-14 rounded-xl border dark:border-stone-700 dark:bg-stone-900 ">
                 <div className="flex justify-between items-center py-2 px-1">
                     <h2 className="text-sm font-medium flex items-center gap-2"><ChartLine className="h-4 text-fuchsia-500" /> Dashboard</h2>
                     <div className="flex items-center gap-5">

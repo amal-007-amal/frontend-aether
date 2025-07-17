@@ -17,7 +17,6 @@ const AetherServerStats = ({ token }: any) => {
 
     return (
         <div className="p-4 border bg-white dark:bg-transparent rounded-xl w-full max-w-md">
-            <h2 className="text-sm font-normal flex items-center">Server Stats</h2>
             <Table>
                 <TableHeader>
                     <TableRow className='text-sm font-light'>
