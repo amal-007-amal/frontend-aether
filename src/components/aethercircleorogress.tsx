@@ -7,6 +7,7 @@ interface CircleProgressProps {
   color: {
     stroke: string;
     fill: string;
+    cirColor?:string
   };
 }
 

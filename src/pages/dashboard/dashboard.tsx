@@ -31,21 +31,6 @@ export const AetherDashboard = () => {
     const [selectedUserIDs, setSelectedUserIDs] = useState<string[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [filterStatus, setFilterStatus] = useState(false)
-    const [isDark, setIsDark] = useState(() => {
-        const stored = localStorage.getItem("aether_theme");
-        return stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: light)").matches);
-    });
-    console.log(setIsDark)
-    useEffect(() => {
-        const root = window.document.documentElement;
-        if (isDark) {
-            root.classList.add("dark");
-            localStorage.setItem("aether_theme", "dark");
-        } else {
-            root.classList.remove("dark");
-            localStorage.setItem("aether_theme", "light");
-        }
-    }, [isDark]);
     const [timesave, setTimeSave] = useState<{
         filterMinStart: string | null;
         filterMaxStart: string | null;
