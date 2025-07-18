@@ -37,7 +37,6 @@ const defaultColumns = [
     { key: "start_time", label: "Timestamp", active: true, mapkey: 'call_time' },
     { key: "duration", label: "Duration", active: true, mapkey: 'duration' },
     { key: "user_id", label: "Agent Name", active: true, mapkey: 'agent_name' },
-    { key: "agent_number", label: "Agent Number", active: true, mapkey: 'agent_number' },
     { key: "recording_ids", label: "Recordings", active: true, mapkey: '' },
 ];
 export default function CallDetailTestPage() {
@@ -566,13 +565,6 @@ export default function CallDetailTestPage() {
                                                         {call.user_id}
                                                     </TableCell>
                                                 ) : (<TableCell className="pr-16">-</TableCell>)
-                                            )}
-                                            {visibleColumns.includes("agent_number") && (
-                                                call.agent_number !== "" ? (
-                                                    <TableCell className="text-left">{call.agent_number}</TableCell>
-                                                ) : (
-                                                    <TableCell className="pr-16">{<span className="text-center">-</span>}</TableCell>
-                                                )
                                             )}
                                             {visibleColumns.includes("device_id") && (
                                                 <TableCell className="text-left">{call.device_id}</TableCell>

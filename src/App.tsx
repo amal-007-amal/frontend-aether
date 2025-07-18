@@ -6,23 +6,29 @@ import { Toaster } from 'sonner';
 
 function App() {
 
-    useEffect(() => {
-    const stored = localStorage.getItem("aether_table_col");
+useEffect(() => {
+  const stored = localStorage.getItem("aether_table_col");
 
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
 
-        const allHaveMapkey = Array.isArray(parsed) && parsed.every((item) => 'mapkey' in item);
+      const isArray = Array.isArray(parsed);
+      const allHaveMapkey = isArray && parsed.every((item) => 'mapkey' in item);
 
-        if (!allHaveMapkey) {
-          localStorage.removeItem("aether_table_col");
-        }
-      } catch (err) {
+      if (!allHaveMapkey) {
         localStorage.removeItem("aether_table_col");
+      } else {
+        const filtered = parsed.filter((item) => item.mapkey !== "agent_number");
+
+        localStorage.setItem("aether_table_col", JSON.stringify(filtered));
       }
+    } catch (err) {
+      localStorage.removeItem("aether_table_col");
     }
-  }, []);
+  }
+}, []);
+
 
   return (
     <TooltipProvider>

@@ -32,7 +32,7 @@ type FilterParams = {
   filter_max_duration: number | null;
   only_last: boolean;
   response_format: string;
-  requested_columns:string[]
+  requested_columns: string[]
   offset: number;
   limit: number;
   filterType: string;
@@ -61,7 +61,7 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
     filter_max_duration: null,
     only_last: false,
     response_format: "default",
-    requested_columns:[],
+    requested_columns: [],
     offset: 0,
     limit: 10,
     filterType: "today",
@@ -282,45 +282,41 @@ export function useCallFilterManager({ rangepick }: { rangepick?: DateRange }) {
 
   useEffect(() => {
     if (!hasInitialApplied) {
-      const type = initialFilter?.filterType as AetherFilterApiVal;
-      if (type && type !== "custom") {
-        handleFilterChange(type);
-      }
+      const saved = localStorage.getItem("aether_common_filter");
 
-      const frameId = requestAnimationFrame(() => {
-        const saved = localStorage.getItem("aether_common_filter");
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            const createdNow = new Date().toISOString();
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
 
-            parsed.created_till = createdNow;
-            parsed.filter_max_start_datetime = createdNow;
+          const createdNow = new Date().toISOString();
+          parsed.created_till = createdNow;
 
-            handleFilterApply({
-              selectedUserIDs: parsed.filter_user_ids || [],
-              phoneNumbers: parsed.filter_other_numbers || [],
-              selectedTypeVal: parsed.filter_frontend_call_types || [],
-              min: parsed.min ?? "",
-              max: parsed.max ?? "",
-              minTime: parsed.minTime || { h: "00", m: "00", s: "00" },
-              maxTime: parsed.maxTime || { h: "23", m: "59", s: "59" },
-              onlylast: parsed.only_last || false,
-              onlyaban: parsed.only_abandoned || false,
-              onlynew: parsed.only_new || false,
-              filterType: parsed.filterType,
-            });
-          } catch (err) {
-            console.error("Invalid aether_common_filter in localStorage", err);
-          }
+          const { start, end } = getDateRangeForType(parsed.filterType, rangepick);
+          parsed.filter_min_start_datetime = start;
+          parsed.filter_max_start_datetime = end;
+
+          handleFilterApply({
+            selectedUserIDs: parsed.filter_user_ids || [],
+            phoneNumbers: parsed.filter_other_numbers || [],
+            selectedTypeVal: parsed.filter_frontend_call_types || [],
+            min: parsed.min ?? "",
+            max: parsed.max ?? "",
+            minTime: parsed.minTime || { h: "00", m: "00", s: "00" },
+            maxTime: parsed.maxTime || { h: "23", m: "59", s: "59" },
+            onlylast: parsed.only_last || false,
+            onlyaban: parsed.only_abandoned || false,
+            onlynew: parsed.only_new || false,
+            filterType: parsed.filterType,
+          });
+
+          setHasInitialApplied(true);
+        } catch (err) {
+          console.error("Invalid aether_common_filter in localStorage", err);
         }
-      });
-
-      setHasInitialApplied(true);
-
-      return () => cancelAnimationFrame(frameId); // cleanup
+      }
     }
   }, []);
+
 
   return {
     filterParams,
