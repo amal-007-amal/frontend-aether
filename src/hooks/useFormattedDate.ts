@@ -2,7 +2,6 @@ export const aetherFormatDate = (isoDate: string) => {
   const date = new Date(isoDate);
   if (isNaN(date.getTime())) return "Invalid Date";
 
-  // Add 5 hours 30 minutes for IST
   date.setMinutes(date.getMinutes() + 330);
 
   const day = String(date.getDate());
@@ -30,9 +29,10 @@ export const aetherFormaISOLocaltDate = (isoDate: string) => {
 
   let hours = date.getHours();
   const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
 
-  const formattedTime = `${hours}:${minutes} ${ampm}`;
+  const formattedTime = `${hours}:${minutes}:${seconds} ${ampm}`;
   return `${month} ${day}, ${year}, ${formattedTime}`;
 };

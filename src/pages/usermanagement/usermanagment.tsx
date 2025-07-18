@@ -184,7 +184,7 @@ export default function UserManagmentPage() {
                                             {user.latest_agent_device_id}
                                         </DropdownMenuTrigger>
 
-                                        <DropdownMenuContent className="space-y-2 p-3 me-10 w-[300px] text-xs ove">
+                                        <DropdownMenuContent className="space-y-2 p-3 me-10 w-[25rem] text-xs ove">
                                             <div className="space-y-1">
                                                 {deviceStatus[user.id] &&
                                                     <>
@@ -197,10 +197,10 @@ export default function UserManagmentPage() {
                                                                     </div>
                                                                 );
                                                             }
-                                                            if (key === "last_fetched_recording_timestamp") {
+                                                            if (key.toLowerCase().includes("timestamp")) {
                                                                 return (
                                                                     <div key={key} className="flex justify-between border-b py-1">
-                                                                        <span className="capitalize">last fetched recording timestamp:</span>
+                                                                        <span className="capitalize">{key.replace(/_/g, " ")}:</span>
                                                                         <span>{aetherFormaISOLocaltDate(String(value))}</span>
                                                                     </div>
                                                                 );
