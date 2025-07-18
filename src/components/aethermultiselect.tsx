@@ -51,8 +51,10 @@ const sortedData = [...data].sort((a, b) => {
 
   if (aSelected && !bSelected) return -1;
   if (!aSelected && bSelected) return 1;
-  return 0;
+  
+  return a.label.localeCompare(b.label);
 });
+
 
   const handleSelectAll = () => {
     const allValues = data.map((item) => item.value);
