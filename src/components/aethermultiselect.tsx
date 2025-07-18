@@ -45,7 +45,14 @@ export function AetherMultiSelect({
     }
   };
 
+const sortedData = [...data].sort((a, b) => {
+  const aSelected = selected.includes(a.value);
+  const bSelected = selected.includes(b.value);
 
+  if (aSelected && !bSelected) return -1;
+  if (!aSelected && bSelected) return 1;
+  return 0;
+});
 
   const handleSelectAll = () => {
     const allValues = data.map((item) => item.value);
@@ -94,7 +101,7 @@ export function AetherMultiSelect({
             </div>
           </div>
           <CommandList>
-            {data.map((item) => (
+            {sortedData.map((item) => (
               <CommandItem key={item.value} onSelect={() => toggle(item.value)}>
                 <div className="flex items-center gap-2">
                   <Checkbox
